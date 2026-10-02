@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111111">
+  <title>THEFA Core · Founder Beta Workspace</title>
+  <meta name="description" content="THEFA Core Founder Beta 실제 사용자 작업실 Preview">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <div id="login-view" class="login-shell">
+    <section class="login-card" aria-labelledby="login-title">
+      <img class="brand-logo" src="/assets/thefa-core.svg" alt="THEFA Core">
+      <p class="eyebrow">FOUNDER BETA · PREVIEW</p>
+      <h1 id="login-title">내 작업을 실제로 저장하는 Core 작업실</h1>
+      <p class="muted">로컬 Preview 세션입니다. 로그인한 사용자별로 별도 작업공간과 저장 데이터를 사용합니다.</p>
+      <form id="login-form" class="stack-form">
+        <label>이메일<input id="email" name="email" type="email" autocomplete="email" required placeholder="name@example.com"></label>
+        <label id="access-code-row" class="hidden">Preview access code<input id="access-code" name="accessCode" type="password" autocomplete="one-time-code"></label>
+        <button class="primary" type="submit">작업실 열기</button>
+      </form>
+      <p id="login-message" class="form-message" role="status"></p>
+    </section>
+  </div>
+
+  <div id="workspace-view" class="workspace-shell hidden">
+    <header class="topbar">
+      <a class="brand-link" href="#home" aria-label="THEFA Core 홈"><img src="/assets/thefa-core.svg" alt="THEFA Core"></a>
+      <div class="topbar-actions"><span id="current-user" class="user-pill"></span><button id="logout" class="ghost">로그아웃</button></div>
+    </header>
+    <aside class="sidebar" aria-label="Core navigation">
+      <nav class="nav-list">
+        <button data-route="home" class="nav-item active">홈</button>
+        <button data-route="tasks" class="nav-item">작업</button>
+        <button data-route="approvals" class="nav-item">승인함</button>
+        <button data-route="records" class="nav-item">결과 · 기록</button>
+        <button data-route="connections" class="nav-item">연결</button>
+        <button data-route="settings" class="nav-item">설정</button>
+      </nav>
+      <div class="sidebar-foot">
+        <span class="status-dot"></span>
+        <span>Preview storage active</span>
+      </div>
+    </aside>
+
+    <main class="content">
+      <section data-page="home" class="page active-page">
+        <div class="page-head"><div><p class="eyebrow">CORE WORKSPACE</p><h2>오늘의 작업실</h2></div><span id="workspace-name" class="workspace-badge"></span></div>
+        <div class="metric-grid">
+          <article class="metric-card"><span>Tasks</span><strong id="metric-tasks">0</strong><small>실제 저장된 작업</small></article>
+          <article class="metric-card"><span>Runs</span><strong id="metric-runs">0</strong><small>실행기 연결 후 생성</small></article>
+          <article class="metric-card"><span>Approvals</span><strong id="metric-approvals">0</strong><small>실제 승인 요청</small></article>
+          <article class="metric-card"><span>Receipts</span><strong id="metric-receipts">0</strong><small>검증된 실행 기록</small></article>
+        </div>
+        <article class="panel hero-panel">
+          <div><p class="eyebrow">EXECUTION CONNECTION</p><h3>실행은 아직 연결하지 않았습니다</h3><p class="muted">Task 저장과 재접속 조회는 동작합니다. Work Unit API가 승인된 서버 경로로 연결되기 전에는 Run과 WorkUnit을 만들지 않습니다.</p></div>
+          <span id="home-connection" class="state-chip pending">연결 준비 중</span>
+        </article>
+      </section>
+      <section data-page="tasks" class="page">
+        <div class="page-head"><div><p class="eyebrow">TASKS</p><h2>작업</h2></div><button id="toggle-task-form" class="primary">새 작업</button></div>
+        <form id="task-form" class="panel task-form hidden">
+          <label>작업명<input id="task-title" maxlength="120" required placeholder="예: 고객 온보딩 흐름 정리"></label>
+          <label>설명<textarea id="task-summary" maxlength="2000" rows="4" placeholder="실제로 처리할 내용을 적어주세요."></textarea></label>
+          <div class="form-actions"><button type="button" id="cancel-task" class="ghost">취소</button><button type="submit" class="primary">저장</button></div>
+          <p id="task-message" class="form-message" role="status"></p>
+        </form>
+        <div id="task-list" class="list-stack"></div>
+      </section>
+
+      <section data-page="approvals" class="page">
+        <div class="page-head"><div><p class="eyebrow">APPROVALS</p><h2>승인함</h2></div></div>
+        <div id="approval-list" class="list-stack"></div>
+      </section>
+
+      <section data-page="records" class="page">
+        <div class="page-head"><div><p class="eyebrow">RESULTS & RECORDS</p><h2>결과 · 기록</h2></div></div>
+        <div class="record-tabs" role="tablist">
+          <button data-record="runs" class="record-tab active">Runs</button>
+          <button data-record="workUnits" class="record-tab">WorkUnits</button>
+          <button data-record="artifacts" class="record-tab">Artifacts</button>
+          <button data-record="qa" class="record-tab">QA</button>
+          <button data-record="receipts" class="record-tab">Receipts</button>
+        </div>
+        <div id="record-list" class="list-stack"></div>
+      </section>
+      <section data-page="connections" class="page">
+        <div class="page-head"><div><p class="eyebrow">CONNECTIONS</p><h2>연결</h2></div></div>
+        <article class="panel connection-card">
+          <div><h3>Work Unit API V2</h3><p class="muted">브라우저에서 실행기에 직접 접근하지 않습니다. 승인된 서버 측 연결이 준비되기 전까지 실행 요청은 차단됩니다.</p></div>
+          <span id="connection-chip" class="state-chip pending">연결 준비 중</span>
+        </article>
+      </section>
+
+      <section data-page="settings" class="page">
+        <div class="page-head"><div><p class="eyebrow">SETTINGS</p><h2>설정</h2></div></div>
+        <article class="panel settings-grid">
+          <div><span class="label">사용자</span><strong id="settings-user"></strong></div>
+          <div><span class="label">작업공간</span><strong id="settings-workspace"></strong></div>
+          <div><span class="label">인증 모드</span><strong>Local Preview Session</strong></div>
+          <div><span class="label">저장</span><strong>Server JSON · Atomic write</strong></div>
+        </article>
+        <p class="notice">이 Preview는 Production OAuth/Secret/ACL을 변경하지 않습니다. 외부 공개 바인딩에는 별도 access code가 필요합니다.</p>
+      </section>
+    </main>
+  </div>
+
+  <template id="empty-template"><div class="empty-state"><strong>아직 기록이 없습니다</strong><p>실제 데이터가 생기면 여기에 표시됩니다.</p></div></template>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
