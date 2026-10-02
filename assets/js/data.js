@@ -207,7 +207,7 @@ window.BUILDUP_DATA = (function () {
     h1: ['한 번의 지시를,', '검증된 실행으로.'],
     sub: ['AI에게 질문만 하는 시대에서,', 'AI가 실제 작업을 수행하고 결과까지 검증하는 시대로.'],
     body: 'THEFA Core는 사용자의 요청을 작업으로 분해하고, 적합한 AI와 실행 자원을 연결한 뒤, 실제 실행과 검증 결과까지 하나의 흐름으로 이어주는 THE FA의 AI 실행 운영체제입니다.',
-    flowChip: ['Task', 'Worker / AI', 'Work Unit', 'Scheduler', 'Execution', 'QA', 'Receipt'],
+    flowChip: ['신뢰할 수 있는 실행', '권한 기반 통제', '검증 결과 기록'],
     microcopy: '제품 구조를 설명하기 위한 예시 화면입니다. 실제 연결 범위는 실행 환경과 권한에 따라 달라질 수 있습니다.',
     /* Two hero visual directions, switchable via Tweaks. */
     variants: [
@@ -244,10 +244,9 @@ window.BUILDUP_DATA = (function () {
   };
 
   var trustStrip = [
-    { k: '만든 곳', v: 'THE FA (주식회사 더파)' },
-    { k: '제품 분류', v: 'AI 실행 운영체제' },
-    { k: '화면 성격', v: '제품 구조 설명용 예시' },
-    { k: '공개 상태', v: 'Early Access 문의 접수' }
+    { k: '01 · UNDERSTAND', v: '복잡한 작업도 정확하게 이해', body: '자연어 지시를 분석해 목표와 필요한 작업을 분해합니다.' },
+    { k: '02 · EXECUTE', v: '스스로 계획하고 단계적으로 실행', body: '적합한 AI와 실행 자원을 연결해 하나의 흐름으로 이어갑니다.' },
+    { k: '03 · VERIFY', v: '결과를 검증하고 신뢰할 수 있게 전달', body: '실행 결과를 검증하고 근거와 기록을 남깁니다.' }
   ];
 
   /* ---------- 03 WHY ---------- */

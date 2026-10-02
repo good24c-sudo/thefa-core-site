@@ -763,7 +763,7 @@
     renderFinalCta();
 
     setHTML('trustStrip', D.trustStrip.map(function (t) {
-      return '<div class="trust-strip__item"><dt>' + esc(t.k) + '</dt><dd>' + esc(t.v) + '</dd></div>';
+      return '<div class="trust-strip__item"><dt>' + esc(t.k) + '</dt><dd>' + esc(t.v) + '</dd>' + (t.body ? '<p>' + esc(t.body) + '</p>' : '') + '</div>';
     }).join(''));
 
     /* Section artwork. Each scene is a real content image with alt text,
