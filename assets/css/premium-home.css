@@ -132,3 +132,12 @@
   .site-header .header-actions { margin-left:auto; }
   .site-header .menu-toggle { display:inline-flex; }
 }
+@media (max-width:700px) {
+  .site-header .header-inner { justify-content:space-between; width:100%; }
+  .site-header .header-actions { display:flex !important; margin-left:auto; }
+  .site-header .menu-toggle { display:inline-flex !important; border-color:rgba(231,201,132,.42) !important; color:#ead9ae !important; background:rgba(255,255,255,.025); }
+  .hero__visual,.hero__visual .pane { width:100%; max-width:100%; }
+  .pane__bar .badge { display:none; }
+  .pane__title { font-size:.68rem; letter-spacing:.09em; min-width:0; }
+  .cmd__text { min-width:0; overflow-wrap:anywhere; word-break:keep-all; }
+}
