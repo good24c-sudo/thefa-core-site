@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko" data-tweak-hero="command" data-tweak-rhythm="contrast" data-tweak-motion="restrained" data-tweak-gold="controlled" data-tweak-density="comfortable">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Interactive Demo | THEFA Core</title>
+<meta name="description" content="THEFA Core가 하나의 요청을 어떻게 작업으로 나누고, 실행 주체에 배치하고, 검증 결과까지 연결하는지 단계별로 확인하는 Demo입니다. 모든 화면은 제품 구조 설명용 예시 데이터입니다.">
+<meta name="theme-color" content="#111111">
+<meta name="color-scheme" content="dark light">
+<link rel="canonical" href="https://core.thefa.kr/demo.html">
+<meta name="robots" content="index, follow">
+
+<meta property="og:url" content="https://core.thefa.kr/demo.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="THEFA Core">
+<meta property="og:title" content="Interactive Demo | THEFA Core">
+<meta property="og:description" content="요청 이해 → Task 분해 → Worker 배치 → Work Unit → Execution → QA → Receipt. 7단계로 보는 THEFA Core 실행 흐름 (Demo data).">
+<meta property="og:image" content="https://core.thefa.kr/assets/img/thefa-core-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="assets/brand/core/THEFA_Core_Favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="preload" href="assets/fonts/PretendardVariable-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/tokens.css?v=20261002R1">
+<link rel="stylesheet" href="assets/css/site.css?v=20261002R1">
+<link rel="stylesheet" href="assets/css/sections.css?v=20261002R1">
+<link rel="stylesheet" href="assets/css/pages.css?v=20261002R1">
+</head>
+
+<body>
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
+<header data-site-header></header>
+
+<main id="main">
+
+  <!-- ============ DEMO INTRO ============ -->
+  <section class="page-hero" data-screen-label="Demo Intro" aria-labelledby="demoPageTitle">
+    <div class="page-hero__bg" aria-hidden="true"></div>
+    <div class="shell shell--wide">
+      <nav class="crumbs" aria-label="현재 위치">
+        <a href="index.html">홈</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">Interactive Demo</span>
+      </nav>
+
+      <div class="page-hero__inner">
+        <div class="reveal">
+          <p class="eyebrow">INTERACTIVE DEMO</p>
+          <h1 class="h1" id="demoPageTitle" style="margin:18px 0 20px">
+            한 번의 요청이<br>7단계로 처리되는 과정.
+          </h1>
+          <p class="lead" style="max-width:60ch">
+            THEFA Core가 요청을 이해하고, 작업으로 나누고, 실행 주체에 배치하고,
+            검증 결과까지 연결하는 흐름을 단계별로 확인할 수 있습니다.
+          </p>
+          <div class="demo-notice" role="note">
+            <span class="badge badge--demo">Demo data</span>
+            <p>
+              이 화면은 <strong>제품 동작을 설명하기 위한 Demo</strong>입니다.
+              실제 THEFA Core 백엔드에 연결되어 있지 않으며, 표시되는 모든 상태·시간·결과는 예시 데이터입니다.
+              실제 실행 결과나 검증 성과를 의미하지 않습니다.
+            </p>
+          </div>
+          <div class="btn-row" style="margin-top:26px">
+            <a class="btn btn--ghost" href="index.html">홈으로 돌아가기</a>
+            <a class="btn btn--primary" href="contact.html" data-track="contact_click">도입 문의</a>
+          </div>
+        </div>
+
+        <dl class="meta-grid reveal" aria-label="Demo 기본 정보">
+          <div><dt>단계 수</dt><dd>7 단계</dd></div>
+          <div><dt>예시 요청</dt><dd>모바일 오류 수정 · 배포 전 검증</dd></div>
+          <div><dt>데이터 성격</dt><dd>Demo data (예시)</dd></div>
+          <div><dt>백엔드 연결</dt><dd>미연결 · Coming Soon</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DEMO WORKBENCH ============ -->
+  <section class="section section--ink rule-top" aria-labelledby="workbenchTitle">
+    <div class="shell shell--wide">
+      <h2 class="h2" id="workbenchTitle" style="margin-bottom:10px">실행 단계</h2>
+      <p class="lead" style="max-width:70ch;margin-bottom:30px">
+        단계를 직접 누르거나, <strong>다음</strong> 버튼으로 순서대로 진행할 수 있습니다.
+        자동 재생을 켜면 순서대로 넘어가고, 마지막 단계에서 멈춥니다.
+      </p>
+
+      <div class="demo demo--full">
+        <div class="demo__controls">
+          <div class="demo-request">
+            <span class="demo-request__label">사용자 요청 · 예시</span>
+            <p id="demoRequestText"></p>
+          </div>
+
+          <div class="demo-steps" role="tablist" aria-label="THEFA Core 실행 단계" id="demoStepList"></div>
+
+          <div class="demo__player">
+            <div class="demo__progress" aria-hidden="true"><i id="demoBar"></i></div>
+            <div class="demo__player-actions">
+              <button class="btn btn--sm btn--primary" type="button" id="demoPlay">자동 재생</button>
+              <button class="btn btn--sm btn--ghost" type="button" id="demoPrev">이전</button>
+              <button class="btn btn--sm btn--ghost" type="button" id="demoNext">다음</button>
+            </div>
+            <span class="demo__count" id="demoCount"></span>
+            <span class="sr-only" id="demoLive" aria-live="polite"></span>
+          </div>
+        </div>
+
+        <div class="demo__stage" id="demoStage">
+          <div class="demo__stage-head">
+            <span class="demo__stage-title" id="demoStageLabel"></span>
+            <span class="status" id="demoStageState" data-state="ready">준비</span>
+            <span class="badge badge--demo" style="margin-left:auto">Demo data</span>
+          </div>
+          <div class="demo-panel" id="demoPanel" role="tabpanel" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <div class="flow-statement" style="margin-top:30px">
+        <span aria-hidden="true" style="color:var(--gold)">&#62;_</span>
+        <span>Task <span class="dim-arrow">→</span> Worker / AI <span class="dim-arrow">→</span> Work Unit <span class="dim-arrow">→</span> Scheduler <span class="dim-arrow">→</span> Execution <span class="dim-arrow">→</span> QA <span class="dim-arrow">→</span> <strong>Receipt</strong></span>
+      </div>
+
+      <p class="note" style="margin-top:20px;max-width:82ch">
+        이 Demo는 실제 실행을 수행하지 않습니다. 버튼과 화면 전환은 모두 브라우저 안에서만 동작하며,
+        외부 서비스로 어떤 요청도 전송하지 않습니다. 실제 THEFA Core가 연결되면 같은 화면 구조에서
+        실제 상태와 기록을 표시할 수 있도록 데이터 계층을 분리해 두었습니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ WHAT THE DEMO DOES NOT CLAIM ============ -->
+  <section class="section section--white rule-top" aria-labelledby="limitsTitle">
+    <div class="shell shell--narrow">
+      <p class="eyebrow">DEMO LIMITS</p>
+      <h2 class="h2" id="limitsTitle" style="margin:16px 0 20px">이 Demo가 주장하지 않는 것</h2>
+
+      <ul class="limit-list">
+        <li>
+          <span class="limit-list__mark" aria-hidden="true">—</span>
+          <span><strong>실제 실행이 아닙니다.</strong> 어떤 코드도 수정되지 않고, 어떤 배포도 일어나지 않습니다.</span>
+        </li>
+        <li>
+          <span class="limit-list__mark" aria-hidden="true">—</span>
+          <span><strong>성과 수치가 아닙니다.</strong> 시간, 성공률, 절감률 같은 지표는 표시하지 않습니다. 확인된 성과가 없기 때문입니다.</span>
+        </li>
+        <li>
+          <span class="limit-list__mark" aria-hidden="true">—</span>
+          <span><strong>연동을 의미하지 않습니다.</strong> Worker 이름은 역할 설명용이며, 특정 AI 제공사와의 공식 제휴나 연동을 뜻하지 않습니다.</span>
+        </li>
+        <li>
+          <span class="limit-list__mark" aria-hidden="true">—</span>
+          <span><strong>자동화 보장이 아닙니다.</strong> 실제 실행 범위는 연결된 환경과 권한 정책에 따라 달라지며, 중요한 변경에는 사람의 승인이 필요할 수 있습니다.</span>
+        </li>
+      </ul>
+
+      <div class="btn-row" style="margin-top:30px">
+        <a class="btn btn--solid-light" href="console.html">Console Preview 보기</a>
+        <a class="btn btn--outline-light" href="signup.html" data-track="early_access_click">Early Access 문의</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer data-site-footer></footer>
+
+<script src="assets/js/data.js?v=20261002R1"></script>
+<script src="assets/js/demo-core.js?v=20261002R1"></script>
+<script src="assets/js/site.js?v=20261002R1"></script>
+<script src="assets/js/demo-page.js?v=20261002R1"></script>
+</body>
+</html>

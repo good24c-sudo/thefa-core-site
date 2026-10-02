@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 720" width="560" height="720" role="img" aria-labelledby="t-auth">
+  <title id="t-auth">하나의 지시가 작업 단위로 나뉘고 검증 기록으로 수렴하는 THEFA Core 콘솔 화면 이미지</title>
+  <defs>
+    <linearGradient id="au-bg" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#262320"/>
+      <stop offset="0.55" stop-color="#1E1C1A"/>
+      <stop offset="1" stop-color="#1B1A18"/>
+    </linearGradient>
+    <linearGradient id="au-gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F6EBD2"/>
+      <stop offset="0.5" stop-color="#DEC99E"/>
+      <stop offset="1" stop-color="#B99E6A"/>
+    </linearGradient>
+    <radialGradient id="au-glow" cx="0.78" cy="0.08" r="0.85">
+      <stop offset="0" stop-color="#D6BE88" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#D6BE88" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="au-grid" width="44" height="44" patternUnits="userSpaceOnUse">
+      <path d="M44 0H0v44" fill="none" stroke="#FFFFFF" stroke-opacity="0.03" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="560" height="720" rx="24" fill="url(#au-bg)"/>
+  <rect width="560" height="720" rx="24" fill="url(#au-grid)"/>
+  <rect width="560" height="720" rx="24" fill="url(#au-glow)"/>
+
+  <!-- command bar -->
+  <g transform="translate(48 72)">
+    <rect width="464" height="76" rx="14" fill="#141312" stroke="#4E4A45"/>
+    <path d="M28 30l12 12-12 12M48 54h18" fill="none" stroke="url(#au-gold)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="84" y="26" width="208" height="8" rx="4" fill="#FFFFFF" fill-opacity="0.42"/>
+    <rect x="84" y="46" width="146" height="7" rx="3.5" fill="#FFFFFF" fill-opacity="0.16"/>
+    <rect x="240" y="44" width="9" height="12" rx="1.5" fill="#F4B223"/>
+  </g>
+
+  <!-- work units -->
+  <g transform="translate(48 184)">
+    <g>
+      <rect width="464" height="66" rx="13" fill="#211F1D" stroke="#5FA97A" stroke-opacity="0.45"/>
+      <rect x="24" y="24" width="48" height="7" rx="3.5" fill="#CBB283" fill-opacity="0.8"/>
+      <rect x="24" y="40" width="88" height="6" rx="3" fill="#FFFFFF" fill-opacity="0.14"/>
+      <rect x="150" y="23" width="118" height="8" rx="4" fill="#FFFFFF" fill-opacity="0.42"/>
+      <rect x="150" y="41" width="86" height="6" rx="3" fill="#FFFFFF" fill-opacity="0.14"/>
+      <g transform="translate(408 22)">
+        <rect y="14" width="6" height="8" rx="2" fill="#7CC49A"/>
+        <rect x="9" y="8" width="6" height="14" rx="2" fill="#7CC49A"/>
+        <rect x="18" width="6" height="22" rx="2" fill="#7CC49A"/>
+      </g>
+    </g>
+    <g transform="translate(0 80)">
+      <rect width="464" height="66" rx="13" fill="#211F1D" stroke="#5FA97A" stroke-opacity="0.45"/>
+      <rect x="24" y="24" width="48" height="7" rx="3.5" fill="#CBB283" fill-opacity="0.8"/>
+      <rect x="24" y="40" width="88" height="6" rx="3" fill="#FFFFFF" fill-opacity="0.14"/>
+      <rect x="150" y="23" width="96" height="8" rx="4" fill="#FFFFFF" fill-opacity="0.42"/>
+      <rect x="150" y="41" width="72" height="6" rx="3" fill="#FFFFFF" fill-opacity="0.14"/>
+      <g transform="translate(408 22)">
+        <rect y="14" width="6" height="8" rx="2" fill="#7CC49A"/>
+        <rect x="9" y="8" width="6" height="14" rx="2" fill="#7CC49A"/>
+        <rect x="18" width="6" height="22" rx="2" fill="#7CC49A"/>
+      </g>
+    </g>
+    <g transform="translate(0 160)">
+      <rect width="464" height="66" rx="13" fill="#2B2721" stroke="#CBB283" stroke-opacity="0.7"/>
+      <rect x="24" y="24" width="48" height="7" rx="3.5" fill="#CBB283"/>
+      <rect x="24" y="40" width="88" height="6" rx="3" fill="#CBB283" fill-opacity="0.3"/>
+      <rect x="150" y="23" width="110" height="8" rx="4" fill="#F0E4C8" fill-opacity="0.8"/>
+      <rect x="150" y="41" width="64" height="6" rx="3" fill="#CBB283" fill-opacity="0.3"/>
+      <g transform="translate(408 22)">
+        <rect y="14" width="6" height="8" rx="2" fill="#F4B223"/>
+        <rect x="9" y="8" width="6" height="14" rx="2" fill="#F4B223"/>
+        <rect x="18" width="6" height="22" rx="2" fill="#4E4A45"/>
+      </g>
+    </g>
+    <g transform="translate(0 240)">
+      <rect width="464" height="66" rx="13" fill="#1F1D1B" stroke="#38352F"/>
+      <rect x="24" y="24" width="48" height="7" rx="3.5" fill="#FFFFFF" fill-opacity="0.2"/>
+      <rect x="24" y="40" width="88" height="6" rx="3" fill="#FFFFFF" fill-opacity="0.1"/>
+      <rect x="150" y="23" width="84" height="8" rx="4" fill="#FFFFFF" fill-opacity="0.22"/>
+      <rect x="150" y="41" width="100" height="6" rx="3" fill="#FFFFFF" fill-opacity="0.1"/>
+      <g transform="translate(408 22)">
+        <rect y="14" width="6" height="8" rx="2" fill="#4E4A45"/>
+        <rect x="9" y="8" width="6" height="14" rx="2" fill="#4E4A45"/>
+        <rect x="18" width="6" height="22" rx="2" fill="#4E4A45"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- receipt -->
+  <g transform="translate(48 536)">
+    <rect width="464" height="116" rx="15" fill="#211F1D" stroke="url(#au-gold)" stroke-opacity="0.7" stroke-dasharray="7 5"/>
+    <rect x="28" y="26" width="72" height="8" rx="4" fill="#CBB283"/>
+    <rect x="28" y="48" width="188" height="6" rx="3" fill="#FFFFFF" fill-opacity="0.2"/>
+    <rect x="28" y="66" width="140" height="6" rx="3" fill="#FFFFFF" fill-opacity="0.2"/>
+    <g transform="translate(28 86)">
+      <circle cx="6" cy="6" r="6" fill="#7CC49A"/>
+      <circle cx="30" cy="6" r="6" fill="#7CC49A"/>
+      <circle cx="54" cy="6" r="6" fill="#F4B223"/>
+      <circle cx="78" cy="6" r="6" fill="none" stroke="#4E4A45" stroke-width="2"/>
+    </g>
+    <circle cx="410" cy="58" r="18" fill="none" stroke="#7CC49A" stroke-width="2.4"/>
+    <path d="M402 58l5.6 6 11-12" fill="none" stroke="#7CC49A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

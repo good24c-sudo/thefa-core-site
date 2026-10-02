@@ -1,0 +1,33 @@
+# THEFA Core — git attributes
+#
+# NOTE: this file previously routed *.woff2, *.ico, *.jpg, *.png and other
+# binaries through Git LFS. GitHub Pages does not resolve LFS objects — it
+# serves the pointer file verbatim — so the webfont, the favicon and the
+# OG image would all have arrived as a few lines of text. The binaries in
+# this repo total ~1.3MB, which is nothing for plain git, so LFS is off.
+
+# Normalise line endings for text, leave binaries alone.
+* text=auto eol=lf
+
+*.html  text diff=html
+*.css   text diff=css
+*.js    text
+*.json  text
+*.svg   text
+*.md    text
+*.xml   text
+*.toml  text
+*.py    text
+
+*.woff2 binary
+*.woff  binary
+*.ttf   binary
+*.otf   binary
+*.ico   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.avif  binary
+*.pdf   binary

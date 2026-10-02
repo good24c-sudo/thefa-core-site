@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 400" width="880" height="400" role="img" aria-labelledby="t-cont">
+  <title id="t-cont">실행 중 연결이 끊긴 뒤 상태를 확인하고 남은 작업만 이어가는 흐름도</title>
+  <defs>
+    <linearGradient id="cn-bg" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0" stop-color="#23211F"/>
+      <stop offset="1" stop-color="#1B1A18"/>
+    </linearGradient>
+    <pattern id="cn-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0v40" fill="none" stroke="#FFFFFF" stroke-opacity="0.025" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="880" height="400" rx="22" fill="url(#cn-bg)"/>
+  <rect width="880" height="400" rx="22" fill="url(#cn-grid)"/>
+  <rect x="0.5" y="0.5" width="879" height="399" rx="22" fill="none" stroke="#4E4A45" stroke-opacity="0.7"/>
+
+  <!-- the rail -->
+  <path d="M96 200h188" stroke="#7CC49A" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M300 200h52" stroke="#C6A96A" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="5 7"/>
+  <path d="M368 200h150" stroke="#CBB283" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M534 200h250" stroke="#7CC49A" stroke-width="2.4" stroke-linecap="round"/>
+
+  <!-- break mark -->
+  <g transform="translate(326 200)">
+    <path d="M-16 -26L6 -4M6 -26L-16 -4" stroke="#C6A96A" stroke-width="2.6" stroke-linecap="round" opacity="0.9" transform="translate(5 15)"/>
+  </g>
+
+  <!-- node 1 running -->
+  <g transform="translate(96 200)">
+    <circle r="22" fill="#211F1D" stroke="#7CC49A" stroke-width="2"/>
+    <g transform="translate(-11 -9)">
+      <rect y="12" width="5" height="6" rx="1.5" fill="#7CC49A" fill-opacity="0.55"/>
+      <rect x="8" y="7" width="5" height="11" rx="1.5" fill="#7CC49A" fill-opacity="0.8"/>
+      <rect x="16" width="5" height="18" rx="1.5" fill="#7CC49A"/>
+    </g>
+    <rect x="-62" y="44" width="124" height="7" rx="3.5" fill="#FFFFFF" fill-opacity="0.34"/>
+    <rect x="-44" y="62" width="88" height="6" rx="3" fill="#FFFFFF" fill-opacity="0.14"/>
+  </g>
+
+  <!-- node 2 lost -->
+  <g transform="translate(326 200)">
+    <circle r="22" fill="#211F1D" stroke="#C6A96A" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="M-7 -4a7 7 0 0 1 14 0M-11 -9a12.5 12.5 0 0 1 22 0" fill="none" stroke="#C6A96A" stroke-width="2" stroke-linecap="round"/>
+    <circle cy="4" r="2.6" fill="#C6A96A"/>
+    <rect x="-62" y="44" width="124" height="7" rx="3.5" fill="#FFFFFF" fill-opacity="0.34"/>
+    <rect x="-44" y="62" width="88" height="6" rx="3" fill="#FFFFFF" fill-opacity="0.14"/>
+  </g>
+
+  <!-- node 3 reconcile -->
+  <g transform="translate(534 200)">
+    <circle r="22" fill="#2B2721" stroke="#CBB283" stroke-width="2"/>
+    <circle r="7.5" fill="none" stroke="#CBB283" stroke-width="2"/>
+    <path d="M5.5 5.5L11 11" stroke="#CBB283" stroke-width="2.2" stroke-linecap="round"/>
+    <rect x="-62" y="44" width="124" height="7" rx="3.5" fill="#F0E4C8" fill-opacity="0.6"/>
+    <rect x="-44" y="62" width="88" height="6" rx="3" fill="#CBB283" fill-opacity="0.26"/>
+  </g>
+
+  <!-- node 4 verified -->
+  <g transform="translate(784 200)">
+    <circle r="22" fill="#211F1D" stroke="#7CC49A" stroke-width="2"/>
+    <path d="M-8 0l5.6 6 11-12" fill="none" stroke="#7CC49A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="-62" y="44" width="124" height="7" rx="3.5" fill="#FFFFFF" fill-opacity="0.34"/>
+    <rect x="-44" y="62" width="88" height="6" rx="3" fill="#FFFFFF" fill-opacity="0.14"/>
+  </g>
+
+  <!-- checkpoint ticks above the rail -->
+  <g stroke="#4E4A45" stroke-width="1.4">
+    <path d="M166 186v-26M236 186v-26M604 186v-26M674 186v-26M744 186v-26"/>
+  </g>
+  <g fill="#7CC49A" fill-opacity="0.65">
+    <circle cx="166" cy="154" r="3.4"/>
+    <circle cx="236" cy="154" r="3.4"/>
+    <circle cx="604" cy="154" r="3.4"/>
+    <circle cx="674" cy="154" r="3.4"/>
+    <circle cx="744" cy="154" r="3.4"/>
+  </g>
+</svg>

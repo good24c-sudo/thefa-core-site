@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" width="880" height="420" role="img" aria-labelledby="t-why">
+  <title id="t-why">도구마다 맥락이 끊기는 기존 방식과, 하나의 흐름으로 이어지는 THEFA Core 방식의 비교 도식</title>
+  <defs>
+    <linearGradient id="wy-bg" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F5F3EE"/>
+    </linearGradient>
+    <linearGradient id="wy-gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#C8A95F"/>
+      <stop offset="1" stop-color="#8A6C2A"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="880" height="420" rx="20" fill="url(#wy-bg)"/>
+  <rect x="0.5" y="0.5" width="879" height="419" rx="20" fill="none" stroke="#E0DCD3"/>
+  <path d="M440 36v348" stroke="#E0DCD3" stroke-dasharray="5 6"/>
+
+  <!-- LEFT: fragmented -->
+  <g transform="translate(56 64)">
+    <rect width="40" height="7" rx="3.5" fill="#8C877E"/>
+
+    <g transform="translate(0 34)">
+      <rect width="150" height="68" rx="13" fill="#FFFFFF" stroke="#E0DCD3"/>
+      <circle cx="26" cy="34" r="10" fill="#EDEAE3"/>
+      <rect x="46" y="23" width="62" height="7" rx="3.5" fill="#1A1815" fill-opacity="0.42"/>
+      <rect x="46" y="38" width="84" height="6" rx="3" fill="#1A1815" fill-opacity="0.14"/>
+    </g>
+    <g transform="translate(174 34)">
+      <rect width="150" height="68" rx="13" fill="#FFFFFF" stroke="#E0DCD3"/>
+      <circle cx="26" cy="34" r="10" fill="#EDEAE3"/>
+      <rect x="46" y="23" width="54" height="7" rx="3.5" fill="#1A1815" fill-opacity="0.42"/>
+      <rect x="46" y="38" width="78" height="6" rx="3" fill="#1A1815" fill-opacity="0.14"/>
+    </g>
+    <g transform="translate(0 126)">
+      <rect width="150" height="68" rx="13" fill="#FFFFFF" stroke="#E0DCD3"/>
+      <circle cx="26" cy="34" r="10" fill="#EDEAE3"/>
+      <rect x="46" y="23" width="70" height="7" rx="3.5" fill="#1A1815" fill-opacity="0.42"/>
+      <rect x="46" y="38" width="66" height="6" rx="3" fill="#1A1815" fill-opacity="0.14"/>
+    </g>
+    <g transform="translate(174 126)">
+      <rect width="150" height="68" rx="13" fill="#FFFFFF" stroke="#E0DCD3"/>
+      <circle cx="26" cy="34" r="10" fill="#EDEAE3"/>
+      <rect x="46" y="23" width="58" height="7" rx="3.5" fill="#1A1815" fill-opacity="0.42"/>
+      <rect x="46" y="38" width="88" height="6" rx="3" fill="#1A1815" fill-opacity="0.14"/>
+    </g>
+
+    <!-- broken connectors -->
+    <g stroke="#C9C4B8" stroke-width="1.8" stroke-linecap="round" fill="none">
+      <path d="M150 68h8M166 68h8"/>
+      <path d="M75 102v8M75 118v8"/>
+      <path d="M249 102v8M249 118v8"/>
+      <path d="M150 160h8M166 160h8"/>
+    </g>
+    <g stroke="#B0A48A" stroke-width="2.2" stroke-linecap="round">
+      <path d="M156 60l10 16M166 60l-10 16" opacity="0.75"/>
+      <path d="M156 152l10 16M166 152l-10 16" opacity="0.75"/>
+    </g>
+
+    <!-- repeated context -->
+    <g transform="translate(0 220)" opacity="0.9">
+      <rect width="324" height="52" rx="12" fill="#F5F3EE" stroke="#E0DCD3"/>
+      <rect x="18" y="16" width="120" height="7" rx="3.5" fill="#1A1815" fill-opacity="0.26"/>
+      <rect x="18" y="31" width="208" height="6" rx="3" fill="#1A1815" fill-opacity="0.12"/>
+      <g transform="translate(272 18)" stroke="#8C877E" stroke-width="1.8" fill="none" stroke-linecap="round">
+        <path d="M14 3a7 7 0 1 0 2.6 5.4"/>
+        <path d="M16.6 0v5h-5"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- RIGHT: one flow -->
+  <g transform="translate(500 64)">
+    <rect width="86" height="7" rx="3.5" fill="url(#wy-gold)"/>
+
+    <rect y="34" width="324" height="238" rx="16" fill="#FFFFFF" stroke="#C9C4B8"/>
+
+    <!-- vertical spine -->
+    <path d="M58 72v166" stroke="#E0DCD3" stroke-width="2"/>
+    <path d="M58 72v124" stroke="url(#wy-gold)" stroke-width="2"/>
+
+    <g transform="translate(58 72)">
+      <circle r="9" fill="#FFFFFF" stroke="#8A6C2A" stroke-width="2"/>
+      <path d="M-4 0l2.8 3 5.6-6" fill="none" stroke="#8A6C2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="28" y="-11" width="96" height="7" rx="3.5" fill="#1A1815" fill-opacity="0.5"/>
+      <rect x="28" y="3" width="162" height="6" rx="3" fill="#1A1815" fill-opacity="0.14"/>
+    </g>
+    <g transform="translate(58 134)">
+      <circle r="9" fill="#FFFFFF" stroke="#8A6C2A" stroke-width="2"/>
+      <path d="M-4 0l2.8 3 5.6-6" fill="none" stroke="#8A6C2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="28" y="-11" width="118" height="7" rx="3.5" fill="#1A1815" fill-opacity="0.5"/>
+      <rect x="28" y="3" width="138" height="6" rx="3" fill="#1A1815" fill-opacity="0.14"/>
+    </g>
+    <g transform="translate(58 196)">
+      <circle r="9" fill="#C8A95F" stroke="#8A6C2A" stroke-width="2"/>
+      <rect x="28" y="-11" width="80" height="7" rx="3.5" fill="#71561F"/>
+      <rect x="28" y="3" width="150" height="6" rx="3" fill="#1A1815" fill-opacity="0.14"/>
+    </g>
+    <g transform="translate(58 238)">
+      <circle r="9" fill="#FFFFFF" stroke="#C9C4B8" stroke-width="2" stroke-dasharray="3 3"/>
+      <rect x="28" y="-11" width="104" height="7" rx="3.5" fill="#1A1815" fill-opacity="0.26"/>
+      <rect x="28" y="3" width="120" height="6" rx="3" fill="#1A1815" fill-opacity="0.1"/>
+    </g>
+
+    <!-- receipt tag -->
+    <g transform="translate(0 288)">
+      <rect width="324" height="52" rx="12" fill="#F5F3EE" stroke="#C8A95F" stroke-opacity="0.6"/>
+      <g transform="translate(20 18)">
+        <rect y="10" width="5" height="6" rx="1.5" fill="#C8A95F"/>
+        <rect x="8" y="5" width="5" height="11" rx="1.5" fill="#B08F43"/>
+        <rect x="16" width="5" height="16" rx="1.5" fill="#8A6C2A"/>
+      </g>
+      <rect x="56" y="17" width="110" height="7" rx="3.5" fill="#71561F"/>
+      <rect x="56" y="31" width="150" height="6" rx="3" fill="#1A1815" fill-opacity="0.14"/>
+      <circle cx="288" cy="26" r="11" fill="none" stroke="#1F6B45" stroke-width="2"/>
+      <path d="M283.5 26l3.2 3.4 6.2-7" fill="none" stroke="#1F6B45" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>

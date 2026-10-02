@@ -1,0 +1,852 @@
+/* ============================================================
+   THEFA Core — Base, layout primitives, chrome (header/footer)
+   ============================================================ */
+
+/* ============================================================
+   [hidden] must always win
+   ------------------------------------------------------------
+   The UA rule `[hidden] { display: none }` has lower specificity
+   than ANY class selector. So any component styled with
+   `display: grid` / `flex` silently un-hides itself when the
+   `hidden` attribute is applied. That is how an empty status box
+   and a whole post-submit block leaked onto the page.
+
+   These two selectors restore the expected behaviour globally, so a
+   new component can never reintroduce the bug.
+   ============================================================ */
+[hidden] { display: none !important; }
+/* An author rule that deliberately shows a hidden element at a breakpoint
+   can opt back in with `display: <value> !important`. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 18px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  margin: 0;
+  background: var(--ink-900);
+  color: var(--tx-on-dark);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: 400;
+  letter-spacing: -0.006em;
+  /* Korean breaks per-character by default, which produces the
+     "한 / 글 / 자 / 씩" stacking seen at narrow widths. keep-all keeps
+     words whole; overflow-wrap still rescues genuinely long tokens. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: rgba(205, 182, 130, 0.18);
+  overflow-x: clip;
+}
+
+body.light-body { background: var(--paper-050); color: var(--tx-on-light); }
+
+h1, h2, h3, h4, h5 {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  text-wrap: balance;
+}
+
+p { margin: 0; text-wrap: pretty; }
+img, svg, video { max-width: 100%; }
+img { height: auto; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+
+a { color: inherit; text-decoration: none; }
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Grid and flex children default to min-width:auto, which is what makes a
+   long unbreakable string push a whole row sideways. Opting every layout
+   child out of that is the single most effective guard against the
+   horizontal scrollbar — and against machine-translated strings that are
+   much longer than the Korean original. */
+.grid > *, .btn-row > *, .shell > * { min-width: 0; }
+/* The same guard for the flex rows that pair a fixed mark with a run of
+   text. Without it the text child refuses to shrink past its longest
+   word and pushes out of the card — visible as soon as a page is
+   machine-translated, or whenever a long URL appears in body copy. */
+.figure__cap > *, .demo-notice > *, .callout > *, .channel > *,
+.copy-chip > *, .form-consent > *, .auth-split__points li > *,
+.note > *, .flow-statement > * { min-width: 0; }
+
+::selection { background: var(--gold); color: var(--charcoal); }
+
+:where(a, button, [tabindex], summary, input, textarea, select):focus-visible {
+  outline: 2px solid var(--focus-dark);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.light-body :where(a, button, [tabindex], summary, input, textarea, select):focus-visible,
+.section--light :where(a, button, [tabindex], summary, input, textarea, select):focus-visible,
+.section--white :where(a, button, [tabindex], summary, input, textarea, select):focus-visible {
+  outline-color: var(--focus-light);
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.skip-link {
+  position: absolute; left: 12px; top: -80px; z-index: 200;
+  background: var(--gold); color: var(--charcoal);
+  padding: 12px 18px; border-radius: var(--r-ctl); font-weight: 700;
+  transition: top var(--t-fast) var(--ease);
+}
+.skip-link:focus { top: 12px; }
+
+/* ---------- shells ---------- */
+
+.shell {
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding-inline: var(--gutter) var(--gutter-r);
+}
+.shell--wide { max-width: var(--shell-wide); }
+.shell--narrow { max-width: 880px; }
+
+.section {
+  padding-block: var(--section-y);
+  position: relative;
+}
+.section--dark { background: var(--ink-900); color: var(--tx-on-dark); }
+/* Intentionally the SAME surface as --dark. Alternating between two
+   near-identical darks was the main source of the muddy, mismatched feel. */
+.section--ink { background: var(--ink-900); color: var(--tx-on-dark); }
+.section--light { background: var(--paper-050); color: var(--tx-on-light); }
+.section--white { background: var(--paper-000); color: var(--tx-on-light); }
+.section--tight { padding-block: clamp(48px, 6vw, 96px); }
+
+.rule-top { border-top: 1px solid var(--ink-line); }
+.section--light.rule-top, .section--white.rule-top { border-top-color: var(--paper-line); }
+
+/* ----- surface-relative accent -----
+   Re-point the champagne tokens for the whole light subtree, so every
+   component that writes `var(--gold-text)` is readable on ivory without
+   each one needing its own `.section--light` override. The washes and
+   edges go bronze too, otherwise a gold-accented panel on white loses
+   its border entirely. */
+.section--light, .section--white, .light-body, .light-header {
+  --gold-text: var(--gold-on-light);
+  --gold-soft: var(--gold-on-light);
+  --gold-wash: rgba(113, 86, 31, 0.045);
+  --gold-wash-strong: rgba(113, 86, 31, 0.085);
+  --gold-edge: rgba(113, 86, 31, 0.26);
+  --gold-edge-strong: rgba(113, 86, 31, 0.44);
+}
+/* Dark islands inside a light section flip straight back. Today that is
+   the "after" column of the before/after block. */
+.section--light .ba-card[data-kind="after"],
+.section--white .ba-card[data-kind="after"] {
+  --gold-text: var(--gold-on-dark);
+  --gold-soft: #DBC79A;
+  --gold-wash: rgba(205, 182, 130, 0.035);
+  --gold-wash-strong: rgba(205, 182, 130, 0.062);
+  --gold-edge: rgba(205, 182, 130, 0.18);
+  --gold-edge-strong: rgba(205, 182, 130, 0.32);
+}
+
+/* ----- light islands -----
+   These components paint their own white card no matter which section
+   they are dropped into. Without this they inherit the section's text
+   colour, and an ivory card placed in a dark section rendered white
+   text on white — invisible, which is exactly what happened to the
+   "검토 대상" cards once they were reused on a dark page. Each one now
+   carries its own palette and is safe anywhere. */
+.trust-card, .res-card, .mode-card, .legal-note,
+.ba-card:not([data-kind="after"]), .stage-list__row {
+  color: var(--tx-on-light);
+  --gold-text: var(--gold-on-light);
+  --gold-soft: var(--gold-on-light);
+  --gold-wash: rgba(113, 86, 31, 0.045);
+  --gold-wash-strong: rgba(113, 86, 31, 0.085);
+  --gold-edge: rgba(113, 86, 31, 0.26);
+  --gold-edge-strong: rgba(113, 86, 31, 0.44);
+}
+.trust-card .badge, .res-card .badge, .mode-card .badge,
+.legal-note .badge, .stage-list__row .badge {
+  border-color: var(--paper-line);
+  background: rgba(17, 17, 17, 0.03);
+  color: var(--tx-on-light-muted);
+}
+.trust-card .badge--demo, .trust-card .badge--early,
+.mode-card .badge--demo, .mode-card .badge--early,
+.stage-list__row .badge--demo, .stage-list__row .badge--early {
+  color: var(--gold-on-light);
+  border-color: rgba(110, 74, 0, 0.4);
+}
+.trust-card .caption, .res-card .caption, .mode-card .caption, .legal-note .caption {
+  color: var(--tx-on-light-dim);
+}
+
+/* ---------- type helpers ---------- */
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--tx-on-dark-dim);
+  /* an eyebrow translated into German is long — let it wrap rather than
+     stretch its section head */
+  flex-wrap: wrap;
+}
+
+/* Gold is the accent, not the default label colour. Only the hero keeps a
+   gold eyebrow; every other section label is neutral so the eye is led. */
+.hero .eyebrow { color: var(--gold-text); }
+.section--light .eyebrow, .section--white .eyebrow { color: var(--tx-on-light-dim); }
+.section--light .eyebrow::before, .section--white .eyebrow::before { opacity: 0.45; }
+.page-hero .eyebrow { color: var(--gold-text); }
+
+.eyebrow::before {
+  content: "";
+  width: 22px; height: 1px; background: currentColor; opacity: 0.55;
+  flex: none;
+}
+
+.h-display { font-size: var(--fs-display); line-height: var(--lh-tight); }
+.h1 { font-size: var(--fs-h1); line-height: 1.1; }
+.h2 { font-size: var(--fs-h2); line-height: 1.16; }
+.h3 { font-size: var(--fs-h3); line-height: 1.3; }
+.h4 { font-size: var(--fs-h4); line-height: 1.42; letter-spacing: -0.018em; }
+
+.lead {
+  font-size: var(--fs-lead);
+  line-height: 1.65;
+  color: var(--tx-on-dark-muted);
+  letter-spacing: -0.01em;
+}
+.section--light .lead, .section--white .lead { color: var(--tx-on-light-muted); }
+
+.body-muted { color: var(--tx-on-dark-muted); }
+.section--light .body-muted, .section--white .body-muted { color: var(--tx-on-light-muted); }
+
+.caption { font-size: var(--fs-caption); line-height: 1.62; color: var(--tx-on-dark-dim); }
+.section--light .caption, .section--white .caption { color: var(--tx-on-light-dim); }
+
+.mono { font-family: var(--font-mono); font-size: var(--fs-small); letter-spacing: 0; }
+
+.section-head { max-width: 760px; margin-bottom: clamp(30px, 4.4vw, 62px); }
+.section-head .eyebrow { margin-bottom: 18px; }
+.section-head .h2 { margin-bottom: 20px; }
+
+/* ---------- buttons ---------- */
+
+.btn {
+  --btn-bg: transparent;
+  --btn-fg: var(--tx-on-dark);
+  --btn-bd: var(--ink-line-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 22px;
+  border-radius: var(--r-ctl);
+  border: 1px solid var(--btn-bd);
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  letter-spacing: -0.004em;
+  line-height: 1.3;
+  /* NOT nowrap. A nowrap button is the classic cause of a horizontal
+     scrollbar once the label is translated, and Korean CTA labels are
+     already long on a 320px screen. keep-all stops mid-word breaks
+     without forcing the button to stay on one line. */
+  text-align: center;
+  word-break: keep-all;
+  max-width: 100%;
+  cursor: pointer;
+  transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease),
+              box-shadow var(--t-fast) var(--ease);
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover { transform: none; }
+}
+
+/* Primary button carries the logo's own metallic gradient so the CTA and
+   the wordmark read as the same material. */
+.btn--primary {
+  --btn-fg: #22190A;
+  --btn-bd: transparent;
+  background: var(--gold-grad);
+  font-weight: 700;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 8px 20px -14px rgba(200, 140, 10, 0.8);
+}
+.btn--primary:hover {
+  background: var(--gold-grad-hover);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.34) inset, 0 10px 24px -14px rgba(200, 140, 10, 0.95);
+}
+.btn--primary:active { background: var(--gold-grad-active); }
+
+.btn--ghost:hover { --btn-bd: var(--gold-edge-strong); --btn-fg: var(--gold-text); }
+.section--light .btn--ghost, .section--white .btn--ghost {
+  --btn-fg: var(--tx-on-light);
+  --btn-bd: var(--paper-line-strong);
+}
+.section--light .btn--ghost:hover, .section--white .btn--ghost:hover {
+  --btn-bd: var(--gold-on-light); --btn-fg: var(--gold-on-light);
+}
+
+.btn--solid-light {
+  --btn-bg: var(--charcoal);
+  --btn-fg: var(--ivory);
+  --btn-bd: var(--charcoal);
+}
+.btn--solid-light:hover { --btn-bg: #000; }
+
+.btn--outline-light {
+  --btn-fg: var(--charcoal);
+  --btn-bd: var(--paper-line-strong);
+}
+.btn--outline-light:hover { --btn-bd: var(--charcoal); --btn-fg: var(--charcoal); }
+/* The same button on a dark section needs the dark-surface palette, or it
+   renders near-black type on near-black graphite. console.html had exactly
+   that: a "로그인 화면 상태 확인" button that was effectively invisible. */
+.section--dark .btn--outline-light,
+.section--ink .btn--outline-light,
+.page-hero .btn--outline-light,
+.shell-page .btn--outline-light,
+.final-cta .btn--outline-light {
+  --btn-fg: var(--tx-on-dark);
+  --btn-bd: var(--ink-line-strong);
+}
+.section--dark .btn--outline-light:hover,
+.section--ink .btn--outline-light:hover,
+.page-hero .btn--outline-light:hover,
+.shell-page .btn--outline-light:hover,
+.final-cta .btn--outline-light:hover {
+  --btn-fg: var(--gold-text); --btn-bd: var(--gold-edge-strong);
+}
+
+.btn--lg { min-height: 54px; padding: 14px 28px; font-size: var(--fs-body); }
+.btn--sm { min-height: 42px; padding: 8px 16px; font-size: var(--fs-caption); }
+.btn--block { width: 100%; }
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+/* On the narrowest phones a row of two CTAs reads better stacked and
+   full-width than as two cramped pills. */
+@media (max-width: 400px) {
+  .btn-row > .btn--lg { width: 100%; }
+}
+
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  gap: 7px;
+  font-weight: 600;
+  font-size: var(--fs-small);
+  color: var(--gold-text);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: border-color var(--t-fast) var(--ease);
+}
+.link-arrow:hover { border-bottom-color: currentColor; }
+.section--light .link-arrow, .section--white .link-arrow { color: var(--gold-on-light); }
+.link-arrow svg { flex: none; }
+
+/* ---------- click-to-copy ----------
+   Used for the contact address. The <button> owns the whole chip so the
+   tap target is the visible chip, and the state swap is announced. */
+
+.copy-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tap);
+  padding: 9px 14px;
+  border: 1px solid var(--ink-line-strong);
+  border-radius: var(--r-ctl);
+  background: rgba(255, 255, 255, 0.028);
+  color: var(--tx-on-dark);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  max-width: 100%;
+  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.copy-chip:hover { border-color: var(--gold-edge-strong); color: var(--gold-text); }
+.copy-chip__addr { overflow-wrap: anywhere; }
+.copy-chip__icon { flex: none; display: grid; place-items: center; width: 18px; height: 18px; color: var(--tx-on-dark-dim); }
+.copy-chip:hover .copy-chip__icon { color: var(--gold-text); }
+.copy-chip[data-copied="true"] {
+  border-color: rgba(124, 196, 154, 0.55);
+  color: var(--state-ok-text);
+}
+.copy-chip[data-copied="true"] .copy-chip__icon { color: var(--state-ok-text); }
+.section--light .copy-chip, .section--white .copy-chip {
+  border-color: var(--paper-line-strong);
+  background: rgba(17, 17, 17, 0.02);
+  color: var(--tx-on-light);
+}
+.section--light .copy-chip .copy-chip__icon, .section--white .copy-chip .copy-chip__icon { color: var(--tx-on-light-dim); }
+.section--light .copy-chip:hover, .section--white .copy-chip:hover { border-color: var(--gold-on-light); color: var(--gold-on-light); }
+.section--light .copy-chip[data-copied="true"], .section--white .copy-chip[data-copied="true"] { color: var(--state-ok-on-light); border-color: var(--state-ok-on-light); }
+
+/* ---------- badges / status ---------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: start;
+  justify-self: start;
+  width: fit-content;
+  max-width: 100%;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--ink-line-strong);
+  background: rgba(255, 255, 255, 0.035);
+  /* sans, not mono: these labels contain Korean and mixed case, and mono
+     forced a fallback face plus overly wide tracking. */
+  font-family: var(--font-sans);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0;
+  color: var(--tx-on-dark-muted);
+  /* was nowrap — a translated "Coming Soon" or a long Korean need-label
+     used to shoot out of its card */
+  word-break: keep-all;
+}
+.section--light .badge, .section--white .badge {
+  border-color: var(--paper-line);
+  background: rgba(17, 17, 17, 0.03);
+  color: var(--tx-on-light-muted);
+}
+.badge--demo { border-color: var(--gold-edge-strong); color: var(--gold-text); }
+.section--light .badge--demo, .section--white .badge--demo { color: var(--gold-on-light); border-color: rgba(110, 74, 0, 0.4); }
+.badge--concept { border-color: var(--ink-line-strong); }
+.badge--early { border-color: var(--gold-edge-strong); color: var(--gold-text); }
+.section--light .badge--early, .section--white .badge--early { color: var(--gold-on-light); border-color: rgba(110, 74, 0, 0.4); }
+.badge--soon { border-style: dashed; }
+.badge--ok { border-color: rgba(124, 196, 154, 0.5); color: var(--state-ok-text); }
+.section--light .badge--ok, .section--white .badge--ok { color: var(--state-ok-on-light); border-color: rgba(31, 107, 69, 0.4); }
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  align-self: start;
+  width: fit-content;
+  gap: 7px;
+  font-family: var(--font-sans);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0;
+  color: var(--tx-on-dark-muted);
+  word-break: keep-all;
+}
+.status::before {
+  content: "";
+  width: 7px; height: 7px; border-radius: 2px;
+  background: var(--state-idle);
+  flex: none;
+}
+.status[data-state="ready"]::before { background: var(--tx-on-dark-muted); }
+.status[data-state="running"]::before { background: var(--gold); }
+.status[data-state="waiting"]::before { background: var(--state-wait); }
+.status[data-state="qa"]::before { background: var(--gold-soft); }
+.status[data-state="verified"]::before,
+.status[data-state="done"]::before { background: var(--state-ok); }
+.status[data-state="running"] { color: var(--gold-text); }
+.status[data-state="verified"], .status[data-state="done"] { color: var(--state-ok-text); }
+.section--light .status, .section--white .status { color: var(--tx-on-light-muted); }
+.section--light .status[data-state="running"], .section--white .status[data-state="running"] { color: var(--gold-on-light); }
+.section--light .status[data-state="verified"], .section--white .status[data-state="verified"] { color: var(--state-ok-on-light); }
+
+/* ---------- surfaces ---------- */
+
+.card {
+  background: var(--ink-850);
+  border: 1px solid var(--ink-line);
+  border-radius: var(--r-card);
+  padding: clamp(18px, 2.4vw, 30px);
+  transition: border-color var(--t-med) var(--ease), transform var(--t-med) var(--ease);
+}
+.section--light .card, .section--white .card {
+  background: var(--paper-000);
+  border-color: var(--paper-line);
+  box-shadow: var(--shadow-card);
+}
+.card--hover:hover { border-color: var(--ink-line-strong); transform: translateY(-3px); }
+.section--light .card--hover:hover, .section--white .card--hover:hover { border-color: var(--paper-line-strong); }
+@media (prefers-reduced-motion: reduce) {
+  .card--hover:hover { transform: none; }
+}
+.card--flat { background: transparent; }
+.card--panel { background: var(--ink-900); }
+
+.ticks { position: relative; }
+.ticks::before, .ticks::after {
+  content: ""; position: absolute; width: 12px; height: 12px; pointer-events: none;
+}
+.ticks::before { top: 12px; left: 12px; border-top: 1px solid var(--gold-edge-strong); border-left: 1px solid var(--gold-edge-strong); }
+.ticks::after { bottom: 12px; right: 12px; border-bottom: 1px solid var(--gold-edge-strong); border-right: 1px solid var(--gold-edge-strong); }
+
+.note {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: var(--fs-caption);
+  line-height: 1.65;
+  color: var(--tx-on-dark-dim);
+}
+.section--light .note, .section--white .note { color: var(--tx-on-light-dim); }
+.note::before {
+  content: "i";
+  flex: none;
+  width: 16px; height: 16px; margin-top: 3px;
+  border: 1px solid currentColor; border-radius: 50%;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+  line-height: 1;
+  display: grid; place-items: center;
+}
+
+/* ---------- grids ---------- */
+
+.grid { display: grid; gap: clamp(12px, 1.6vw, 20px); }
+.grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid--auto { grid-template-columns: repeat(auto-fit, minmax(min(258px, 100%), 1fr)); }
+.grid--auto-lg { grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); }
+
+@media (max-width: 1024px) {
+  .grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 680px) {
+  .grid--2, .grid--3, .grid--4 { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---- header ---- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  background: rgba(17, 17, 16, 0.72);
+  backdrop-filter: saturate(140%) blur(14px);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  border-bottom: 1px solid transparent;
+  transition: background var(--t-med) var(--ease), border-color var(--t-med) var(--ease);
+}
+/* backdrop-filter is not universal; without it the translucent bar lets
+   hero text show through the header. Opaque fallback. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .site-header { background: #121211; }
+}
+.site-header[data-scrolled="true"] {
+  background: rgba(12, 12, 11, 0.94);
+  border-bottom-color: var(--ink-line);
+}
+
+.header-inner {
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1.6vw, 26px);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  flex: none;
+}
+.brand:hover img { opacity: 0.88; }
+.brand img { transition: opacity var(--t-fast) var(--ease); height: 36px; width: auto; display: block; }
+.brand__on-light { display: none; }
+.light-header .brand__on-dark { display: none; }
+.light-header .brand__on-light { display: block; }
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-inline: auto;
+  min-width: 0;
+}
+.nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0 11px;
+  border-radius: var(--r-sm);
+  font-size: var(--fs-small);
+  font-weight: 550;
+  white-space: nowrap;
+  color: var(--tx-on-dark-muted);
+  transition: color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+.nav a:hover { color: var(--tx-on-dark); background: rgba(255, 255, 255, 0.05); }
+.nav a[aria-current="true"] { color: var(--gold-text); }
+.light-header .nav a { color: var(--tx-on-light-muted); }
+.light-header .nav a:hover { color: var(--tx-on-light); background: rgba(17, 17, 17, 0.05); }
+.light-header .nav a[aria-current="true"] { color: var(--gold-on-light); }
+
+/* `flex: none` meant the actions block could never give ground, so a
+   long CTA label pushed the header past the viewport instead of
+   shrinking. It may now shrink, and the CTA label truncates. */
+.header-actions { display: flex; align-items: center; gap: 10px; flex: 0 1 auto; min-width: 0; }
+.header-actions .btn { min-height: var(--tap); padding: 8px 18px; white-space: nowrap; min-width: 0; }
+.header-cta { overflow: hidden; }
+.header-cta__label {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-login {
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--tx-on-dark-muted);
+  min-height: var(--tap);
+  display: inline-flex;
+  align-items: center;
+  padding-inline: 10px;
+  white-space: nowrap;
+}
+.header-login:hover { color: var(--gold-text); }
+.light-header .header-login { color: var(--tx-on-light-muted); }
+.light-header .header-login:hover { color: var(--gold-on-light); }
+
+.menu-toggle {
+  display: none;
+  width: var(--tap); height: var(--tap);
+  border: 1px solid var(--ink-line-strong);
+  border-radius: var(--r-ctl);
+  align-items: center; justify-content: center;
+  color: var(--tx-on-dark);
+  flex: none;
+}
+.light-header .menu-toggle { border-color: var(--paper-line-strong); color: var(--charcoal); }
+.menu-toggle svg { display: block; }
+
+/* The header collapses in three stages instead of one hard jump:
+   1260 → drop the long half of the CTA label
+   1140 → nav moves into the sheet, desktop login link goes with it
+    560 → CTA shrinks to a compact label, brand mark scales down */
+@media (max-width: 1260px) {
+  .header-actions .btn span.long { display: none; }
+}
+@media (max-width: 1140px) {
+  .nav { display: none; }
+  .header-actions { margin-left: auto; }
+  .header-actions .header-login-desktop { display: none; }
+  .menu-toggle { display: inline-flex; }
+}
+@media (max-width: 560px) {
+  .brand img { height: 30px; }
+  .header-actions .btn { padding: 8px 14px; font-size: var(--fs-caption); }
+}
+@media (max-width: 380px) {
+  .header-inner { gap: 8px; }
+  .header-actions { gap: 6px; }
+  .header-actions .btn { padding: 8px 12px; }
+  .brand img { height: 26px; }
+}
+
+/* mobile sheet */
+.mobile-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: var(--ink-900);
+  transform: translateY(-100%);
+  /* No `visibility: hidden` here. It was transitioned alongside the
+     transform, so at the instant the sheet opened its computed
+     visibility was still `hidden` — and focus() on a hidden element is
+     silently dropped, which left the keyboard stranded outside an open
+     modal. The `hidden` attribute already removes the sheet from both
+     layout and the accessibility tree; that is enough. */
+  pointer-events: none;
+  /* dvh so the sheet still fills the screen when mobile Safari's
+     toolbar collapses mid-scroll */
+  height: 100dvh;
+  transition: transform var(--t-med) var(--ease-out);
+}
+.mobile-sheet[data-open="true"] { transform: translateY(0); pointer-events: auto; }
+.mobile-sheet[hidden] { display: none; }
+
+.mobile-sheet__bar {
+  height: var(--header-h);
+  display: flex; align-items: center; justify-content: space-between;
+  padding-inline: var(--gutter) var(--gutter-r);
+  border-bottom: 1px solid var(--ink-line);
+}
+.mobile-sheet__bar img { height: 28px; width: auto; }
+.mobile-sheet__close {
+  width: var(--tap); height: var(--tap);
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--ink-line-strong); border-radius: var(--r-ctl);
+  color: var(--tx-on-dark);
+  flex: none;
+}
+.mobile-sheet__body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 18px var(--gutter-r) max(32px, env(safe-area-inset-bottom, 0px)) var(--gutter);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.mobile-sheet__body a {
+  min-height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--r-ctl);
+  border: 1px solid transparent;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--tx-on-dark);
+}
+.mobile-sheet__body a:hover { background: var(--ink-700); border-color: var(--ink-line); }
+.mobile-sheet__body .ms-sep { height: 1px; background: var(--ink-line); margin: 12px 0; flex: none; }
+.mobile-sheet__foot { margin-top: auto; padding-top: 20px; display: grid; gap: 10px; }
+.mobile-sheet__foot .btn { white-space: normal; }
+
+/* ---------- footer ---------- */
+
+.site-footer {
+  background: var(--ink-900);
+  color: var(--tx-on-dark-muted);
+  padding-top: clamp(44px, 6vw, 80px);
+  padding-bottom: max(34px, env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--ink-line);
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr));
+  gap: clamp(22px, 3.4vw, 52px);
+  padding-bottom: 36px;
+  border-bottom: 1px solid var(--ink-line);
+}
+@media (max-width: 920px) {
+  .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .footer-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+}
+.footer-brand img { height: 36px; width: auto; }
+.footer-brand .footer-by { margin-top: 14px; font-size: var(--fs-caption); }
+.footer-col h2 {
+  font-size: var(--fs-caption);
+  font-family: var(--font-sans);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--tx-on-dark-dim);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.footer-col ul { display: grid; gap: 2px; }
+.footer-col a {
+  font-size: var(--fs-small);
+  color: var(--tx-on-dark-muted);
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  /* was nowrap on every footer link, which overflowed the 2-column
+     footer at ~380px and again once translated */
+  word-break: keep-all;
+}
+.footer-col a:hover { color: var(--gold-text); }
+.footer-contact { display: grid; gap: 10px; margin-top: 16px; justify-items: start; }
+.footer-legal {
+  padding-top: 24px;
+  display: flex; flex-wrap: wrap; gap: 10px 26px;
+  align-items: center; justify-content: space-between;
+  font-size: var(--fs-caption);
+  color: var(--tx-on-dark-dim);
+}
+.footer-co { display: grid; gap: 4px; max-width: 620px; }
+/* Inline links inside the footer company sentence: a full tap target
+   without disturbing the line rhythm of the paragraph they sit in. */
+.footer-co a {
+  display: inline-block;
+  min-height: var(--tap);
+  line-height: var(--tap);
+  vertical-align: middle;
+  margin-block: -11px;
+  color: var(--gold-text);
+}
+.footer-co a:hover { text-decoration: underline; }
+.footer-bottom-links { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.footer-bottom-links a { display: inline-flex; align-items: center; min-height: var(--tap); }
+.footer-legal a { display: inline-flex; align-items: center; }
+.footer-bottom-links a:hover { color: var(--gold-text); }
+
+/* ---------- reveal ---------- */
+
+/* Reveal is opt-in: elements are VISIBLE by default, so a missing or
+   blocked observer can never leave page content permanently invisible.
+   JS opts an element into hiding by setting data-reveal="pending", then
+   flips it to "shown" (or just removes the attribute) to animate it in.
+
+   This rule is deliberately before the pending rule and also covers the
+   bare `.reveal` selector, because content visibility must never depend
+   on an attribute being present. */
+.reveal,
+.reveal[data-reveal="shown"],
+.reveal:not([data-reveal="pending"]) {
+  opacity: 1;
+  transform: none;
+}
+.reveal[data-reveal="shown"] {
+  transition: opacity var(--t-slow) var(--ease-out), transform var(--t-slow) var(--ease-out);
+}
+.reveal[data-reveal="pending"] { opacity: 0; transform: translateY(14px); }
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal[data-reveal="shown"], .reveal[data-reveal="pending"] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- print ---------- */
+
+@media print {
+  .site-header, .mobile-sheet, .tweaks, .skip-link, .demo__player, .site-footer { display: none !important; }
+  body { background: #fff; color: #000; }
+  .section, .hero, .page-hero { background: #fff !important; color: #000 !important; padding-block: 18px; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 11px; }
+}

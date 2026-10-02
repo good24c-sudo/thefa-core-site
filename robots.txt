@@ -1,0 +1,9 @@
+# THEFA Core — robots.txt
+# The Sitemap line below is stamped by `python set-domain.py <origin>`.
+User-agent: *
+Allow: /
+
+# The sign-in shell holds no indexable content while accounts are closed.
+Disallow: /login.html
+
+Sitemap: https://core.thefa.kr/sitemap.xml

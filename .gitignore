@@ -1,0 +1,11 @@
+# local preview config for the Claude Code browser pane
+.claude/
+
+# authoring-tool artifacts: character-offset maps of a previous revision of
+# each page. They no longer match the markup and are not part of the site.
+*.srcmap.json
+.thumbnail.jpg
+
+# OS / editor noise
+Thumbs.db
+.DS_Store

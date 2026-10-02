@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 400" width="880" height="400" role="img" aria-labelledby="t-res">
+  <title id="t-res">작업 성격에 따라 실행 주체와 자원을 배분하고 대체 경로를 판단하는 자원 배치 도식</title>
+  <defs>
+    <linearGradient id="rs-bg" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F5F3EE"/>
+    </linearGradient>
+    <linearGradient id="rs-gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#C8A95F"/>
+      <stop offset="1" stop-color="#8A6C2A"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="880" height="400" rx="20" fill="url(#rs-bg)"/>
+  <rect x="0.5" y="0.5" width="879" height="399" rx="20" fill="none" stroke="#E0DCD3"/>
+
+  <!-- incoming queue -->
+  <g transform="translate(48 70)">
+    <rect width="54" height="7" rx="3.5" fill="#8C877E"/>
+    <g transform="translate(0 28)">
+      <rect width="168" height="44" rx="11" fill="#FFFFFF" stroke="#E0DCD3"/>
+      <rect x="16" y="19" width="80" height="6" rx="3" fill="#1A1815" fill-opacity="0.34"/>
+      <circle cx="144" cy="22" r="5" fill="#C8A95F"/>
+    </g>
+    <g transform="translate(0 82)">
+      <rect width="168" height="44" rx="11" fill="#FFFFFF" stroke="#E0DCD3"/>
+      <rect x="16" y="19" width="102" height="6" rx="3" fill="#1A1815" fill-opacity="0.34"/>
+      <circle cx="144" cy="22" r="5" fill="#C8A95F"/>
+    </g>
+    <g transform="translate(0 136)">
+      <rect width="168" height="44" rx="11" fill="#FFFFFF" stroke="#E0DCD3"/>
+      <rect x="16" y="19" width="66" height="6" rx="3" fill="#1A1815" fill-opacity="0.34"/>
+      <circle cx="144" cy="22" r="5" fill="#C8A95F"/>
+    </g>
+    <g transform="translate(0 190)">
+      <rect width="168" height="44" rx="11" fill="#FFFFFF" stroke="#E0DCD3"/>
+      <rect x="16" y="19" width="92" height="6" rx="3" fill="#1A1815" fill-opacity="0.34"/>
+      <circle cx="144" cy="22" r="5" fill="#C8A95F"/>
+    </g>
+  </g>
+
+  <!-- dispatcher -->
+  <g transform="translate(300 128)">
+    <rect width="160" height="144" rx="18" fill="#1B1A18"/>
+    <path d="M34 48l16 16-16 16M58 80h26" fill="none" stroke="#DEC99E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="34" y="30" width="56" height="7" rx="3.5" fill="#CBB283"/>
+    <g transform="translate(100 44)">
+      <rect y="22" width="6" height="8" rx="2" fill="#CBB283" fill-opacity="0.5"/>
+      <rect x="10" y="12" width="6" height="18" rx="2" fill="#CBB283" fill-opacity="0.76"/>
+      <rect x="20" width="6" height="30" rx="2" fill="#CBB283"/>
+    </g>
+    <rect x="34" y="104" width="92" height="5" rx="2.5" fill="#FFFFFF" fill-opacity="0.16"/>
+  </g>
+
+  <!-- connectors in -->
+  <g fill="none" stroke="#C9C4B8" stroke-width="1.8">
+    <path d="M216 120C260 120 262 180 300 180"/>
+    <path d="M216 174C262 174 262 190 300 190"/>
+    <path d="M216 228C262 228 262 210 300 210"/>
+    <path d="M216 282C260 282 262 222 300 222"/>
+  </g>
+
+  <!-- connectors out -->
+  <g fill="none" stroke="url(#rs-gold)" stroke-width="1.8">
+    <path d="M460 170C520 170 520 96 580 96"/>
+    <path d="M460 190C520 190 520 176 580 176"/>
+    <path d="M460 212C520 212 520 256 580 256"/>
+  </g>
+  <path d="M460 230C520 230 520 332 580 332" fill="none" stroke="#C9C4B8" stroke-width="1.8" stroke-dasharray="5 6"/>
+
+  <!-- lanes -->
+  <g transform="translate(580 70)">
+    <rect width="250" height="52" rx="13" fill="#FFFFFF" stroke="#C8A95F" stroke-opacity="0.6"/>
+    <circle cx="30" cy="26" r="10" fill="#F5F3EE" stroke="#C8A95F"/>
+    <path d="M26 26l3 3.2 6-6.6" fill="none" stroke="#8A6C2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="52" y="15" width="86" height="7" rx="3.5" fill="#71561F"/>
+    <rect x="52" y="30" width="130" height="6" rx="3" fill="#1A1815" fill-opacity="0.14"/>
+  </g>
+  <g transform="translate(580 150)">
+    <rect width="250" height="52" rx="13" fill="#FFFFFF" stroke="#C8A95F" stroke-opacity="0.6"/>
+    <circle cx="30" cy="26" r="10" fill="#F5F3EE" stroke="#C8A95F"/>
+    <path d="M26 26l3 3.2 6-6.6" fill="none" stroke="#8A6C2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="52" y="15" width="104" height="7" rx="3.5" fill="#71561F"/>
+    <rect x="52" y="30" width="112" height="6" rx="3" fill="#1A1815" fill-opacity="0.14"/>
+  </g>
+  <g transform="translate(580 230)">
+    <rect width="250" height="52" rx="13" fill="#FFFFFF" stroke="#C8A95F" stroke-opacity="0.6"/>
+    <circle cx="30" cy="26" r="10" fill="#F5F3EE" stroke="#C8A95F"/>
+    <path d="M26 26l3 3.2 6-6.6" fill="none" stroke="#8A6C2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="52" y="15" width="72" height="7" rx="3.5" fill="#71561F"/>
+    <rect x="52" y="30" width="142" height="6" rx="3" fill="#1A1815" fill-opacity="0.14"/>
+  </g>
+  <!-- failover lane -->
+  <g transform="translate(580 306)">
+    <rect width="250" height="52" rx="13" fill="#F5F3EE" stroke="#C9C4B8" stroke-dasharray="5 5"/>
+    <g transform="translate(22 18)" stroke="#746F66" stroke-width="1.8" fill="none" stroke-linecap="round">
+      <path d="M14 3a7 7 0 1 0 2.6 5.4"/>
+      <path d="M16.6 0v5h-5"/>
+    </g>
+    <rect x="52" y="15" width="64" height="7" rx="3.5" fill="#1A1815" fill-opacity="0.3"/>
+    <rect x="52" y="30" width="126" height="6" rx="3" fill="#1A1815" fill-opacity="0.12"/>
+  </g>
+</svg>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko" data-tweak-hero="command" data-tweak-rhythm="contrast" data-tweak-motion="restrained" data-tweak-gold="controlled" data-tweak-density="comfortable">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Core Console Preview | THEFA Core</title>
+<meta name="description" content="Core Console의 예정 구조를 보여주는 Preview입니다. Tasks · Runs · Workers · Resources · QA · Receipts 화면 구성을 확인할 수 있습니다. 모든 수치와 상태는 예시 데이터입니다.">
+<meta name="theme-color" content="#111111">
+<meta name="color-scheme" content="dark light">
+<link rel="canonical" href="https://core.thefa.kr/console.html">
+<meta name="robots" content="index, follow">
+
+<meta property="og:url" content="https://core.thefa.kr/console.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="THEFA Core">
+<meta property="og:title" content="Core Console Preview | THEFA Core">
+<meta property="og:description" content="요청 · 실행 단계 · 배치된 Worker · Work Unit · QA 상태 · Receipt를 한 화면에서 확인하는 Console 구조 Preview (예시 데이터).">
+<meta property="og:image" content="https://core.thefa.kr/assets/img/thefa-core-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="assets/brand/core/THEFA_Core_Favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="preload" href="assets/fonts/PretendardVariable-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/tokens.css?v=20261002R1">
+<link rel="stylesheet" href="assets/css/site.css?v=20261002R1">
+<link rel="stylesheet" href="assets/css/sections.css?v=20261002R1">
+<link rel="stylesheet" href="assets/css/pages.css?v=20261002R1">
+</head>
+
+<body>
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
+<header data-site-header></header>
+
+<main id="main">
+
+  <!-- ============ INTRO ============ -->
+  <section class="page-hero" data-screen-label="Console Intro" aria-labelledby="consolePageTitle">
+    <div class="page-hero__bg" aria-hidden="true"></div>
+    <div class="shell shell--wide">
+      <nav class="crumbs" aria-label="현재 위치">
+        <a href="index.html">홈</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">Console Preview</span>
+      </nav>
+
+      <div class="page-hero__inner">
+        <div class="reveal">
+          <p class="eyebrow">CONSOLE PREVIEW</p>
+          <h1 class="h1" id="consolePageTitle" style="margin:18px 0 20px">
+            작업이 어디까지 왔는지,<br>한 화면에서.
+          </h1>
+          <p class="lead" style="max-width:60ch">
+            요청, 실행 단계, 배치된 Worker, 진행 중 Work Unit, QA 상태, 최종 Receipt를
+            한 자리에서 확인하는 구조입니다.
+          </p>
+
+          <div class="demo-notice" role="note">
+            <span class="badge badge--concept">Preview</span>
+            <p>
+              실제 THEFA Core Console은 <strong>아직 공개되지 않았습니다.</strong>
+              이 페이지는 예정된 화면 구조를 설명하기 위한 Preview이며,
+              표시되는 모든 수치·상태·기록은 예시 데이터입니다.
+            </p>
+          </div>
+
+          <div class="btn-row" style="margin-top:26px">
+            <a class="btn btn--ghost" href="index.html">홈으로 돌아가기</a>
+            <a class="btn btn--ghost" href="demo.html">Interactive Demo 보기</a>
+            <a class="btn btn--outline-light" href="login.html" data-track="login_click">로그인 화면 상태 확인</a>
+          </div>
+        </div>
+
+        <dl class="meta-grid reveal" aria-label="Console Preview 기본 정보">
+          <div><dt>화면 성격</dt><dd>Preview · 예시 데이터</dd></div>
+          <div><dt>계정 연결</dt><dd>미연결 · Coming Soon</dd></div>
+          <div><dt>표시 항목</dt><dd>요청 · 단계 · Worker · Unit · QA · Receipt</dd></div>
+          <div><dt>데이터 저장</dt><dd>저장하지 않음 (브라우저 내부 동작)</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONSOLE SHELL ============ -->
+  <section class="section section--ink rule-top" aria-labelledby="consoleShellTitle">
+    <div class="shell shell--wide">
+      <h2 class="h2" id="consoleShellTitle" style="margin-bottom:10px">Console 구조</h2>
+      <p class="lead" style="max-width:72ch;margin-bottom:26px">
+        왼쪽 메뉴에서 항목을 전환해 각 영역이 무엇을 보여줄지 확인할 수 있습니다.
+        모든 패널은 예시 데이터이며, 실제 계정이나 실행 기록과 연결되어 있지 않습니다.
+      </p>
+
+      <div class="console-shell">
+        <div class="console-shell__bar">
+          <img src="assets/brand/core/THEFA_Core_Wordmark_Dark_web.svg" width="1300" height="300" alt="THEFA Core">
+          <span class="console-shell__title" id="consolePath">console · /home</span>
+          <span class="badge badge--concept">Preview</span>
+        </div>
+
+        <div class="console-views">
+          <nav class="console-views__nav" id="consoleNav" aria-label="Console 메뉴"></nav>
+          <div class="console-views__main" id="consoleMain" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <div class="page-foot-note">
+        <p class="note" style="max-width:84ch">
+          이 Preview는 실제 계정·권한·실행 엔진에 연결되어 있지 않습니다.
+          로그인 화면과 계정 기능은 준비 중이며, 연결되는 시점에 상태 표기를 갱신합니다.
+          어떤 데이터도 이 페이지에서 저장되거나 외부로 전송되지 않습니다.
+        </p>
+        <p class="caption">Preview · 예시 데이터 · 실제 Console 화면과 다를 수 있습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHAT IS / ISN'T CONNECTED ============ -->
+  <section class="section section--white rule-top" aria-labelledby="connectedTitle">
+    <div class="shell shell--narrow">
+      <p class="eyebrow">CONNECTION STATUS</p>
+      <h2 class="h2" id="connectedTitle" style="margin:16px 0 20px">지금 연결된 것과 연결되지 않은 것</h2>
+
+      <div class="grid grid--2" id="statusGrid"></div>
+
+      <p class="note" style="margin-top:24px;max-width:80ch">
+        실제 기능이 연결되면 이 페이지의 상태 라벨만 갱신하면 됩니다.
+        화면 구조와 데이터 계층을 분리해 두었기 때문입니다.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer data-site-footer></footer>
+
+<script src="assets/js/data.js?v=20261002R1"></script>
+<script src="assets/js/site.js?v=20261002R1"></script>
+<script src="assets/js/console-page.js?v=20261002R1"></script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+/* ============================================================
+   THEFA Core — Design Tokens  (v3 · "Champagne on Graphite")
+   Source of truth for brand: official THEFA Core / THE FA package.
+   Charcoal #111111 · THE FA Gold #F4B223 · Ivory #FAFAF8 · White #FFFFFF
+
+   v3 direction notes
+   ------------------
+   1. Every text token, on every surface it is actually used on, now
+      clears WCAG AA (4.5:1 body, 3:1 large/UI). v2's --tx-on-dark-dim
+      measured 4.0:1 on --ink-700 cards, which is exactly where most
+      captions, meta rows and footnotes live. That was the main cause of
+      "글씨 색상이 겹쳐서 안 보인다".
+   2. The type scale has real mobile floors. clamp() with a bare vw middle
+      term collapsed below 360px and let headlines fight their containers.
+   3. Layout tokens carry safe-area insets, so notched phones and
+      landscape iPhones keep their gutters.
+   4. The page must survive machine translation (Chrome / Safari / Edge
+      translate). Translated strings run 1.3–1.9x longer than Korean, so
+      nothing in this system may depend on a fixed label width.
+   ============================================================ */
+
+@font-face {
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../fonts/PretendardVariable-subset.woff2') format('woff2-variations');
+}
+
+:root {
+  color-scheme: dark;
+
+  /* --- brand (locked — logo artwork only) --- */
+  --charcoal: #111111;
+  --gold: #F4B223;
+  --ivory: #FAFAF8;
+  --white: #FFFFFF;
+
+  /* --- dark surfaces (lifted, warm graphite) ---
+     Nothing here is pure black. A narrow warm range keeps the page
+     reading as "graphite" rather than "flat black", and lets cards,
+     keylines and panels separate from their section background. */
+  --ink-950: #141312;   /* inset wells only (inputs, code panes) */
+  --ink-900: #1B1A18;   /* THE single dark section surface */
+  --ink-850: #211F1D;   /* cards sitting on --ink-900 */
+  --ink-800: #262422;   /* raised chips inside cards */
+  --ink-700: #2D2A28;
+  --ink-600: #363330;
+  --ink-500: #403C39;
+  --ink-line: #38352F;
+  --ink-line-strong: #4E4A45;
+
+  /* --- light surfaces (warm ivory) --- */
+  --paper-000: #FFFFFF;
+  --paper-050: #FBFAF7;
+  --paper-100: #F5F3EE;
+  --paper-200: #EDEAE3;
+  --paper-line: #E0DCD3;
+  --paper-line-strong: #C9C4B8;
+
+  /* --- text ---
+     Measured against the lightest surface each one is used on
+     (--ink-700 for dark text, --paper-000 for light text):
+       on-dark         #F2F0EA  16.0:1
+       on-dark-muted   #BAB5AC   7.0:1
+       on-dark-dim     #9E9A92   5.1:1   (was #8C8880 -> 4.0:1, failed)
+       on-dark-faint   #807B74   3.3:1   decorative / large only
+       on-light        #1A1815  15.9:1
+       on-light-muted  #5B5750   7.1:1
+       on-light-dim    #746F66   5.0:1   (was #7C776E -> 4.4:1, failed) */
+  --tx-on-dark: #F2F0EA;
+  --tx-on-dark-muted: #BAB5AC;
+  --tx-on-dark-dim: #9E9A92;
+  --tx-on-dark-faint: #807B74;
+  --tx-on-light: #1A1815;
+  --tx-on-light-muted: #5B5750;
+  --tx-on-light-dim: #746F66;
+  --tx-on-light-faint: #8C877E;
+
+  /* Placeholders sit in --ink-950 wells. 5.0:1 keeps the hint readable
+     while staying clearly lighter than a typed value. */
+  --tx-placeholder: #8A857E;
+
+  /* --- champagne accent (champagne / antique brass, low saturation) ---
+     --gold-grad is a soft brushed-champagne sweep, deliberately NOT the
+     saturated logo gold. It is what makes a filled button read premium.
+     Brushed metal: a narrow, low-saturation sweep. No bright highlight at
+     the start — that highlight is what read as "cheap gold". */
+  --gold-grad: linear-gradient(140deg, #E4D2A6 0%, #D2BA88 40%, #BCA068 72%, #A2854C 100%);
+  --gold-grad-hover: linear-gradient(140deg, #EBDCB6 0%, #DAC494 40%, #C6AB72 72%, #AC8F54 100%);
+  --gold-grad-active: linear-gradient(140deg, #D2BE8E 0%, #BFA46C 60%, #9D8148 100%);
+
+  /* --gold-text is surface-relative. It resolves to champagne on dark and
+     to bronze on ivory, and site.css re-points it per surface. Components
+     therefore write `color: var(--gold-text)` once and stay legible on
+     both — previously a gold label dropped to 2.0:1 the moment its card
+     moved onto a white section. */
+  --gold-on-dark: #CBB283;     /* champagne type on dark — 6.9:1 on ink-700 */
+  --gold-text: var(--gold-on-dark);
+  /* Headline sweep. The old ramp bottomed out at #B99E6A, so the tail of a
+     gold headline dropped to ~4.8:1 and genuinely looked like it faded
+     out mid-word. This one never falls below #CBB283. */
+  --gold-text-grad: linear-gradient(158deg, #F6EBD2 0%, #E7D5AC 38%, #D9C294 72%, #CBB283 100%);
+  --gold-soft: #DBC79A;        /* soft marks */
+  --gold-deep: #9C7C3C;
+  --gold-on-light: #71561F;    /* bronze type on ivory — 6.9:1 on white */
+  --gold-on-light-line: #B49A5C;
+
+  --gold-wash: rgba(205, 182, 130, 0.035);
+  --gold-wash-strong: rgba(205, 182, 130, 0.062);
+  --gold-edge: rgba(205, 182, 130, 0.18);
+  --gold-edge-strong: rgba(205, 182, 130, 0.32);
+
+  --focus-dark: #E3CE9F;
+  --focus-light: #7C6027;
+
+  /* --- state --- */
+  --state-ok: #7CC49A;
+  --state-ok-text: #93D4AE;    /* 7.2:1 on ink-700 — the text-safe green */
+  --state-wait: #C6A96A;
+  --state-run: var(--gold-text);
+  --state-idle: #75716A;
+  --state-ok-on-light: #1F6B45;
+  --state-wait-on-light: #7A5A14;
+
+  /* --- type --- */
+  --font-sans: 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'SFMono-Regular', 'JetBrains Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+
+  /* Fluid scale. Every clamp() has a floor that stays readable at 320px
+     and a ceiling that stops growing before 1600px. The vw term is always
+     paired with a rem term so browser zoom and user font-size still work. */
+  --fs-display: clamp(2.15rem, 1.35rem + 3.6vw, 4.15rem);
+  --fs-h1: clamp(1.9rem, 1.3rem + 2.7vw, 3.35rem);
+  --fs-h2: clamp(1.55rem, 1.16rem + 1.75vw, 2.6rem);
+  --fs-h3: clamp(1.16rem, 1.05rem + 0.5vw, 1.5rem);
+  --fs-h4: clamp(1.02rem, 0.98rem + 0.2vw, 1.16rem);
+  --fs-lead: clamp(1rem, 0.96rem + 0.28vw, 1.22rem);
+  --fs-body: 1.0313rem;      /* 16.5px */
+  --fs-small: 0.9375rem;     /* 15px   — was 14.5px; 15 is the comfort floor */
+  --fs-caption: 0.875rem;    /* 14px   — was 13.5px */
+  --fs-micro: 0.8125rem;     /* 13px */
+  /* mono meta labels get their own floor so chips and badges never go tiny */
+  --fs-meta: 0.8125rem;      /* 13px */
+
+  --lh-tight: 1.08;
+  --lh-snug: 1.2;
+  --lh-body: 1.7;
+
+  --ls-eyebrow: 0.12em;
+  --ls-label: 0.05em;
+
+  /* --- space --- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 44px;
+  --sp-8: 56px;
+  --sp-9: 80px;
+  --sp-10: 112px;
+  --section-y: clamp(64px, 8vw, 140px);
+  --shell: 1200px;
+  --shell-wide: 1340px;
+  /* The gutter folds the notch inset in, so landscape iPhone keeps a margin. */
+  --gutter-base: clamp(18px, 4.4vw, 40px);
+  --gutter: max(var(--gutter-base), env(safe-area-inset-left, 0px));
+  --gutter-r: max(var(--gutter-base), env(safe-area-inset-right, 0px));
+  --header-h: 72px;
+  --tap: 44px;               /* minimum interactive target */
+
+  /* --- shape --- */
+  --r-sm: 8px;
+  --r-ctl: 12px;
+  --r-card: 20px;
+  --r-card-lg: 26px;
+  --r-pill: 999px;
+
+  /* --- motion --- */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --t-fast: 140ms;
+  --t-med: 260ms;
+  --t-slow: 620ms;
+
+  /* --- elevation (soft, warm — never harsh black shadows) --- */
+  --shadow-card: 0 1px 0 rgba(26, 24, 21, 0.03), 0 14px 34px -26px rgba(26, 24, 21, 0.26);
+  --shadow-pop: 0 28px 70px -34px rgba(10, 9, 8, 0.5);
+  --shadow-lift: 0 18px 44px -28px rgba(10, 9, 8, 0.62);
+}
+
+@media (max-width: 520px) {
+  :root { --header-h: 62px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --t-fast: 0ms;
+    --t-med: 0ms;
+    --t-slow: 0ms;
+  }
+}
+
+/* Windows / Edge high-contrast: let the OS palette win rather than
+   fighting it with champagne on graphite. */
+@media (forced-colors: active) {
+  :root {
+    --gold-wash: transparent;
+    --gold-wash-strong: transparent;
+  }
+}
