@@ -54,37 +54,35 @@
 
   function heroVariantA() {
     var v = D.hero.variants[0];
+    var tasks = v.units.slice(0, 4);
     return '' +
-      '<div class="pane">' +
-        '<div class="pane__bar">' +
-          '<span class="pane__dots" aria-hidden="true"><i></i><i></i><i></i></span>' +
-          '<span class="pane__title">thefa core · request</span>' +
-          badge(D.LABELS.concept) +
-        '</div>' +
-        '<div class="pane__body">' +
-          '<div class="cmd">' +
-            '<span class="cmd__prompt" aria-hidden="true">&gt;_</span>' +
-            '<span class="cmd__text">' + esc(v.command) + '<span class="cmd__caret" aria-hidden="true"></span></span>' +
+      '<div class="ref-app" aria-label="THEFA Core 실행 콘솔 예시">' +
+        '<aside class="ref-app__side">' +
+          '<div class="ref-app__mini-brand"><span>&gt;_</span><b>THEFA<span>Core</span></b></div>' +
+          '<div class="ref-app__side-item is-active">＋ <span>새 작업</span></div>' +
+          '<div class="ref-app__side-item">▣ <span>작업 현황</span></div>' +
+          '<div class="ref-app__side-item">◇ <span>에이전트</span></div>' +
+          '<div class="ref-app__side-item">▤ <span>지식 라이브러리</span></div>' +
+          '<div class="ref-app__side-item">✓ <span>검증 및 리포트</span></div>' +
+        '</aside>' +
+        '<section class="ref-app__main">' +
+          '<div class="ref-app__top"><span class="ref-app__state"><i></i> 실행 중 · 모바일 오류 수정 및 배포 검증</span><span class="ref-app__share">↥ 공유</span><span class="ref-app__live">● 실행 중⌄</span></div>' +
+          '<div class="ref-app__grid">' +
+            '<div class="ref-plan">' +
+              '<div class="ref-command"><b>&gt;_</b><span>' + esc(v.command) + '</span></div>' +
+              '<div class="ref-plan__title">실행 계획 <small>3/5</small></div>' +
+              '<ul class="ref-steps" id="heroUnits">' +
+                tasks.map(function(u,i){ return '<li class="unit ref-step" data-state="idle"><span class="ref-step__dot">'+(i<2?'✓':i===2?'●':'○')+'</span><span><b>'+esc(u.title)+'</b><small>'+esc(u.meta)+'</small></span><em>'+(['요구사항 분석 완료','실행 계획 수립','코드 수정 및 테스트','배포 및 최종 검증'][i])+'</em></li>'; }).join('') +
+              '</ul>' +
+              '<div class="ref-plan__footer"><span>◉ 배포 및 최종 검증</span><small>대기 중</small></div>' +
+            '</div>' +
+            '<div class="ref-log">' +
+              '<div class="ref-log__tabs"><b>실행 로그</b><span>결과물</span><span>분석</span><span>메모</span></div>' +
+              '<div class="ref-log__rows"><p><i></i><time>14:21</time><span>관련 파일을 분석하고 있습니다.</span><b>Browser Worker</b></p><p><i></i><time>14:22</time><span>오류 원인을 식별했습니다.</span><b>Code Analyzer</b></p><p><i></i><time>14:24</time><span>수정 코드를 적용했습니다.</span><b>File Editor</b></p><p><i></i><time>14:25</time><span>단위 테스트를 실행하고 있습니다.</span><b>Test Runner</b></p><p><i></i><time>14:26</time><span>검증 결과를 기록합니다.</span><b>QA Agent</b></p></div>' +
+              '<div class="ref-log__input"><span>추가 지시를 입력하세요...</span><button aria-label="전송">→</button></div>' +
+            '</div>' +
           '</div>' +
-          '<ul class="units" id="heroUnits">' +
-            v.units.map(function (u) {
-              return '<li class="unit" data-state="idle">' +
-                '<span class="unit__id">' + esc(u.id) + '</span>' +
-                '<span><span class="unit__title">' + esc(u.title) + '</span><br>' +
-                '<span class="unit__meta">' + esc(u.meta) + '</span></span>' +
-                '<span class="stair" aria-hidden="true"><i></i><i></i><i></i></span>' +
-              '</li>';
-            }).join('') +
-          '</ul>' +
-          '<div class="receipt-mini">' +
-            '<span class="stair" aria-hidden="true"><i></i><i></i><i></i></span>' +
-            '<span>' +
-              '<span class="receipt-mini__label">Receipt</span><br>' +
-              '<span class="receipt-mini__text" id="heroReceiptText">' + esc(v.receipt.detail) + '</span>' +
-            '</span>' +
-          '</div>' +
-          '<p class="caption" style="margin-top:12px">' + esc(D.hero.microcopy) + '</p>' +
-        '</div>' +
+        '</section>' +
       '</div>';
   }
 
@@ -762,8 +760,11 @@
     renderFaq();
     renderFinalCta();
 
-    setHTML('trustStrip', D.trustStrip.map(function (t) {
-      return '<div class="trust-strip__item"><dt>' + esc(t.k) + '</dt><dd>' + esc(t.v) + '</dd>' + (t.body ? '<p>' + esc(t.body) + '</p>' : '') + '</div>';
+    setHTML('trustStrip', D.trustStrip.map(function (t, i) {
+      var art = i === 0 ? '<div class="trust-art trust-art--prompt"><span>&gt;_</span><i></i><i></i></div>' :
+        i === 1 ? '<div class="trust-art trust-art--steps"><i></i><i></i><i></i><i></i></div>' :
+        '<div class="trust-art trust-art--verify"><b>✓</b><i></i><i></i><i></i><span>▮▮▮</span></div>';
+      return '<div class="trust-strip__item"><div class="trust-card__copy"><dt>' + esc(t.k) + '</dt><dd>' + esc(t.v) + '</dd>' + (t.body ? '<p>' + esc(t.body) + '</p>' : '') + '</div>' + art + '</div>';
     }).join(''));
 
     /* Section artwork. Each scene is a real content image with alt text,
