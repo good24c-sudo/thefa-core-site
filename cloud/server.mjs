@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { createAuthService, createRestDatabase, createResendSender, parseAllowedEmails } from './auth.mjs';
 import { executeApi } from './engine-adapter.mjs';
+import { createCoreIngressAdapter, createOpaqueActorRef } from './core-ingress-adapter.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const files={
@@ -25,7 +26,7 @@ async function jsonBody(req) {
   try{const value=JSON.parse(Buffer.concat(chunks).toString('utf8'));if(!value||typeof value!=='object'||Array.isArray(value))throw new Error();return value;}
   catch{throw problem(400,'요청 형식을 확인해 주세요.');}
 }
-export function createCloudHandler({origin=process.env.CORE_CONSOLE_ORIGIN,auth,engine=executeApi,env=process.env,read=path=>readFile(root+path)}={}) {
+export function createCloudHandler({origin=process.env.CORE_CONSOLE_ORIGIN,auth,engine=executeApi,coreIngress,env=process.env,read=path=>readFile(root+path)}={}) {
   let setupError=false;
   let allowedOrigins=new Set();
   try{
@@ -39,6 +40,10 @@ export function createCloudHandler({origin=process.env.CORE_CONSOLE_ORIGIN,auth,
     }
   }catch{setupError=true;allowedOrigins=new Set();}
   const publicOrigins=allowedOrigins.size?allowedOrigins:new Set(['https://thefa-core-console.vercel.app']);
+  const requestedExecutionMode=env.CORE_CONSOLE_EXECUTION_MODE??'cloud-sandbox';
+  const executionMode=requestedExecutionMode==='sandbox'?'cloud-sandbox':requestedExecutionMode;
+  if(!['cloud-sandbox','core'].includes(executionMode))setupError=true;
+  if(!coreIngress)coreIngress=createCoreIngressAdapter({sourceSha:env.CORE_SOURCE_SHA});
   if(!auth)try{const allowedEmails=parseAllowedEmails(env.CORE_CONSOLE_ALLOWED_EMAILS);auth=createAuthService({origin,allowedEmails,otpSecret:env.CORE_OTP_SECRET,database:createRestDatabase({url:env.SUPABASE_URL,key:env.SUPABASE_SERVICE_ROLE_KEY}),sendEmail:createResendSender({key:env.RESEND_API_KEY,allowedEmails})});}catch{setupError=true;}
   return async(req,res)=>{
     const reply=(status,body,type='application/json; charset=utf-8')=>{res.statusCode=status;res.setHeader('content-type',type);res.end(type.startsWith('application/json')?JSON.stringify(body):body);};
@@ -72,10 +77,19 @@ export function createCloudHandler({origin=process.env.CORE_CONSOLE_ORIGIN,auth,
       if(path==='/auth/logout'&&req.method==='POST'){res.setHeader('set-cookie',await auth.logout(req.headers.cookie));return reply(200,{loggedOut:true});}
       if(files[path]&&['GET','HEAD'].includes(req.method)){const [file,type]=files[path];return reply(200,req.method==='HEAD'?'':await read(file),type);}
       if(!path.startsWith('/api/')||req.method==='HEAD')return reply(404,{error:'페이지를 찾지 못했습니다.'});
-      const output=await engine(path,req.method,req.method==='POST'?await jsonBody(req):undefined);
+      const apiBody=req.method==='POST'?await jsonBody(req):undefined;
+      const output=executionMode==='core'
+        ?await coreIngress.executeApi(path,req.method,apiBody,{actorRef:createOpaqueActorRef(session.email),sourceOrigin:requestOrigin})
+        :await engine(path,req.method,apiBody);
       for(const key of ['content-type','content-disposition'])if(output.headers?.[key])res.setHeader(key,output.headers[key]);
-      if(path==='/api/state'&&output.status===200){const state=JSON.parse(output.body);state.auth={email:session.email};state.environment={...state.environment,deploymentMode:'private-beta',executionLocation:'Cloud',transport:'polling',privateBetaStorageConnected:true,businessProductionConnected:false};output.body=JSON.stringify(state);}
+      if(path==='/api/state'&&output.status===200){
+        const state=JSON.parse(output.body);const realCore=executionMode==='core';
+        state.auth={email:session.email};
+        state.environment={...state.environment,deploymentMode:'private-beta',executionLocation:'Cloud',transport:'polling',executionMode:realCore?'core':'cloud-sandbox',coreIngressConnected:realCore,privateBetaStorageConnected:!realCore,businessProductionConnected:false,...(realCore?{}:{enterpriseRouterConnected:false})};
+        output.body=JSON.stringify(state);
+      }
       res.statusCode=output.status;res.end(output.body);
     }catch(error){if(error.retryAfter)res.setHeader('retry-after',String(error.retryAfter));reply(error.status||503,{error:error.status?error.message:'서비스 요청을 처리하지 못했습니다.',...(error.retryAfter?{retryAfter:error.retryAfter}:{})});}
   };
 }
+

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer, request } from 'node:http';
 import { once } from 'node:events';
 import { createCloudHandler } from '../server.mjs';
+import { createCoreIngressAdapter } from '../core-ingress-adapter.mjs';
 
 const ORIGIN = 'https://thefa-core-console.vercel.app';
 const APP_ORIGIN = 'https://app.thefacore.com';
@@ -209,6 +210,45 @@ test('authenticated state adds verified email and explicit Cloud sandbox boundar
   assert.equal(artifact.text, '# Cloud sandbox report\n');
 });
 
+test('explicit Core mode sends authenticated API traffic only to the server-side Core ingress', async t => {
+  const coreCalls = [];
+  const sourceSha = 'b2a909ede47324019a83fceb6ec277a6f47bac8c';
+  const transport = {
+    async submit(value) { coreCalls.push(['submit', value]); return { task: { id: 'job_core_001', title: value.goal, status: 'QUEUED' }, reused: false }; },
+    async readState(context) { coreCalls.push(['state', context]); return { tasks: [], environment: { enterpriseRouterConnected: true } }; },
+    async readReceipt(context) { coreCalls.push(['receipt', context]); return { receipt: { id: context.receiptId, status: 'VERIFIED', terminal: true } }; }
+  };
+  const coreIngress = createCoreIngressAdapter({ transport, sourceSha });
+  const { call, calls } = await fixture(t, { coreIngress, env: { CORE_CONSOLE_EXECUTION_MODE: 'core', CORE_SOURCE_SHA: sourceSha } });
+  const state = await call({ path: '/api/state', headers: { cookie: COOKIE } });
+  assert.equal(state.status, 200);
+  assert.equal(state.json.environment.executionMode, 'core');
+  assert.equal(state.json.environment.coreIngressConnected, true);
+  assert.equal(state.json.environment.privateBetaStorageConnected, false);
+  assert.equal(state.json.environment.enterpriseRouterConnected, true);
+  const created = await call({ path: '/api/tasks', method: 'POST', headers: sessionHeaders, body: { title: 'Founder Live real Core', idempotencyKey: 'request-12345678' } });
+  assert.equal(created.status, 201);
+  assert.equal(created.json.task.id, 'job_core_001');
+  const receipt = await call({ path: '/api/receipts/receipt_core_001', headers: { cookie: COOKIE } });
+  assert.equal(receipt.status, 200);
+  assert.equal(receipt.json.receipt.terminal, true);
+  assert.equal(calls.engine.length, 0);
+  assert.deepEqual(coreCalls.map(call => call[0]), ['state', 'submit', 'receipt']);
+  assert.match(coreCalls[0][1].actorRef, /^actor_sha256:[0-9a-f]{64}$/);
+  assert.doesNotMatch(JSON.stringify(coreCalls), new RegExp(EMAIL.replace('.', '\\.')));
+});
+
+test('Core mode fails closed and never falls back to the Cloud Sandbox engine', async t => {
+  const sourceSha = 'b2a909ede47324019a83fceb6ec277a6f47bac8c';
+  const { call, calls } = await fixture(t, { env: { CORE_CONSOLE_EXECUTION_MODE: 'core', CORE_SOURCE_SHA: sourceSha } });
+  const state = await call({ path: '/api/state', headers: { cookie: COOKIE } });
+  assert.equal(state.status, 503);
+  assert.equal(state.json.code, 'CORE_INGRESS_UNAVAILABLE');
+  const created = await call({ path: '/api/tasks', method: 'POST', headers: sessionHeaders, body: { title: 'must not fall back', idempotencyKey: 'request-12345678' } });
+  assert.equal(created.status, 503);
+  assert.equal(created.json.code, 'CORE_INGRESS_UNAVAILABLE');
+  assert.equal(calls.engine.length, 0);
+});
 test('logout expires the secure cookie and prevents the former session from reading state', async t => {
   const { call, calls } = await fixture(t);
   const response = await call({ path: '/auth/logout', method: 'POST', headers: sessionHeaders, body: {} });
@@ -348,3 +388,4 @@ test('setup package download requires an invited session and never invokes execu
  const response=await call({path:'/downloads/THEFA-Local-Setup-Windows.zip',headers:sessionHeaders});
  assert.equal(response.status,200);assert.equal(response.headers['content-type'],'application/zip');assert.equal(response.text,'PK-test-package');assert.equal(calls.engine.length,0);
 });
+

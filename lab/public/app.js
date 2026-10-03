@@ -18,7 +18,8 @@ function empty(title, description) { return `<div class="empty-state"><span clas
 function selectedTask() { return model.state?.tasks.find(task => task.id === model.selectedTaskId); }
 function taskTitle(taskId) { return model.state?.tasks.find(task => task.id === taskId)?.title || '작업'; }
 function isCloud() { return model.state?.environment?.deploymentMode === 'private-beta' || model.state?.environment?.executionLocation === 'Cloud' || (!model.state && cloudHost); }
-function sandboxName() { return isCloud() ? 'Cloud 샌드박스' : '로컬 시험 공간'; }
+function isCoreMode() { return model.state?.environment?.executionMode === 'core'; }
+function sandboxName() { return isCoreMode() ? 'THE FA Core' : isCloud() ? 'Cloud 샌드박스' : '로컬 시험 공간'; }
 function resourceMode(resource) {
   if (resource.status === 'CONNECTED' && resource.executionLocation === 'Cloud') return 'REAL';
   return resource.status === 'CONNECTED' && resource.executionLocation === 'PC' ? 'LOCAL' : ['MOCK', 'PLANNED'].includes(resource.status) ? resource.status : 'DISCONNECTED';
@@ -26,6 +27,7 @@ function resourceMode(resource) {
 function resourceName(resource) { return resource.model ? `${resource.provider} · ${resource.model}` : resource.provider || '실행 자원'; }
 function identifierPath(value) { return encodeURIComponent(String(value)); }
 function scopeNote(task) {
+  if (isCoreMode()) return task ? '실제 THE FA Core 실행 기록입니다. terminal Receipt와 QA 근거가 확인된 상태만 완료로 봅니다.' : '실제 THE FA Core 실행 상태를 읽습니다.';
   if (!task) return `${sandboxName()}의 시험 결과입니다. 실제 업무 수행은 별도로 검증해야 합니다.`;
   if (task.scenario === 'approval') return `검증 범위: 모의 승인 절차와 ${sandboxName()}의 시험 보고서. 실제 배포는 수행하지 않습니다. 승인 범위는 시험 절차로 제한됩니다.`;
   if (task.scenario === 'summary' || task.qa?.scope === 'OUTPUT_EXISTS_AND_INTEGRITY_ONLY') return isCloud() ? '대표 PC의 Local AI와 연결되지 않았습니다. Cloud에서는 요약 실행을 건너뛰고 이유를 기록합니다.' : '검증 범위: 기존 Local AI의 응답 존재와 파일 무결성. 요약 내용의 의미 정확도는 아직 검증되지 않았습니다.';
@@ -58,19 +60,20 @@ async function api(path, options = {}) {
 function showError(message) { const element = $('#global-error'); element.textContent = message; element.hidden = !message; }
 function setConnection(connected, message) {
   model.connected = connected;
-  $('#connection-status').textContent = message || (connected ? (isCloud() ? 'Cloud 샌드박스 연결됨' : '로컬 서버 연결됨') : '연결 확인 필요');
+  $('#connection-status').textContent = message || (connected ? (isCoreMode() ? 'THE FA Core 연결됨' : isCloud() ? 'Cloud 샌드박스 연결됨' : '로컬 서버 연결됨') : '연결 확인 필요');
   $('#connection-dot').className = `connection-dot ${connected ? 'ready' : 'offline'}`;
   $('#submit-goal').disabled = !connected || model.creating;
 }
 function renderRuntimeCopy() {
   const cloud = isCloud();
+  const core = isCoreMode();
   document.body.classList.toggle('cloud-mode', cloud);
-  document.title = cloud ? 'THE FA Core · 초대 전용 Private Beta' : 'THE FA Core · Functional Console Lab';
-  $('#workspace-kind').textContent = cloud ? 'INVITATION ONLY · PRIVATE BETA' : 'LOCAL WORKSPACE';
-  $('#runtime-title').textContent = cloud ? '초대 전용 Private Beta · 샌드박스 기능 시험' : 'Local Development Mode';
-  $('#runtime-description').textContent = cloud ? 'Cloud에서 시험 보고서를 생성합니다. 중앙 업무 실행과 실제 회사 운영 데이터는 연결되지 않았습니다.' : '이 PC의 기능 시험 공간입니다. 공개 서비스와 연결되지 않습니다.';
-  $('#runtime-badge').className = `badge ${cloud ? (model.state ? 'real' : 'planned') : 'local'}`;
-  $('#runtime-badge').textContent = cloud ? (model.state ? 'REAL · SANDBOX' : 'CLOUD · 확인 중') : 'LOCAL';
+  document.title = core ? 'THE FA Core · Founder Live' : cloud ? 'THE FA Core · 초대 전용 Private Beta' : 'THE FA Core · Functional Console Lab';
+  $('#workspace-kind').textContent = core ? 'FOUNDER LIVE · REAL CORE' : cloud ? 'INVITATION ONLY · PRIVATE BETA' : 'LOCAL WORKSPACE';
+  $('#runtime-title').textContent = core ? 'Founder Live · 실제 THE FA Core' : cloud ? '초대 전용 Private Beta · 샌드박스 기능 시험' : 'Local Development Mode';
+  $('#runtime-description').textContent = core ? '인증된 요청을 기존 Work Unit·Scheduler 실행 경로로 보내고 실제 terminal Receipt를 다시 읽습니다. Core 장애 시 Sandbox로 자동 전환하지 않습니다.' : cloud ? 'Cloud에서 시험 보고서를 생성합니다. 중앙 업무 실행과 실제 회사 운영 데이터는 연결되지 않았습니다.' : '이 PC의 기능 시험 공간입니다. 공개 서비스와 연결되지 않습니다.';
+  $('#runtime-badge').className = `badge ${core || (cloud && model.state) ? 'real' : cloud ? 'planned' : 'local'}`;
+  $('#runtime-badge').textContent = core ? 'REAL · CORE' : cloud ? (model.state ? 'REAL · SANDBOX' : 'CLOUD · 확인 중') : 'LOCAL';
   $('#session-controls').hidden = !cloud || !model.state;
   const email = model.state?.auth?.email || model.state?.user?.email || '';
   $('#session-email').textContent = maskEmail(email);
@@ -78,21 +81,24 @@ function renderRuntimeCopy() {
   $('#session-email').title = '계정 상세 보기';
   $('#homepage-link').href = cloud ? 'https://thefacore.com/' : (location.port === '4180' ? 'http://127.0.0.1:4175/' : 'http://127.0.0.1:4174/');
   $('#homepage-link').innerHTML = `${cloud ? 'THE FA Core 홈페이지' : '홈페이지 로컬 Preview'} <span aria-hidden="true">↗</span>`;
-  $('#goal-description').textContent = cloud ? '목표를 입력하고 Cloud 샌드박스에서 실행 흐름을 시험하세요. 일반 업무의 실제 수행은 아직 연결되지 않았습니다.' : '목표를 알려주세요. 계획부터 실행, 결과 확인까지 Core가 이어갑니다.';
+  $('#goal-description').textContent = core ? '목표를 실제 THE FA Core에 전달합니다. 접수·실행·QA·terminal Receipt 상태를 이 Console에서 확인합니다.' : cloud ? '목표를 입력하고 Cloud 샌드박스에서 실행 흐름을 시험하세요. 일반 업무의 실제 수행은 아직 연결되지 않았습니다.' : '목표를 알려주세요. 계획부터 실행, 결과 확인까지 Core가 이어갑니다.';
+  if (core && $('#scenario').value !== 'safe') $('#scenario').value = 'safe';
+  const scenarioSelect = $('#scenario').closest('.scenario-select');
+  if (scenarioSelect) scenarioSelect.hidden = core;
   $('#scenario option[value="safe"]').textContent = cloud ? 'Cloud 시험 보고서 만들기' : '로컬 보고서 만들기';
   $('#scenario option[value="summary"]').textContent = cloud ? 'PC Local AI · 미연결' : '기존 Local AI로 요약';
-  $('#summary-input-wrap p').textContent = cloud ? '대표 PC의 Local AI와 연결되지 않아 Cloud에서는 실행을 건너뛰고 이유만 기록합니다.' : '기존 Ollama 모델이 없으면 실행을 건너뛰고 이유를 기록합니다.';
+  $('#summary-input-wrap p').textContent = core ? '실제 Core 요청에서는 이 Sandbox 전용 입력을 사용하지 않습니다.' : cloud ? '대표 PC의 Local AI와 연결되지 않아 Cloud에서는 실행을 건너뛰고 이유만 기록합니다.' : '기존 Ollama 모델이 없으면 실행을 건너뛰고 이유를 기록합니다.';
   $('#summary-input').placeholder = cloud ? '미연결 처리와 영수증을 시험할 원문을 입력하세요.' : '이 PC에 이미 설치된 Local AI가 읽을 텍스트를 붙여 넣으세요.';
-  $('[data-preset="summary"] .subtle').textContent = cloud ? 'DISCONNECTED' : 'LOCAL AI';
-  $('#projects-view .page-heading p').textContent = cloud ? '초대 전용 Cloud 샌드박스의 목표와 시험 결과를 확인합니다.' : '이 로컬 작업실에서 수행한 목표와 결과를 함께 확인합니다.';
-  $('#resources-view > .notice').textContent = cloud ? '자원 선택은 Cloud 샌드박스의 시험 규칙으로 수행합니다. 전사 THE FA Router V2와 대표 PC의 자원은 연결되지 않았습니다.' : '현재 자원 선택은 Lab의 로컬 시험 규칙으로 수행합니다. 전사 THE FA Router V2 연결은 아직 제공되지 않습니다.';
-  $('#results-view .page-heading p').textContent = cloud ? 'Cloud 샌드박스에서 실제 생성한 시험 파일과 검증 기록입니다.' : '로컬 실행으로 생성된 파일과 검증 기록입니다.';
-  $('#memory-view > .notice').textContent = cloud ? '이 Private Beta의 시험 결과 기록만 표시됩니다. 전사 Company Memory와 연결되어 있지 않습니다.' : '로컬 기록만 표시됩니다. 전사 Company Memory와 연결되어 있지 않습니다.';
-  $('#connections-view > .notice').textContent = cloud ? '초대 계정 인증과 전용 시험 저장소를 사용합니다. 외부 업무 도구 연결 설정은 제공하지 않습니다.' : '이 시험 공간에서는 API Key, OAuth, 실제 계정 연결을 설정하지 않습니다.';
-  $('#usage-view .page-heading p').textContent = cloud ? 'Cloud 샌드박스에서 기록된 시험 사용량만 표시합니다.' : '로컬 실행 기록에서 확인되는 사용량만 표시합니다.';
-  $('.main-footer > span').textContent = cloud ? 'THE FA Core · 초대 전용 Private Beta' : 'THE FA Core · Functional Console Lab V2';
-  $('.mode-guide dd').textContent = cloud ? 'Cloud 샌드박스가 실제 보고서 파일을 생성·저장함. 실제 회사 업무와 외부 AI 실행은 연결되지 않았습니다.' : '실제 외부 시스템에서 수행됨. 이 Lab은 외부 실행을 제공하지 않습니다.';
-  if (!model.state && cloud) $('#resource-summary p').textContent = 'Cloud 샌드박스의 자원 상태를 확인하고 있습니다.';
+  $('[data-preset="summary"] .subtle').textContent = core ? 'SANDBOX ONLY' : cloud ? 'DISCONNECTED' : 'LOCAL AI';
+  $('#projects-view .page-heading p').textContent = core ? '실제 THE FA Core로 접수한 작업과 terminal Receipt 상태를 확인합니다.' : cloud ? '초대 전용 Cloud 샌드박스의 목표와 시험 결과를 확인합니다.' : '이 로컬 작업실에서 수행한 목표와 결과를 함께 확인합니다.';
+  $('#resources-view > .notice').textContent = core ? '실행 자원은 기존 THE FA Core·Router·Scheduler 권위에서 선택합니다. 이 사이트가 별도 Router나 Scheduler를 만들지 않습니다.' : cloud ? '자원 선택은 Cloud 샌드박스의 시험 규칙으로 수행합니다. 전사 THE FA Router V2와 대표 PC의 자원은 연결되지 않았습니다.' : '현재 자원 선택은 Lab의 로컬 시험 규칙으로 수행합니다. 전사 THE FA Router V2 연결은 아직 제공되지 않습니다.';
+  $('#results-view .page-heading p').textContent = core ? '실제 Core 작업의 결과물과 QA·terminal Receipt 근거를 표시합니다.' : cloud ? 'Cloud 샌드박스에서 실제 생성한 시험 파일과 검증 기록입니다.' : '로컬 실행으로 생성된 파일과 검증 기록입니다.';
+  $('#memory-view > .notice').textContent = core ? 'Company Memory를 이 화면이 직접 구현하거나 수정하지 않습니다. Core readback으로 제공된 기록만 표시합니다.' : cloud ? '이 Private Beta의 시험 결과 기록만 표시됩니다. 전사 Company Memory와 연결되어 있지 않습니다.' : '로컬 기록만 표시됩니다. 전사 Company Memory와 연결되어 있지 않습니다.';
+  $('#connections-view > .notice').textContent = core ? '인증된 Console → server-only Core ingress만 사용합니다. 브라우저에서 PC·Secret·Provider로 직접 연결하지 않습니다.' : cloud ? '초대 계정 인증과 전용 시험 저장소를 사용합니다. 외부 업무 도구 연결 설정은 제공하지 않습니다.' : '이 시험 공간에서는 API Key, OAuth, 실제 계정 연결을 설정하지 않습니다.';
+  $('#usage-view .page-heading p').textContent = core ? 'Core readback에서 확인된 사용 기록만 표시합니다.' : cloud ? 'Cloud 샌드박스에서 기록된 시험 사용량만 표시합니다.' : '로컬 실행 기록에서 확인되는 사용량만 표시합니다.';
+  $('.main-footer > span').textContent = core ? 'THE FA Core · Founder Live V1' : cloud ? 'THE FA Core · 초대 전용 Private Beta' : 'THE FA Core · Functional Console Lab V2';
+  $('.mode-guide dd').textContent = core ? '실제 Core 경로로 실행합니다. 장애 시 샌드박스로 몰래 전환하지 않고 오류를 표시합니다.' : cloud ? 'Cloud 샌드박스가 실제 보고서 파일을 생성·저장함. 실제 회사 업무와 외부 AI 실행은 연결되지 않았습니다.' : '실제 외부 시스템에서 수행됨. 이 Lab은 외부 실행을 제공하지 않습니다.';
+  if (!model.state && cloud) $('#resource-summary p').textContent = core ? 'THE FA Core 상태를 확인하고 있습니다.' : 'Cloud 샌드박스의 자원 상태를 확인하고 있습니다.';
   setScenario($('#scenario').value);
 }
 function switchView(view) {
@@ -191,17 +197,18 @@ function renderConnections() {
 function renderUsage() {
   const usage = model.state.usage || {};
   const cloud = isCloud();
+  const core = isCoreMode();
   const cards = [['tasksCreated', '만든 작업', `${sandboxName()}의 목표 접수`], ['artifactsVerified', '검증한 시험 결과물', 'QA와 영수증으로 확인한 파일'], ['localAiCalls', 'Local AI 응답', cloud ? '대표 PC Local AI 연결은 제공되지 않음' : '결과가 저장된 기존 PC 모델 요청'], ['mockRuns', '모의 작업', '유료 제공자를 호출하지 않은 시험'], ['externalCalls', '외부 AI / 업무 호출', cloud ? 'Cloud 시험 저장소 요청과 구분' : '실제 외부 AI / 서비스 호출']];
   $('#usage-grid').innerHTML = cards.map(([key, title, detail]) => `<article class="usage-card"><h2>${title}</h2><div class="usage-number">${Number.isFinite(usage[key]) ? usage[key].toLocaleString('ko-KR') : '—'}</div><p>${detail}</p></article>`).join('');
   const environment = model.state.environment || {};
   const production = environment.businessProductionConnected ?? environment.productionConnected;
   const fields = [['appMode', '앱 모드'], ['dataMode', '데이터'], ['executionMode', '실행'], ['providerMode', '자원 선택'], ['selectionAuthority', '선택 권위']];
-  $('#environment-info').innerHTML = `<h2>현재 실행환경</h2><div class="environment-grid"><p>시험 환경<strong>${cloud ? 'Cloud 샌드박스' : '이 PC의 로컬 시험 공간'}</strong></p><p>실제 회사 운영 연결<strong>${production === false ? '연결되지 않음' : '상태 확인 필요'}</strong></p><p>전사 Router 연결<strong>${environment.enterpriseRouterConnected === false ? '연결되지 않음' : '상태 확인 필요'}</strong></p>${cloud ? `<p>Private Beta 시험 저장소<strong>${environment.privateBetaStorageConnected === true ? '연결됨 · 시험 전용' : '상태 확인 필요'}</strong></p>` : ''}</div><details><summary>고급 실행환경 정보</summary><pre>${esc(JSON.stringify(environment, null, 2))}</pre></details>`;
+  $('#environment-info').innerHTML = `<h2>현재 실행환경</h2><div class="environment-grid"><p>${core ? '실행 환경' : '시험 환경'}<strong>${core ? 'THE FA Core · 실제 실행' : cloud ? 'Cloud 샌드박스 · Demo' : '이 PC의 로컬 시험 공간'}</strong></p><p>실제 회사 운영 연결<strong>${production === false ? '연결되지 않음' : '상태 확인 필요'}</strong></p><p>전사 Router 연결<strong>${core ? (environment.enterpriseRouterConnected === true ? 'Core 경유 연결됨' : 'Core readback 확인 필요') : '연결되지 않음'}</strong></p>${cloud && !core ? `<p>Private Beta 시험 저장소<strong>${environment.privateBetaStorageConnected === true ? '연결됨 · 시험 전용' : '상태 확인 필요'}</strong></p>` : ''}${core ? `<p>Core ingress<strong>${environment.coreIngressConnected === true ? '연결됨 · fail-closed' : '연결 확인 필요'}</strong></p>` : ''}</div><details><summary>고급 실행환경 정보</summary><pre>${esc(JSON.stringify(environment, null, 2))}</pre></details>`;
 }
 function renderProjects() {
   const tasks = model.state.tasks;
   const cloud = isCloud();
-  $('#project-list').innerHTML = `<article class="record-card"><div class="record-top"><h2>${cloud ? 'Core Private Beta Sandbox' : 'Core Local Lab'}</h2>${badge(cloud ? 'REAL' : 'LOCAL')}</div><p>${cloud ? '초대 계정으로 Cloud에서 기능을 시험하는 독립 작업 공간입니다. 중앙 업무 실행과 실제 회사 운영 데이터는 연결되지 않았습니다.' : '이 PC에서 실행을 시험하는 독립 작업 공간입니다. 전사 프로젝트나 실제 회사 데이터에 연결되지 않았습니다.'}</p><div class="project-summary"><span><strong>${tasks.length}</strong> 작업</span><span><strong>${tasks.filter(task => task.status === 'VERIFIED').length}</strong> 시험 결과 검증</span><span><strong>${model.state.approvals.filter(approval => approval.status === 'PENDING').length}</strong> 승인 대기</span></div><div class="project-actions"><button class="button secondary" data-view="home">새 목표 맡기기 <span aria-hidden="true">↗</span></button><button class="button" data-view="results">프로젝트 결과물</button></div></article>`;
+  $('#project-list').innerHTML = `<article class="record-card"><div class="record-top"><h2>${isCoreMode() ? 'Founder Live · THE FA Core' : cloud ? 'Core Private Beta Sandbox' : 'Core Local Lab'}</h2>${badge(cloud ? 'REAL' : 'LOCAL')}</div><p>${isCoreMode() ? '인증된 요청을 기존 THE FA Core 실행계층에 전달하고 실제 상태·QA·terminal Receipt를 읽는 작업 공간입니다.' : cloud ? '초대 계정으로 Cloud에서 기능을 시험하는 독립 작업 공간입니다. 중앙 업무 실행과 실제 회사 운영 데이터는 연결되지 않았습니다.' : '이 PC에서 실행을 시험하는 독립 작업 공간입니다. 전사 프로젝트나 실제 회사 데이터에 연결되지 않았습니다.'}</p><div class="project-summary"><span><strong>${tasks.length}</strong> 작업</span><span><strong>${tasks.filter(task => task.status === 'VERIFIED').length}</strong> 시험 결과 검증</span><span><strong>${model.state.approvals.filter(approval => approval.status === 'PENDING').length}</strong> 승인 대기</span></div><div class="project-actions"><button class="button secondary" data-view="home">새 목표 맡기기 <span aria-hidden="true">↗</span></button><button class="button" data-view="results">프로젝트 결과물</button></div></article>`;
 }
 async function renderAdvanced() {
   const task = selectedTask();
@@ -250,7 +257,7 @@ $('#goal-form').addEventListener('submit', async event => {
   model.creating = true;
   $('#submit-goal').disabled = true;
   $('#submit-goal').firstElementChild.textContent = '목표 접수 중…';
-  message.textContent = `목표를 ${isCloud() ? 'Cloud 샌드박스' : '로컬 실행 엔진'}에 전달하고 있습니다.`;
+  message.textContent = `목표를 ${isCoreMode() ? '실제 THE FA Core' : isCloud() ? 'Cloud 샌드박스' : '로컬 실행 엔진'}에 전달하고 있습니다.`;
   message.className = 'form-message';
   showError('');
   try {
