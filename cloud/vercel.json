@@ -10,5 +10,8 @@
       "includeFiles": "{lab/public/**,cloud/login.html,cloud/login.css,cloud/login.js}"
     }
   },
-  "rewrites": [{"source": "/:path*", "destination": "/api/console?route=/:path*"}]
+  "rewrites": [
+    {"source": "/", "destination": "/api/console?route=/"},
+    {"source": "/:path+", "destination": "/api/console?route=/:path+"}
+  ]
 }
