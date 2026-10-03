@@ -4,6 +4,6 @@ User-agent: *
 Allow: /
 
 # The sign-in shell holds no indexable content while accounts are closed.
-Disallow: /login.html
 
-Sitemap: https://core.thefa.kr/sitemap.xml
+
+Sitemap: https://thefacore.com/sitemap.xml

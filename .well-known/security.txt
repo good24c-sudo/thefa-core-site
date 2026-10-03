@@ -1,0 +1,4 @@
+Contact: mailto:thefa@thefa.kr
+Expires: 2027-10-01T00:00:00Z
+Canonical: https://thefacore.com/.well-known/security.txt
+Preferred-Languages: ko, en

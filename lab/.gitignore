@@ -1,0 +1,7 @@
+.env
+.env.*
+!.env.example
+runtime-state/
+test-output/
+node_modules/
+*.log

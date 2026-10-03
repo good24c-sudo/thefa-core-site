@@ -39,7 +39,7 @@ window.BUILDUP_DATA = (function () {
           Leave '' and the page falls back to relative URLs, which work
           on any host — including a file:// preview. Fill it in before
           submitting the sitemap to Search Console. */
-    siteUrl: 'https://core.thefa.kr',
+    siteUrl: 'https://thefacore.com',
 
     /* 2. Where the contact form goes.
           ''      -> the form composes a complete email addressed to
@@ -51,9 +51,11 @@ window.BUILDUP_DATA = (function () {
                      only falls back to mail if that request fails. */
     formEndpoint: '',
 
-    /* 3. Simple sign-in. See auth below. */
-    authEnabled: false,
-    authBaseUrl: ''
+    /* Invite-only email authentication is handled by the separate server.
+       Social signup remains unavailable. No client-side allowlist or session. */
+    authEnabled: true,
+    authBaseUrl: 'https://app.thefacore.com',
+    consoleLoginUrl: 'https://app.thefacore.com/login.html'
   };
 
   /* ---------- site-wide ---------- */
@@ -62,7 +64,7 @@ window.BUILDUP_DATA = (function () {
     company: 'THE FA',
     legal: '주식회사 더파 (The FA Co., Ltd.)',
     tagline: '한 번의 지시를, 검증된 실행으로.',
-    category: 'AI 실행 운영체제',
+    category: 'AI Work OS · 업무 실행 운영체제',
     links: {
       thefa: 'https://thefa.kr',
       thefaContact: 'https://thefa.kr/contact.html',
@@ -72,19 +74,10 @@ window.BUILDUP_DATA = (function () {
     }
   };
 
-  /* ---------- simple sign-in ----------
-     The UI is complete and production-shaped. The hand-off is not armed
-     until config.authEnabled is true and config.authBaseUrl points at an
-     OAuth start endpoint, because signing a visitor in requires a server
-     that holds the client secrets — a static page cannot and must not.
-
-     To arm it, set in config above:
-       authEnabled: true
-       authBaseUrl: 'https://api.your-host/auth'
-     Each button then opens  <authBaseUrl>/<provider>?redirect_uri=<page>
-     e.g. https://api.your-host/auth/google?redirect_uri=https://…/console
-     Until then every button says, plainly, that accounts are not open
-     yet and routes to the contact form instead of faking a session. */
+  /* ---------- invite-only email sign-in ----------
+     The public site only links to consoleLoginUrl. Email verification,
+     allowlist checks and HttpOnly sessions belong to the Console server.
+     Social signup buttons remain disabled; authEnabled does not arm them. */
   var auth = {
     providers: [
       { id: 'google', label: 'Google로 계속하기' },
@@ -92,10 +85,10 @@ window.BUILDUP_DATA = (function () {
       { id: 'apple', label: 'Apple로 계속하기' },
       { id: 'github', label: 'GitHub로 계속하기' }
     ],
-    notReadyTitle: '계정 기능은 아직 열려 있지 않습니다',
-    notReadyBody: '간편 로그인 화면은 실제 인증이 연결될 때를 위해 먼저 준비해 두었습니다. 지금 버튼을 눌러도 로그인되지 않으며, 어떤 계정 정보도 요청하거나 저장하지 않습니다.',
-    emailLabel: '이메일로 계속하기',
-    emailHint: '계정이 열리면 이 주소로 안내드립니다. 지금은 전송되지 않습니다.'
+    notReadyTitle: '간편가입은 준비 중입니다',
+    notReadyBody: 'Google·Microsoft·Apple·GitHub 간편가입은 아직 제공하지 않습니다. 사전에 허가된 이메일의 참가자는 별도 로그인 화면에서 이메일 인증 후 Console에 참여할 수 있습니다.',
+    emailLabel: '허가된 이메일로 로그인',
+    emailHint: '이메일 입력과 인증은 별도 Console 로그인 화면에서 진행합니다. 이 홈페이지에서는 계정 정보를 수집하지 않습니다.'
   };
 
   /* ---------- contact form ---------- */
@@ -195,18 +188,18 @@ window.BUILDUP_DATA = (function () {
   var nav = [
     { label: '제품', href: 'index.html#product' },
     { label: '작동 방식', href: 'index.html#how' },
+    { label: 'AI 자원', href: 'index.html#resources' },
     { label: '활용 사례', href: 'index.html#usecases' },
-    { label: 'Demo', href: 'demo.html' },
     { label: '보안·검증', href: 'index.html#trust' },
-    { label: '도입 문의', href: 'contact.html' }
+    { label: 'Demo', href: 'demo.html' }
   ];
 
   /* ---------- 01 HERO ---------- */
   var hero = {
-    eyebrow: 'AI EXECUTION OPERATING SYSTEM',
-    h1: ['한 번의 지시를,', '검증된 실행으로.'],
+    eyebrow: 'AI WORK OPERATING SYSTEM',
+    h1: ['모든 AI와 도구를,', '하나의 Core로.'],
     sub: ['AI에게 질문만 하는 시대에서,', 'AI가 실제 작업을 수행하고 결과까지 검증하는 시대로.'],
-    body: 'THEFA Core는 사용자의 요청을 작업으로 분해하고, 적합한 AI와 실행 자원을 연결한 뒤, 실제 실행과 검증 결과까지 하나의 흐름으로 이어주는 THE FA의 AI 실행 운영체제입니다.',
+    body: 'THE FA Core는 목표와 필요한 회사·프로젝트 기억을 이해하고, AI·Agent·PC·도구를 조합해 실행·QA·결과물·다음 작업까지 연결하는 AI Work OS입니다.',
     flowChip: ['신뢰할 수 있는 실행', '권한 기반 통제', '검증 결과 기록'],
     microcopy: '제품 구조를 설명하기 위한 예시 화면입니다. 실제 연결 범위는 실행 환경과 권한에 따라 달라질 수 있습니다.',
     /* Two hero visual directions, switchable via Tweaks. */
@@ -538,7 +531,7 @@ window.BUILDUP_DATA = (function () {
     h2: ['복잡한 실행을,', '한눈에 보이는 작업 단위로.'],
     body: 'Core Console은 요청·실행·검증 기록을 한 화면에서 확인하는 자리입니다. 아래는 향후 구조를 보여주는 Preview입니다.',
     badge: LABELS.preview,
-    note: 'Preview · 실제 THEFA Core Console은 아직 공개되지 않았습니다. 모든 수치와 상태는 예시 데이터입니다.',
+    note: 'Preview · 이 화면의 수치와 상태는 예시 데이터입니다. 초대 참가자용 Console은 별도 이메일 인증 후 접근합니다.',
     nav: ['Home', 'Tasks', 'Runs', 'Workers', 'Resources', 'QA', 'Receipts', 'Connections', 'Settings'],
     request: '이번 서비스의 모바일 오류를 찾아 수정하고 배포 전까지 검증해줘.',
     stages: [
@@ -638,7 +631,7 @@ window.BUILDUP_DATA = (function () {
       { status: 'Concept', title: 'Multi-AI Orchestration', body: '작업 성격에 따른 실행 주체 배치 개념 정리.' },
       { status: 'Preview', title: 'Core Console', body: 'Tasks · Runs · Workers · QA · Receipts 화면 구조 설계.' },
       { status: 'Preview', title: 'Verification · Receipt', body: '검증 범위와 결과 기록 형식 설계.' },
-      { status: 'Coming Soon', title: '계정 · Console 공개', body: '실제 계정과 Console 연결 준비.' },
+      { status: 'Early Access', title: '초대 참가자 Console', body: '사전에 허가된 이메일의 참가자만 이메일 인증 후 접근. 간편가입은 준비 중.' },
       { status: 'Early Access', title: '도입 검토 접수', body: '사용 환경과 실행 범위 상담 접수 중.' }
     ],
     note: '위 항목은 제품 구조 설명용이며, 확정된 출시 일정이나 기능 보장이 아닙니다.'
@@ -669,7 +662,7 @@ window.BUILDUP_DATA = (function () {
       { q: '실행 결과는 어떻게 확인하나요?', a: '실행 종료와 검증 완료를 다른 상태로 봅니다. 확인된 범위, 근거, 남은 조건을 Receipt 기록으로 함께 남기는 흐름을 지향합니다.' },
       { q: '개발 업무에만 사용할 수 있나요?', a: '개발 흐름이 대표적인 활용 예이지만, 작업을 분해하고 실행·검증·기록할 수 있는 다양한 업무 흐름으로 확장할 수 있습니다. 모든 업무의 자동화를 의미하지는 않습니다.' },
       { q: '기업에서도 사용할 수 있나요?', a: '승인 절차, 실행 기록, 권한 분리가 필요한 조직을 주요 검토 대상으로 봅니다. 구체적인 보안 구성은 도입 검토 시 별도 협의 절차를 따릅니다.' },
-      { q: '현재 바로 사용할 수 있나요?', a: '현재 공개된 것은 제품 구조를 설명하는 페이지와 Demo입니다. 계정과 Console은 아직 공개되지 않았으며, 상태를 Demo · Preview · Coming Soon · Early Access로 구분해 표기합니다.' },
+      { q: '현재 바로 사용할 수 있나요?', a: '홈페이지와 Interactive Demo는 공개되어 있습니다. 초대 참가자용 Console은 사전에 허가된 이메일의 인증 후 접근할 수 있습니다. 간편가입은 준비 중이며, 실제 실행 범위는 Console에 표시된 연결 상태와 검증 범위를 확인해 주세요.' },
       { q: '도입하려면 어떻게 해야 하나요?', a: '도입 문의를 통해 사용 환경과 필요한 실행 범위를 알려주세요. THE FA 담당자를 통해 회신드립니다.' }
     ]
   };

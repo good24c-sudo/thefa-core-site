@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "outputDirectory": "public",
+  "buildCommand": "",
+  "installCommand": "",
+  "functions": {
+    "api/console.mjs": {
+      "maxDuration": 30,
+      "includeFiles": "{lab/public/**,cloud/login.html,cloud/login.css,cloud/login.js}"
+    }
+  },
+  "rewrites": [
+    {"source": "/", "destination": "/api/console?route=/"},
+    {"source": "/:path*", "destination": "/api/console?route=/:path*"}
+  ]
+}
