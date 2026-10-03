@@ -2,6 +2,8 @@
 
 const $ = selector => document.querySelector(selector);
 const model = { state: null, selectedTaskId: null, view: 'home', connected: false, creating: false, pending: new Set(), receipts: new Map(), receiptLoading: null };
+const transport = { timer: null, events: null, failures: 0, active: false, inFlight: false, errorVisible: false, sessionExpired: false };
+const cloudHost = location.hostname === 'thefa-core-console.vercel.app';
 const viewNames = { home: '홈', projects: '프로젝트', resources: 'AI 팀 / 자원', approvals: '승인 필요', results: '결과물', memory: 'Memory', connections: 'Connections', usage: 'Usage' };
 const statusNames = { VERIFIED: '시험 결과 검증됨', RUNNING: '실행 중', QUEUED: '실행 대기', CREATED: '목표 접수', PLANNED: '계획 준비', PAUSED: '일시 정지 · 이어서 실행 가능', WAITING_APPROVAL: '승인 대기', FAILED: '실패 · 이어서 실행 가능', FAILED_RETRYABLE: '실패 · 이어서 실행 가능', REJECTED: '승인 거절됨', SKIPPED: '실행 건너뜀', COMPLETED: '단계 수행됨', PENDING: '대기', PASSED: '검사 통과', PASS: '검사 통과', APPROVED: '시험 승인됨' };
 const stageNames = { REQUEST: '목표 접수', GOAL: '목표 이해', PLAN: '계획', WORK_UNITS: '작업 나누기', RESOURCE_SELECTION: '자원 선택', EXECUTION: '실행', REVIEW: '검토', QA: '검사', ARTIFACT: '결과 파일', RECEIPT: '실행 영수증', VERIFIED: '결과 검증' };
@@ -15,16 +17,21 @@ function status(statusValue) { return `<span class="status-pill ${esc(String(sta
 function empty(title, description) { return `<div class="empty-state"><span class="empty-symbol" aria-hidden="true">◇</span><h3>${esc(title)}</h3><p>${esc(description)}</p></div>`; }
 function selectedTask() { return model.state?.tasks.find(task => task.id === model.selectedTaskId); }
 function taskTitle(taskId) { return model.state?.tasks.find(task => task.id === taskId)?.title || taskId; }
-function resourceMode(resource) { return resource.status === 'CONNECTED' && resource.executionLocation === 'PC' ? 'LOCAL' : ['MOCK', 'PLANNED'].includes(resource.status) ? resource.status : 'DISCONNECTED'; }
+function isCloud() { return model.state?.environment?.deploymentMode === 'private-beta' || model.state?.environment?.executionLocation === 'Cloud' || (!model.state && cloudHost); }
+function sandboxName() { return isCloud() ? 'Cloud 샌드박스' : '로컬 시험 공간'; }
+function resourceMode(resource) {
+  if (resource.status === 'CONNECTED' && resource.executionLocation === 'Cloud') return 'REAL';
+  return resource.status === 'CONNECTED' && resource.executionLocation === 'PC' ? 'LOCAL' : ['MOCK', 'PLANNED'].includes(resource.status) ? resource.status : 'DISCONNECTED';
+}
 function resourceName(resource) { return resource.model ? `${resource.provider} · ${resource.model}` : resource.provider || resource.id; }
 function identifierPath(value) { return encodeURIComponent(String(value)); }
 function scopeNote(task) {
-  if (!task) return '로컬 시험 결과입니다. 실제 외부 업무 실행 여부는 별도로 확인해야 합니다.';
-  if (task.scenario === 'approval') return '검증 범위: 모의 승인 절차와 로컬 시험 보고서. 실제 배포는 수행하지 않습니다. 승인 범위는 SANDBOX_SIMULATION_ONLY입니다.';
-  if (task.scenario === 'summary' || task.qa?.scope === 'OUTPUT_EXISTS_AND_INTEGRITY_ONLY') return '검증 범위: 기존 Local AI의 응답 존재와 파일 무결성. 요약 내용의 의미 정확도는 아직 검증되지 않았습니다.';
+  if (!task) return `${sandboxName()}의 시험 결과입니다. 실제 업무 수행은 별도로 검증해야 합니다.`;
+  if (task.scenario === 'approval') return `검증 범위: 모의 승인 절차와 ${sandboxName()}의 시험 보고서. 실제 배포는 수행하지 않습니다. 승인 범위는 SANDBOX_SIMULATION_ONLY입니다.`;
+  if (task.scenario === 'summary' || task.qa?.scope === 'OUTPUT_EXISTS_AND_INTEGRITY_ONLY') return isCloud() ? '대표 PC의 Local AI와 연결되지 않았습니다. Cloud에서는 요약 실행을 건너뛰고 이유를 기록합니다.' : '검증 범위: 기존 Local AI의 응답 존재와 파일 무결성. 요약 내용의 의미 정확도는 아직 검증되지 않았습니다.';
   if (task.mode === 'MOCK' || ['research', 'failover'].includes(task.scenario)) return '검증 범위: 가상 제공자의 예시 출력과 파일 무결성. 실제 시장 조사와 유료 AI 실행은 수행하지 않습니다.';
-  if (task.scenario === 'failure') return '검증 범위: 로컬 Worker 실패, 저장한 지점부터 재개, 시험 보고서와 파일 검사.';
-  return '검증 범위: 이 PC의 시험 보고서 생성, 파일 검사, 실행 영수증. 입력한 목표의 실제 업무 수행은 별도로 검증해야 합니다.';
+  if (task.scenario === 'failure') return `검증 범위: ${sandboxName()} Worker 실패, 저장한 지점부터 재개, 시험 보고서와 파일 검사.`;
+  return `검증 범위: ${isCloud() ? 'Cloud 샌드박스의' : '이 PC의'} 시험 보고서 생성, 파일 검사, 실행 영수증. 입력한 목표의 실제 업무 수행은 별도로 검증해야 합니다.`;
 }
 async function requestKey(request) {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(request)));
@@ -38,17 +45,53 @@ async function requestKey(request) {
 }
 
 async function api(path, options = {}) {
-  const response = await fetch(path, { ...options, headers: { 'Content-Type': 'application/json', ...(options.headers || {}) } });
-  const body = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(typeof body.error === 'string' ? body.error : body.error?.message || `요청에 실패했습니다 (${response.status})`);
-  return body;
+  const controller = new AbortController();
+  const deadline = setTimeout(() => controller.abort(), 12000);
+  try {
+    const response = await fetch(path, { credentials: 'same-origin', ...options, signal: options.signal || controller.signal, headers: { 'Content-Type': 'application/json', ...(options.headers || {}) } });
+    const body = await response.json().catch(() => ({}));
+    if (response.status === 401) { expireSession(); throw Object.assign(new Error('세션이 만료되었습니다. 다시 로그인해주세요.'), { status: 401 }); }
+    if (!response.ok) throw Object.assign(new Error(typeof body.error === 'string' ? body.error : body.error?.message || `요청에 실패했습니다 (${response.status})`), { status: response.status });
+    return body;
+  } finally { clearTimeout(deadline); }
 }
 function showError(message) { const element = $('#global-error'); element.textContent = message; element.hidden = !message; }
 function setConnection(connected, message) {
   model.connected = connected;
-  $('#connection-status').textContent = message || (connected ? '로컬 서버 연결됨' : '연결 확인 필요');
+  $('#connection-status').textContent = message || (connected ? (isCloud() ? 'Cloud 샌드박스 연결됨' : '로컬 서버 연결됨') : '연결 확인 필요');
   $('#connection-dot').className = `connection-dot ${connected ? 'ready' : 'offline'}`;
   $('#submit-goal').disabled = !connected || model.creating;
+}
+function renderRuntimeCopy() {
+  const cloud = isCloud();
+  document.body.classList.toggle('cloud-mode', cloud);
+  document.title = cloud ? 'THE FA Core · 초대 전용 Private Beta' : 'THE FA Core · Functional Console Lab';
+  $('#workspace-kind').textContent = cloud ? 'INVITATION ONLY · PRIVATE BETA' : 'LOCAL WORKSPACE';
+  $('#runtime-title').textContent = cloud ? '초대 전용 Private Beta · 샌드박스 기능 시험' : 'Local Development Mode';
+  $('#runtime-description').textContent = cloud ? 'Cloud에서 시험 보고서를 생성합니다. 중앙 업무 실행과 실제 회사 운영 데이터는 연결되지 않았습니다.' : '이 PC의 기능 시험 공간입니다. 공개 서비스와 연결되지 않습니다.';
+  $('#runtime-badge').className = `badge ${cloud ? (model.state ? 'real' : 'planned') : 'local'}`;
+  $('#runtime-badge').textContent = cloud ? (model.state ? 'REAL · SANDBOX' : 'CLOUD · 확인 중') : 'LOCAL';
+  $('#session-controls').hidden = !cloud || !model.state;
+  $('#session-email').textContent = model.state?.auth?.email || model.state?.user?.email || '';
+  $('#session-email').title = model.state?.auth?.email || model.state?.user?.email || '로그인한 계정';
+  $('#homepage-link').href = cloud ? 'https://core.thefa.kr/' : 'http://127.0.0.1:4174/';
+  $('#homepage-link').innerHTML = `${cloud ? 'THE FA Core 홈페이지' : '홈페이지 로컬 Preview'} <span aria-hidden="true">↗</span>`;
+  $('#goal-description').textContent = cloud ? '목표를 입력하고 Cloud 샌드박스에서 실행 흐름을 시험하세요. 일반 업무의 실제 수행은 아직 연결되지 않았습니다.' : '목표를 알려주세요. 계획부터 실행, 결과 확인까지 Core가 이어갑니다.';
+  $('#scenario option[value="safe"]').textContent = cloud ? 'Cloud 시험 보고서 만들기' : '로컬 보고서 만들기';
+  $('#scenario option[value="summary"]').textContent = cloud ? 'PC Local AI · 미연결' : '기존 Local AI로 요약';
+  $('#summary-input-wrap p').textContent = cloud ? '대표 PC의 Local AI와 연결되지 않아 Cloud에서는 실행을 건너뛰고 이유만 기록합니다.' : '기존 Ollama 모델이 없으면 실행을 건너뛰고 이유를 기록합니다.';
+  $('#summary-input').placeholder = cloud ? '미연결 처리와 영수증을 시험할 원문을 입력하세요.' : '이 PC에 이미 설치된 Local AI가 읽을 텍스트를 붙여 넣으세요.';
+  $('[data-preset="summary"] .subtle').textContent = cloud ? 'DISCONNECTED' : 'LOCAL AI';
+  $('#projects-view .page-heading p').textContent = cloud ? '초대 전용 Cloud 샌드박스의 목표와 시험 결과를 확인합니다.' : '이 로컬 작업실에서 수행한 목표와 결과를 함께 확인합니다.';
+  $('#resources-view > .notice').textContent = cloud ? '자원 선택은 Cloud 샌드박스의 시험 규칙으로 수행합니다. 전사 THE FA Router V2와 대표 PC의 자원은 연결되지 않았습니다.' : '현재 자원 선택은 Lab의 로컬 시험 규칙으로 수행합니다. 전사 THE FA Router V2 연결은 아직 제공되지 않습니다.';
+  $('#results-view .page-heading p').textContent = cloud ? 'Cloud 샌드박스에서 실제 생성한 시험 파일과 검증 기록입니다.' : '로컬 실행으로 생성된 파일과 검증 기록입니다.';
+  $('#memory-view > .notice').textContent = cloud ? '이 Private Beta의 시험 결과 기록만 표시됩니다. 전사 Company Memory와 연결되어 있지 않습니다.' : '로컬 기록만 표시됩니다. 전사 Company Memory와 연결되어 있지 않습니다.';
+  $('#connections-view > .notice').textContent = cloud ? '초대 계정 인증과 전용 시험 저장소를 사용합니다. 외부 업무 도구 연결 설정은 제공하지 않습니다.' : '이 시험 공간에서는 API Key, OAuth, 실제 계정 연결을 설정하지 않습니다.';
+  $('#usage-view .page-heading p').textContent = cloud ? 'Cloud 샌드박스에서 기록된 시험 사용량만 표시합니다.' : '로컬 실행 기록에서 확인되는 사용량만 표시합니다.';
+  $('.main-footer > span').textContent = cloud ? 'THE FA Core · 초대 전용 Private Beta' : 'THE FA Core · Functional Console Lab V2';
+  $('.mode-guide dd').textContent = cloud ? 'Cloud 샌드박스가 실제 보고서 파일을 생성·저장함. 실제 회사 업무와 외부 AI 실행은 연결되지 않았습니다.' : '실제 외부 시스템에서 수행됨. 이 Lab은 외부 실행을 제공하지 않습니다.';
+  if (!model.state && cloud) $('#resource-summary p').textContent = 'Cloud 샌드박스의 자원 상태를 확인하고 있습니다.';
+  setScenario($('#scenario').value);
 }
 function switchView(view) {
   if (!viewNames[view]) return;
@@ -62,6 +105,7 @@ function switchView(view) {
 function applyState(state) {
   if (!state || !Array.isArray(state.tasks)) { showError('로컬 서버 응답 형식을 확인할 수 없습니다.'); return; }
   model.state = { tasks: [], resources: [], approvals: [], artifacts: [], receipts: [], memory: [], usage: {}, pipeline: [], environment: {}, ...state };
+  renderRuntimeCopy();
   if (model.selectedTaskId && !selectedTask()) model.selectedTaskId = null;
   if (!model.selectedTaskId && state.tasks.length) model.selectedTaskId = state.tasks[state.tasks.length - 1].id;
   const active = document.activeElement;
@@ -119,7 +163,7 @@ function renderApprovals() {
   const pending = model.state.approvals.filter(approval => approval.status === 'PENDING');
   $('#approval-count').hidden = !pending.length;
   $('#approval-count').textContent = pending.length;
-  $('#approval-list').innerHTML = model.state.approvals.length ? model.state.approvals.slice().reverse().map(approval => `<article class="record-card"><div class="record-top"><h2>${esc(approval.title || taskTitle(approval.taskId))}</h2>${status(approval.status)}</div><p>요청: ${esc(approval.requestedAction || '위험 작업의 시험 승인')}</p><p>승인 범위: <strong>로컬 시험 절차만</strong>. 실제 외부 행동은 수행하지 않습니다.</p><div class="record-meta">${badge('MOCK')}<span>${fmt(approval.createdAt)}</span><code>${esc(approval.scope)}</code></div>${approval.status === 'PENDING' ? `<div class="detail-actions"><button class="button secondary" data-action="approve" data-id="${esc(approval.taskId)}"${model.pending.has(approval.taskId) ? ' disabled' : ''}>시험 절차만 승인</button><button class="button danger" data-action="reject" data-id="${esc(approval.taskId)}"${model.pending.has(approval.taskId) ? ' disabled' : ''}>승인 거절</button></div>` : `<p class="subtle">${fmt(approval.decidedAt)} · ${approval.status === 'APPROVED' ? '시험 절차의 승인이 기록되었습니다.' : '거절 결정이 기록되었습니다.'}</p>`}</article>`).join('') : empty('현재 승인 요청이 없습니다', '중요한 작업은 실행 전에 승인을 기다립니다.');
+  $('#approval-list').innerHTML = model.state.approvals.length ? model.state.approvals.slice().reverse().map(approval => `<article class="record-card"><div class="record-top"><h2>${esc(approval.title || taskTitle(approval.taskId))}</h2>${status(approval.status)}</div><p>요청: ${esc(approval.requestedAction || '위험 작업의 시험 승인')}</p><p>승인 범위: <strong>${isCloud() ? 'Cloud 샌드박스 시험 절차만' : '로컬 시험 절차만'}</strong>. 실제 외부 업무와 배포는 수행하지 않습니다.</p><div class="record-meta">${badge('MOCK')}<span>${fmt(approval.createdAt)}</span><code>${esc(approval.scope)}</code></div>${approval.status === 'PENDING' ? `<div class="detail-actions"><button class="button secondary" data-action="approve" data-id="${esc(approval.taskId)}"${model.pending.has(approval.taskId) ? ' disabled' : ''}>시험 절차만 승인</button><button class="button danger" data-action="reject" data-id="${esc(approval.taskId)}"${model.pending.has(approval.taskId) ? ' disabled' : ''}>승인 거절</button></div>` : `<p class="subtle">${fmt(approval.decidedAt)} · ${approval.status === 'APPROVED' ? '시험 절차의 승인이 기록되었습니다.' : '거절 결정이 기록되었습니다.'}</p>`}</article>`).join('') : empty('현재 승인 요청이 없습니다', '중요한 작업은 실행 전에 승인을 기다립니다.');
 }
 function renderArtifacts() {
   $('#artifact-list').innerHTML = model.state.artifacts.length ? model.state.artifacts.slice().reverse().map(artifact => {
@@ -136,7 +180,7 @@ function renderArtifacts() {
   });
 }
 function renderMemory() {
-  $('#memory-list').innerHTML = model.state.memory.length ? model.state.memory.slice().reverse().map(memory => `<article class="record-card"><div class="record-top"><h2>${esc(memory.title)}</h2>${badge(memory.mode)}</div><p>${esc(memory.summary)}</p><div class="record-meta"><span>${fmt(memory.createdAt)}</span><span>저장된 로컬 결과 기록</span></div><button class="text-button" data-action="select-task" data-id="${esc(memory.taskId)}">관련 작업 이어보기 <span aria-hidden="true">↗</span></button></article>`).join('') : empty('첫 번째 기억을 기다립니다', '검증된 로컬 결과가 생기면 다음 작업에서 확인할 수 있습니다.');
+  $('#memory-list').innerHTML = model.state.memory.length ? model.state.memory.slice().reverse().map(memory => `<article class="record-card"><div class="record-top"><h2>${esc(memory.title)}</h2>${badge(memory.mode)}</div><p>${esc(memory.summary)}</p><div class="record-meta"><span>${fmt(memory.createdAt)}</span><span>${isCloud() ? '저장된 Cloud 시험 결과 기록' : '저장된 로컬 결과 기록'}</span></div><button class="text-button" data-action="select-task" data-id="${esc(memory.taskId)}">관련 작업 이어보기 <span aria-hidden="true">↗</span></button></article>`).join('') : empty('첫 번째 기억을 기다립니다', '검증된 시험 결과가 생기면 다음 작업에서 확인할 수 있습니다.');
 }
 function renderConnections() {
   const groups = [...new Set(model.state.resources.map(resource => resource.type))];
@@ -144,14 +188,18 @@ function renderConnections() {
 }
 function renderUsage() {
   const usage = model.state.usage || {};
-  const cards = [['tasksCreated', '만든 작업', '이 로컬 작업실의 목표 접수'], ['artifactsVerified', '검증한 결과물', 'QA와 영수증으로 확인한 파일'], ['localAiCalls', 'Local AI 응답', '결과가 저장된 기존 PC 모델 요청'], ['mockRuns', '모의 작업', '유료 제공자를 호출하지 않은 시험'], ['externalCalls', '외부 API 호출', '실제 외부 AI / 서비스 호출']];
+  const cloud = isCloud();
+  const cards = [['tasksCreated', '만든 작업', `${sandboxName()}의 목표 접수`], ['artifactsVerified', '검증한 시험 결과물', 'QA와 영수증으로 확인한 파일'], ['localAiCalls', 'Local AI 응답', cloud ? '대표 PC Local AI 연결은 제공되지 않음' : '결과가 저장된 기존 PC 모델 요청'], ['mockRuns', '모의 작업', '유료 제공자를 호출하지 않은 시험'], ['externalCalls', '외부 AI / 업무 호출', cloud ? 'Cloud 시험 저장소 요청과 구분' : '실제 외부 AI / 서비스 호출']];
   $('#usage-grid').innerHTML = cards.map(([key, title, detail]) => `<article class="usage-card"><h2>${title}</h2><div class="usage-number">${Number.isFinite(usage[key]) ? usage[key].toLocaleString('ko-KR') : '—'}</div><p>${detail}</p></article>`).join('');
   const environment = model.state.environment || {};
-  $('#environment-info').innerHTML = `<h2>현재 실행환경</h2><div class="environment-grid">${[['appMode', '앱 모드'], ['dataMode', '데이터'], ['executionMode', '실행'], ['providerMode', '자원 선택']].map(([key, label]) => `<p>${label}<strong>${esc(environment[key] || '확인되지 않음')}</strong></p>`).join('')}<p>Production 연결<strong>${environment.productionConnected === false ? '연결되지 않음' : '상태 확인 필요'}</strong></p><p>선택 권위<strong>${esc(environment.selectionAuthority || '확인되지 않음')}</strong></p><p>전사 Router 연결<strong>${environment.enterpriseRouterConnected === false ? '연결되지 않음' : '상태 확인 필요'}</strong></p></div>`;
+  const production = environment.businessProductionConnected ?? environment.productionConnected;
+  const fields = [['appMode', '앱 모드'], ['dataMode', '데이터'], ['executionMode', '실행'], ['providerMode', '자원 선택'], ['selectionAuthority', '선택 권위']];
+  $('#environment-info').innerHTML = `<h2>현재 실행환경</h2><div class="environment-grid">${fields.map(([key, label]) => `<p>${label}<strong>${esc(environment[key] || '확인되지 않음')}</strong></p>`).join('')}<p>실제 회사 운영 연결<strong>${production === false ? '연결되지 않음' : '상태 확인 필요'}</strong></p><p>전사 Router 연결<strong>${environment.enterpriseRouterConnected === false ? '연결되지 않음' : '상태 확인 필요'}</strong></p>${cloud ? `<p>Private Beta 시험 저장소<strong>${environment.privateBetaStorageConnected === true ? '연결됨 · 시험 전용' : '상태 확인 필요'}</strong></p>` : ''}</div>`;
 }
 function renderProjects() {
   const tasks = model.state.tasks;
-  $('#project-list').innerHTML = `<article class="record-card"><div class="record-top"><h2>Core Local Lab</h2>${badge('LOCAL')}</div><p>이 PC에서 실행을 시험하는 독립 작업 공간입니다. 전사 프로젝트나 실제 회사 데이터에 연결되지 않았습니다.</p><div class="project-summary"><span><strong>${tasks.length}</strong> 작업</span><span><strong>${tasks.filter(task => task.status === 'VERIFIED').length}</strong> 결과 검증</span><span><strong>${model.state.approvals.filter(approval => approval.status === 'PENDING').length}</strong> 승인 대기</span></div><div class="project-actions"><button class="button secondary" data-view="home">새 목표 맡기기 <span aria-hidden="true">↗</span></button><button class="button" data-view="results">프로젝트 결과물</button></div></article>`;
+  const cloud = isCloud();
+  $('#project-list').innerHTML = `<article class="record-card"><div class="record-top"><h2>${cloud ? 'Core Private Beta Sandbox' : 'Core Local Lab'}</h2>${badge(cloud ? 'REAL' : 'LOCAL')}</div><p>${cloud ? '초대 계정으로 Cloud에서 기능을 시험하는 독립 작업 공간입니다. 중앙 업무 실행과 실제 회사 운영 데이터는 연결되지 않았습니다.' : '이 PC에서 실행을 시험하는 독립 작업 공간입니다. 전사 프로젝트나 실제 회사 데이터에 연결되지 않았습니다.'}</p><div class="project-summary"><span><strong>${tasks.length}</strong> 작업</span><span><strong>${tasks.filter(task => task.status === 'VERIFIED').length}</strong> 시험 결과 검증</span><span><strong>${model.state.approvals.filter(approval => approval.status === 'PENDING').length}</strong> 승인 대기</span></div><div class="project-actions"><button class="button secondary" data-view="home">새 목표 맡기기 <span aria-hidden="true">↗</span></button><button class="button" data-view="results">프로젝트 결과물</button></div></article>`;
 }
 async function renderAdvanced() {
   const task = selectedTask();
@@ -178,7 +226,7 @@ async function renderAdvanced() {
 }
 function setScenario(scenario, usePreset = false) {
   $('#scenario').value = scenario;
-  const mode = scenarioModes[scenario] || 'LOCAL';
+  const mode = isCloud() ? (scenario === 'summary' ? 'DISCONNECTED' : ['research', 'failover', 'approval'].includes(scenario) ? 'MOCK' : 'REAL') : scenarioModes[scenario] || 'LOCAL';
   $('#scenario-mode').className = `badge ${mode.toLowerCase()}`;
   $('#scenario-mode').textContent = mode;
   $('#summary-input-wrap').hidden = scenario !== 'summary';
@@ -200,7 +248,7 @@ $('#goal-form').addEventListener('submit', async event => {
   model.creating = true;
   $('#submit-goal').disabled = true;
   $('#submit-goal').firstElementChild.textContent = '목표 접수 중…';
-  message.textContent = '목표를 로컬 실행 엔진에 전달하고 있습니다.';
+  message.textContent = `목표를 ${isCloud() ? 'Cloud 샌드박스' : '로컬 실행 엔진'}에 전달하고 있습니다.`;
   message.className = 'form-message';
   showError('');
   try {
@@ -251,17 +299,100 @@ document.addEventListener('click', async event => {
   }
 });
 
+function stopTransport() {
+  clearTimeout(transport.timer);
+  transport.timer = null;
+  transport.events?.close();
+  transport.events = null;
+  transport.active = false;
+  transport.generation = (transport.generation || 0) + 1;
+}
+function expireSession() {
+  if (transport.sessionExpired) return;
+  transport.sessionExpired = true;
+  stopTransport();
+  setConnection(false, '세션 만료 · 다시 로그인 필요');
+  showError('로그인 세션이 만료되었습니다. 다시 로그인 화면으로 이동합니다.');
+  location.replace('/login.html?reason=session-expired');
+}
+function startPolling(initialFailures = 0) {
+  stopTransport();
+  if (transport.sessionExpired) return;
+  transport.active = true;
+  transport.inFlight = false;
+  transport.failures = initialFailures;
+  transport.errorVisible = initialFailures > 0;
+  const generation = transport.generation;
+  transport.timer = setTimeout(() => pollState(generation), 2000);
+}
+async function pollState(generation) {
+  if (!transport.active || generation !== transport.generation || transport.inFlight) return;
+  transport.inFlight = true;
+  try {
+    const state = await api('/api/state');
+    if (generation !== transport.generation) return;
+    applyState(state);
+    setConnection(true);
+    transport.failures = 0;
+    if (transport.errorVisible) showError('');
+    transport.errorVisible = false;
+    $('#connection-retry').hidden = true;
+  } catch (error) {
+    if (error.status === 401 || generation !== transport.generation) return;
+    transport.failures += 1;
+    transport.errorVisible = true;
+    setConnection(false, 'Cloud 연결 확인 필요');
+    if (transport.failures >= 5) {
+      transport.active = false;
+      showError(`연결을 5회 확인하지 못해 자동 확인을 멈췄습니다. ${error.message}`);
+      $('#connection-retry').hidden = false;
+    } else showError(`Cloud 상태를 읽지 못했습니다. 잠시 후 다시 확인합니다 (${transport.failures}/5). ${error.message}`);
+  } finally {
+    if (generation === transport.generation) {
+      transport.inFlight = false;
+      if (transport.active) transport.timer = setTimeout(() => pollState(generation), Math.min(30000, 2000 * 2 ** transport.failures));
+    }
+  }
+}
+$('#connection-retry').addEventListener('click', bootstrap);
+$('#logout').addEventListener('click', async () => {
+  if ($('#logout').disabled) return;
+  $('#logout').disabled = true;
+  stopTransport();
+  try { await api('/auth/logout', { method: 'POST', body: '{}' }); location.replace('/login.html'); }
+  catch (error) {
+    if (error.status === 401) return;
+    showError(`로그아웃 요청을 확인하지 못했습니다. ${error.message}`);
+    $('#logout').disabled = false;
+    startPolling();
+  }
+});
+window.addEventListener('pagehide', stopTransport);
+window.addEventListener('pageshow', event => { if (event.persisted) bootstrap(); });
 async function bootstrap() {
-  try { applyState(await api('/api/state')); setConnection(true); }
-  catch (error) { setConnection(false, '로컬 서버 연결 안 됨'); showError(`로컬 상태를 읽지 못했습니다. 서버 실행 상태를 확인해주세요. ${error.message}`); }
+  stopTransport();
+  $('#connection-retry').hidden = true;
+  setConnection(false, '서버 연결 확인 중');
+  try {
+    applyState(await api('/api/state'));
+    setConnection(true);
+    showError('');
+    if (isCloud() || model.state?.environment?.transport === 'polling') { startPolling(); return; }
+  } catch (error) {
+    if (error.status === 401 || transport.sessionExpired) return;
+    setConnection(false, '서버 연결 안 됨');
+    showError(`상태를 읽지 못했습니다. ${error.message}`);
+    if (cloudHost || isCloud()) { startPolling(1); return; }
+  }
   const events = new EventSource('/api/events');
+  transport.events = events;
   events.addEventListener('state', event => {
     try { applyState(JSON.parse(event.data)); setConnection(true); showError(''); }
     catch { showError('서버의 상태 변경 기록을 읽지 못했습니다.'); }
   });
   events.onopen = () => { setConnection(true); showError(''); };
   events.onerror = () => setConnection(false, '연결 중단 · 자동 재연결 중');
-  window.addEventListener('pagehide', () => events.close(), { once: true });
 }
 if (viewNames[location.hash.slice(1)]) switchView(location.hash.slice(1));
+if (cloudHost) renderRuntimeCopy();
 bootstrap();

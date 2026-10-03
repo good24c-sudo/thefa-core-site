@@ -14,7 +14,7 @@
   <div class="shell">
     <aside class="sidebar" aria-label="작업실 탐색">
       <a class="brand" href="/" aria-label="THE FA Core Lab 홈"><img src="/assets/THEFA_Core_Wordmark_Dark_web.svg" alt="THE FA Core" width="180" height="50"></a>
-      <div class="workspace-name"><span class="workspace-symbol" aria-hidden="true">C</span><div><strong>나의 Core 작업실</strong><small>LOCAL WORKSPACE</small></div></div>
+      <div class="workspace-name"><span class="workspace-symbol" aria-hidden="true">C</span><div><strong>나의 Core 작업실</strong><small id="workspace-kind">LOCAL WORKSPACE</small></div></div>
       <nav class="navigation" aria-label="메뉴">
         <button class="nav-item active" data-view="home" aria-current="page"><span aria-hidden="true">⌂</span> 홈</button>
         <button class="nav-item" data-view="projects"><span aria-hidden="true">▤</span> 프로젝트</button>
@@ -25,15 +25,16 @@
         <button class="nav-item" data-view="connections"><span aria-hidden="true">⌘</span> Connections</button>
         <button class="nav-item" data-view="usage"><span aria-hidden="true">▥</span> Usage</button>
       </nav>
-      <div class="sidebar-bottom"><span class="eyebrow">ONE CORE. EVERY RESOURCE.</span><p>지시에서 실행으로.<br>검증에서 다음 작업으로.</p><a href="http://127.0.0.1:4174/" target="_blank" rel="noopener">홈페이지 로컬 Preview <span aria-hidden="true">↗</span></a></div>
+      <div class="sidebar-bottom"><span class="eyebrow">ONE CORE. EVERY RESOURCE.</span><p>지시에서 실행으로.<br>검증에서 다음 작업으로.</p><a id="homepage-link" href="http://127.0.0.1:4174/" target="_blank" rel="noopener">홈페이지 로컬 Preview <span aria-hidden="true">↗</span></a></div>
     </aside>
     <div class="workspace">
-      <header class="topbar"><div><span class="topbar-label">Functional Console</span><span class="topbar-separator">/</span><span id="view-name">홈</span></div><div class="topbar-status"><span class="badge local">LOCAL</span><span class="connection-dot" id="connection-dot" aria-hidden="true"></span><span id="connection-status" role="status">로컬 서버 확인 중</span></div></header>
-      <div class="development-banner"><span aria-hidden="true">◉</span><strong>Local Development Mode</strong><span>이 PC의 기능 시험 공간입니다. 공개 서비스와 연결되지 않습니다.</span></div>
+      <header class="topbar"><div class="topbar-page"><span class="topbar-label">Functional Console</span><span class="topbar-separator">/</span><span id="view-name">홈</span></div><div class="topbar-status"><span class="badge local" id="runtime-badge">LOCAL</span><span class="connection-dot" id="connection-dot" aria-hidden="true"></span><span id="connection-status" role="status">서버 확인 중</span></div><div class="session-controls" id="session-controls" hidden><span id="session-email" title="로그인한 계정"></span><button id="logout" type="button">로그아웃</button></div></header>
+      <div class="development-banner"><span aria-hidden="true">◉</span><strong id="runtime-title">Local Development Mode</strong><span id="runtime-description">이 PC의 기능 시험 공간입니다. 공개 서비스와 연결되지 않습니다.</span></div>
       <main id="main" tabindex="-1">
         <div class="notice error" id="global-error" role="alert" hidden></div>
+        <button class="button secondary connection-retry" id="connection-retry" type="button" hidden>연결 다시 확인</button>
         <section id="home-view" class="view">
-          <div class="home-heading"><span class="eyebrow">YOUR INTENT. OUR EXECUTION.</span><h1>무엇을 해드릴까요?</h1><p>목표를 알려주세요. 계획부터 실행, 결과 확인까지 Core가 이어갑니다.</p></div>
+          <div class="home-heading"><span class="eyebrow">YOUR INTENT. OUR EXECUTION.</span><h1>무엇을 해드릴까요?</h1><p id="goal-description">목표를 알려주세요. 계획부터 실행, 결과 확인까지 Core가 이어갑니다.</p></div>
           <form id="goal-form" class="composer">
             <label class="sr-only" for="goal-input">Core에 맡길 목표</label>
             <textarea id="goal-input" name="title" rows="3" maxlength="200" placeholder="예: THE FA Core 테스트 보고서를 만들어줘" required></textarea>

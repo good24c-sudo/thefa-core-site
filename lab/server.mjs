@@ -9,6 +9,7 @@ export const PIPELINE = ['REQUEST', 'GOAL', 'PLAN', 'WORK_UNITS', 'RESOURCE_SELE
 const SCENARIOS = new Set(['safe', 'failure', 'failover', 'approval', 'research', 'summary']);
 const TERMINAL = new Set(['VERIFIED', 'REJECTED', 'SKIPPED']);
 const ENVIRONMENT = Object.freeze({ appMode: 'development', dataMode: 'local', executionMode: 'local', providerMode: 'auto', productionConnected: false, enterpriseRouterConnected: false, selectionAuthority: 'LOCAL_DEVELOPMENT_POLICY', host: '127.0.0.1', port: 4173 });
+const CLOUD_ENVIRONMENT = Object.freeze({ ...ENVIRONMENT, deploymentMode: 'private-beta', appMode: 'invitation-pilot', dataMode: 'cloud-sandbox', executionMode: 'cloud-sandbox', providerMode: 'sandbox-only', selectionAuthority: 'CLOUD_DEVELOPMENT_POLICY' });
 const now = () => new Date().toISOString();
 const id = prefix => `${prefix}_${randomUUID()}`;
 const sha = content => createHash('sha256').update(content).digest('hex');
@@ -106,7 +107,7 @@ export class DisconnectedAdapter {
 }
 
 export class LocalReportAdapter {
-  constructor() { this.provider = 'Node Local Worker'; }
+  constructor(cloud = false) { this.cloud = cloud; this.provider = cloud ? 'Node Cloud Sandbox' : 'Node Local Worker'; this.mode = cloud ? 'REAL' : 'LOCAL'; }
   async health() { return { status: 'CONNECTED', checkedAt: now(), version: process.version }; }
   capabilities() { return ['deterministic-report', 'file-artifact', 'sha256-qa']; }
   estimate() { return { costClass: 'local-compute', externalCost: 0 }; }
@@ -116,16 +117,16 @@ export class LocalReportAdapter {
       { name: 'SHA-256 표준 시험값', passed: vectorPassed },
       { name: 'Production 미연결', passed: ENVIRONMENT.productionConnected === false },
       { name: '요청 텍스트 보존', passed: task.title.length > 0 && task.title.length <= 200 },
-      { name: '실행 대상은 로컬 샌드박스', passed: task.selectedResource.executionLocation === 'PC' },
+      { name: this.cloud ? '실행 대상은 Cloud 샌드박스' : '실행 대상은 로컬 샌드박스', passed: task.selectedResource.executionLocation === (this.cloud ? 'Cloud' : 'PC') },
     ];
     return {
-      content: `# THE FA Core 로컬 실행 확인 보고서\n\n- Task: ${task.id}\n- 요청: ${task.title}\n- 실행: LOCAL / Node ${process.version}\n- 범위: 로컬 실행·체크포인트·파일 생성·검증 계약을 확인합니다. 요청의 실제 업무나 외부 작업은 수행하지 않습니다.\n- Production / 유료 API / 실제 사용자 DB: 미연결\n\n## 실제 결정적 검사\n\n${checks.map(check => `- ${check.passed ? 'PASS' : 'FAIL'}: ${check.name}`).join('\n')}\n\n## 실행 근거\n\n${PIPELINE.join(' → ')}\n\n${task.scenario === 'approval' ? '승인은 SANDBOX_SIMULATION_ONLY에만 적용했습니다. 배포·병합·DNS 변경은 수행하지 않았습니다.\n' : ''}`,
-      mode: 'LOCAL', checks,
+      content: `# THE FA Core ${this.cloud ? 'Cloud' : '로컬'} 실행 확인 보고서\n\n- Task: ${task.id}\n- 요청: ${task.title}\n- 실행: ${this.mode} / ${this.provider} / Node ${process.version}\n- 범위: ${this.cloud ? 'Cloud 샌드박스' : '로컬'} 실행·체크포인트·파일 생성·검증 계약을 확인합니다. 요청의 실제 업무나 외부 작업은 수행하지 않습니다.\n- 업무 Production / 유료 AI API / 실제 사용자 업무 DB: 미연결\n\n## 실제 결정적 검사\n\n${checks.map(check => `- ${check.passed ? 'PASS' : 'FAIL'}: ${check.name}`).join('\n')}\n\n## 실행 근거\n\n${PIPELINE.join(' → ')}\n\n${task.scenario === 'approval' ? '승인은 SANDBOX_SIMULATION_ONLY에만 적용했습니다. 배포·병합·DNS 변경은 수행하지 않았습니다.\n' : ''}`,
+      mode: this.mode, checks,
     };
   }
   async cancel() { return { status: 'CANCELLED' }; }
   async resume(task) { return this.execute(task); }
-  getReceipt(task) { return { provider: this.provider, mode: 'LOCAL', taskId: task.id }; }
+  getReceipt(task) { return { provider: this.provider, mode: this.mode, taskId: task.id }; }
 }
 
 export class OllamaAdapter {
@@ -171,7 +172,7 @@ export class MockAdapter {
   getReceipt(task) { return { provider: this.provider, mode: 'MOCK', taskId: task.id }; }
 }
 
-function registry(ollamaHealth) {
+function registry(ollamaHealth, cloud = false) {
   const groups = {
     'GENERAL AI': ['OpenAI / GPT', 'Anthropic / Claude', 'Google Gemini', 'DeepSeek'],
     'CODING AGENTS': ['Codex', 'Claude Code', 'GitHub Copilot', 'Factory', 'Gemini CLI'],
@@ -186,6 +187,10 @@ function registry(ollamaHealth) {
   })));
   const local = rows.find(row => row.provider === 'CEO PC');
   Object.assign(local, { capabilities: ['deterministic-report', 'file-artifact', 'sha256-qa'], availability: 'available', connectionMode: 'local', costClass: 'local-compute', executionLocation: 'PC', status: 'CONNECTED', lastCheck: now(), runtime: process.version });
+  if (cloud) {
+    Object.assign(local, { availability: 'unverified', status: 'DISCONNECTED', lastCheck: null, reason: 'Cloud에서 대표 PC에 연결하지 않습니다.' });
+    rows.push({ id: 'resource_node_cloud', provider: 'Node Cloud Sandbox', type: 'EXECUTION', capabilities: ['deterministic-report', 'file-artifact', 'sha256-qa'], availability: 'available', connectionMode: 'cloud-sandbox', costClass: 'cloud-compute', executionLocation: 'Cloud', status: 'CONNECTED', lastCheck: now(), runtime: process.version });
+  }
   const ollama = rows.find(row => row.provider === 'Ollama');
   Object.assign(ollama, { capabilities: ['read-only-summary'], availability: ollamaHealth.status === 'CONNECTED' ? 'available' : 'unavailable', connectionMode: 'local', costClass: 'local-compute', executionLocation: 'PC', status: ollamaHealth.status, lastCheck: ollamaHealth.checkedAt, models: ollamaHealth.models, reason: ollamaHealth.reason });
   for (const name of ['Local General LLM', 'Local Coding Model']) {
@@ -204,7 +209,7 @@ function terminalReceipt(state, task, status) {
     id: id('receipt'), taskId: task.id, status, mode: task.mode, provider: task.selectedResource?.provider || 'none', model: task.selectedResource?.model || null,
     executionLocation: task.selectedResource?.executionLocation || 'PC', artifactId: task.artifactId || null, sha256: task.output?.sha256 || null,
     qaStatus: task.qa?.status || 'NOT_RUN', createdAt: now(), externalActions: 0,
-    limitations: task.mode === 'MOCK' ? ['예시 출력. 실제 AI·조사·외부 작업 없음.'] : ['로컬 샌드박스 한정. 외부 업무·Production 미실행.'],
+    limitations: task.mode === 'MOCK' ? ['예시 출력. 실제 AI·조사·외부 작업 없음.'] : [task.mode === 'REAL' ? 'Cloud 샌드박스 계약 시험 한정. 요청의 실제 업무·배포·유료 AI API 미실행.' : '로컬 샌드박스 한정. 외부 업무·Production 미실행.'],
     fallback: task.fallback || null, error: task.error || null, attempts: task.workUnits.map(unit => ({ id: unit.id, attempts: unit.attempts })),
   };
   if (task.scenario === 'summary') receipt.limitations.push('QA는 응답 존재·파일 무결성만 확인. 의미 정확도는 미검증.');
@@ -214,18 +219,28 @@ function terminalReceipt(state, task, status) {
 
 export async function createLabServer(options = {}) {
   if (options.host && options.host !== '127.0.0.1') throw new Error('LOOPBACK_ONLY');
+  const cloud = options.runtimeMode === 'cloud';
+  const environment = cloud ? CLOUD_ENVIRONMENT : ENVIRONMENT;
+  const realMode = cloud ? 'REAL' : 'LOCAL';
   const runtimeDir = options.runtimeDir || path.join(ROOT, 'runtime-state');
   const outputDir = options.outputDir || path.join(ROOT, 'test-output');
   const clients = new Set();
   const jobs = new Map();
+  const jobFailures = [];
   let closing = false;
   const ollama = new OllamaAdapter(options.ollamaFetch);
-  const resources = registry(await ollama.health());
-  const adapters = { local: new LocalReportAdapter(), ollama, mock_a: new MockAdapter('Mock Provider A', true), mock_b: new MockAdapter('Mock Provider B') };
+  const resources = registry(cloud ? { status: 'DISCONNECTED', checkedAt: null, models: [], reason: 'Cloud에서는 대표 PC/Ollama에 연결하지 않습니다.' } : await ollama.health(), cloud);
+  const adapters = { local: new LocalReportAdapter(cloud), ollama, mock_a: new MockAdapter('Mock Provider A', true), mock_b: new MockAdapter('Mock Provider B') };
   const externalAdapters = resources.filter(resource => resource.connectionMode === 'adapter-skeleton').map(resource => new DisconnectedAdapter(resource.provider));
-  const store = new AtomicStore(runtimeDir, () => broadcast());
+  const store = options.store || new AtomicStore(runtimeDir, () => broadcast());
+  store.onChange = () => broadcast();
   await store.init();
-  await fs.mkdir(outputDir, { recursive: true });
+  const artifactStorage = options.artifactStorage || {
+    init: () => fs.mkdir(outputDir, { recursive: true }),
+    read: name => fs.readFile(path.join(outputDir, name), 'utf8'),
+    write: (name, content) => atomicWrite(path.join(outputDir, name), content),
+  };
+  try { await artifactStorage.init?.(); } catch (error) { await store.close(); throw error; }
 
   function stateView() {
     const state = copy(store.state);
@@ -235,7 +250,7 @@ export async function createLabServer(options = {}) {
       artifacts: state.artifacts, receipts: state.receipts, memory: state.memory,
       workUnits: state.tasks.flatMap(task => task.workUnits.map(unit => ({ ...unit, taskId: task.id }))),
       usage: { tasksCreated: state.tasks.length, artifactsVerified: state.tasks.filter(task => task.status === 'VERIFIED').length, externalCalls: 0, localAiCalls: state.tasks.filter(task => task.selectedResource?.provider === 'Ollama' && task.output).length, mockRuns: state.tasks.filter(task => task.mode === 'MOCK').length, quotaSavings: null },
-      environment: ENVIRONMENT, pipeline: PIPELINE,
+      environment, pipeline: PIPELINE,
     };
   }
   function broadcast() {
@@ -248,14 +263,14 @@ export async function createLabServer(options = {}) {
 
   async function verifyOutput(task) {
     if (!task.output || !/^[a-zA-Z0-9_-]+\.md$/.test(task.output.name)) throw new Error('INVALID_ARTIFACT_CHECKPOINT');
-    const content = await fs.readFile(path.join(outputDir, task.output.name), 'utf8');
+    const content = await artifactStorage.read(task.output.name);
     const checks = [
       { name: '실제 파일 존재', passed: true }, { name: 'SHA-256 일치', passed: sha(content) === task.output.sha256 },
       { name: 'Task 식별자 보존', passed: content.includes(task.id) },
-      { name: '실행 구분 LOCAL/MOCK', passed: content.includes(task.mode) },
+      { name: '실행 구분 REAL/LOCAL/MOCK', passed: content.includes(task.mode) },
       ...(task.output.checks || []),
     ];
-    return { status: checks.every(check => check.passed) ? 'PASS' : 'FAIL', checks, artifactSha256: sha(content), checkedAt: now(), scope: task.scenario === 'summary' ? 'OUTPUT_EXISTS_AND_INTEGRITY_ONLY' : 'LOCAL_EXECUTION_CONTRACT' };
+    return { status: checks.every(check => check.passed) ? 'PASS' : 'FAIL', checks, artifactSha256: sha(content), checkedAt: now(), scope: task.scenario === 'summary' ? 'OUTPUT_EXISTS_AND_INTEGRITY_ONLY' : cloud ? 'CLOUD_EXECUTION_CONTRACT' : 'LOCAL_EXECUTION_CONTRACT' };
   }
 
   async function runTask(taskId) {
@@ -288,7 +303,7 @@ export async function createLabServer(options = {}) {
             await changeTask(taskId, row => { row.selectedResource = { id: 'resource_ollama', provider: 'Ollama', model, executionLocation: 'PC', mode: 'LOCAL', selectionAuthority: 'LOCAL_DEVELOPMENT_POLICY' }; row.mode = 'LOCAL'; });
           } else if (task.scenario === 'research' || task.scenario === 'failover') {
             await changeTask(taskId, row => { row.selectedResource = { id: task.scenario === 'failover' ? 'mock_a' : 'mock_b', provider: task.scenario === 'failover' ? 'Mock Provider A' : 'Mock Provider B', executionLocation: 'sandbox', mode: 'MOCK' }; row.mode = 'MOCK'; });
-          } else await changeTask(taskId, row => { row.selectedResource = { id: 'resource_ceo_pc', provider: 'Node Local Worker', executionLocation: 'PC', mode: 'LOCAL' }; });
+          } else await changeTask(taskId, row => { row.selectedResource = cloud ? { id: 'resource_node_cloud', provider: 'Node Cloud Sandbox', executionLocation: 'Cloud', mode: 'REAL', selectionAuthority: 'CLOUD_DEVELOPMENT_POLICY' } : { id: 'resource_ceo_pc', provider: 'Node Local Worker', executionLocation: 'PC', mode: 'LOCAL' }; row.mode = realMode; });
         }
         if (stage === 'EXECUTION') {
           await changeTask(taskId, row => { row.workUnits[0].status = 'RUNNING'; row.workUnits[0].attempts += 1; });
@@ -301,7 +316,7 @@ export async function createLabServer(options = {}) {
           if (!task.output) {
             const name = `${task.id}-report.md`;
             try {
-              const recovered = await fs.readFile(path.join(outputDir, name), 'utf8');
+              const recovered = await artifactStorage.read(name);
               if (!recovered.includes(task.id) || !recovered.includes(task.mode)) throw new Error('RECOVERY_ARTIFACT_INVALID');
               await changeTask(taskId, row => { row.output = { name, sha256: sha(recovered), bytes: Buffer.byteLength(recovered), checks: [{ name: '재시작 후 기존 파일 복구', passed: true }] }; row.checkpoint.artifactName = name; event(row, stage, 'RECOVERED', '이미 생성된 파일을 복구했습니다. Provider 실행과 파일 생성은 반복하지 않습니다.'); });
               task = getTask(taskId);
@@ -319,7 +334,7 @@ export async function createLabServer(options = {}) {
               task = getTask(taskId); result = await adapters.mock_b.execute(task);
             }
             const name = `${task.id}-report.md`;
-            await atomicWrite(path.join(outputDir, name), result.content);
+            await artifactStorage.write(name, result.content);
             await changeTask(taskId, row => { row.output = { name, sha256: sha(result.content), bytes: Buffer.byteLength(result.content), checks: result.checks }; row.checkpoint.artifactName = name; });
           }
           await changeTask(taskId, row => { row.workUnits[0].status = 'COMPLETED'; if (!row.checkpoint.completedWorkUnits.includes(row.workUnits[0].id)) row.checkpoint.completedWorkUnits.push(row.workUnits[0].id); });
@@ -331,7 +346,7 @@ export async function createLabServer(options = {}) {
         }
         if (stage === 'ARTIFACT') await changeTask(taskId, (row, state) => {
           if (!row.artifactId) {
-            const artifact = { id: id('artifact'), taskId, name: row.output.name, relativePath: `test-output/${row.output.name}`, sha256: row.output.sha256, bytes: row.output.bytes, mode: row.mode, createdAt: now() };
+            const artifact = { id: id('artifact'), taskId, name: row.output.name, relativePath: `${cloud ? 'cloud-artifacts' : 'test-output'}/${row.output.name}`, sha256: row.output.sha256, bytes: row.output.bytes, mode: row.mode, createdAt: now() };
             state.artifacts.push(artifact); row.artifactId = artifact.id; row.checkpoint.artifactId = artifact.id;
           }
         });
@@ -347,14 +362,14 @@ export async function createLabServer(options = {}) {
             const receipt = state.receipts.find(entry => entry.id === row.receiptId);
             if (!receipt || receipt.sha256 !== qa.artifactSha256) throw new Error('FINAL_RECEIPT_MISMATCH');
             receipt.status = 'VERIFIED'; receipt.verifiedAt = now();
-            if (!state.memory.some(entry => entry.taskId === taskId)) state.memory.push({ id: id('memory'), taskId, title: row.title, summary: row.mode === 'MOCK' ? '예시 실행 흐름과 파일 무결성을 확인했습니다. 실제 업무 미실행.' : row.scenario === 'summary' ? '기존 Ollama 응답을 파일로 보존했습니다. 의미 정확도는 미검증.' : '로컬 실행 계약·파일 무결성을 확인했습니다. 외부 업무 미실행.', mode: row.mode, artifactId: row.artifactId, receiptId: row.receiptId, createdAt: now() });
+            if (!state.memory.some(entry => entry.taskId === taskId)) state.memory.push({ id: id('memory'), taskId, title: row.title, summary: row.mode === 'MOCK' ? '예시 실행 흐름과 파일 무결성을 확인했습니다. 실제 업무 미실행.' : row.scenario === 'summary' ? '기존 Ollama 응답을 파일로 보존했습니다. 의미 정확도는 미검증.' : `${cloud ? 'Cloud 샌드박스' : '로컬'} 실행 계약·파일 무결성을 확인했습니다. 요청의 실제 업무 미실행.`, mode: row.mode, artifactId: row.artifactId, receiptId: row.receiptId, createdAt: now() });
           });
         }
         await changeTask(taskId, row => {
-          if (stage === 'GOAL') row.goal = row.scenario === 'summary' ? '입력 텍스트를 기존 로컬 모델로 요약하고 결과 파일을 검증합니다.' : row.mode === 'MOCK' ? '요청을 예시 실행 흐름으로 보여주며 실제 조사 결과를 주장하지 않습니다.' : '로컬 샌드박스의 실행·검증 계약을 확인하는 보고서를 만듭니다.';
+          if (stage === 'GOAL') row.goal = row.scenario === 'summary' ? '입력 텍스트를 기존 로컬 모델로 요약하고 결과 파일을 검증합니다.' : row.mode === 'MOCK' ? '요청을 예시 실행 흐름으로 보여주며 실제 조사 결과를 주장하지 않습니다.' : `${cloud ? 'Cloud' : '로컬'} 샌드박스의 실행·검증 계약을 확인하는 보고서를 만듭니다.`;
           if (stage === 'PLAN' && !row.plan.length) row.plan = [{ id: id('plan'), title: '요청 범위와 로컬 안전 경계 확인' }, { id: id('plan'), title: '기존 자원 선택 후 로컬 결과 파일 생성' }, { id: id('plan'), title: '파일 내용·SHA-256 검증과 영수증 보존' }];
-          if (stage === 'WORK_UNITS' && !row.workUnits.length) row.workUnits = [{ id: id('wu'), title: '로컬 결과 생성', status: 'QUEUED', attempts: 0 }, { id: id('wu'), title: '파일 검증', status: 'QUEUED', attempts: 0 }];
-          if (stage === 'REVIEW') row.review = { status: 'PASS', mode: row.mode, scope: 'LOCAL_BOUNDARY_REVIEW', note: row.mode === 'MOCK' ? '예시 결과임을 명시했습니다. 실제 조사 정확도는 검증하지 않습니다.' : '외부 실행 없이 로컬 결과를 확인합니다. 의미 정확도와 실제 업무 결과는 별도 검증 대상입니다.' };
+          if (stage === 'WORK_UNITS' && !row.workUnits.length) row.workUnits = [{ id: id('wu'), title: cloud ? 'Cloud 샌드박스 결과 생성' : '로컬 결과 생성', status: 'QUEUED', attempts: 0 }, { id: id('wu'), title: '파일 검증', status: 'QUEUED', attempts: 0 }];
+          if (stage === 'REVIEW') row.review = { status: 'PASS', mode: row.mode, scope: cloud ? 'CLOUD_SANDBOX_BOUNDARY_REVIEW' : 'LOCAL_BOUNDARY_REVIEW', note: row.mode === 'MOCK' ? '예시 결과임을 명시했습니다. 실제 조사 정확도는 검증하지 않습니다.' : `실제 업무 실행 없이 ${cloud ? 'Cloud 샌드박스' : '로컬'} 결과를 확인합니다. 의미 정확도와 실제 업무 결과는 별도 검증 대상입니다.` };
           row.checkpoint.nextStage += 1;
           event(row, stage, stage === 'VERIFIED' ? 'VERIFIED' : 'COMPLETED', stage === 'VERIFIED' ? '실제 파일과 같은 SHA-256 영수증을 확인했습니다.' : `${stage} 단계 저장 완료`);
         });
@@ -366,7 +381,10 @@ export async function createLabServer(options = {}) {
   }
   function dispatch(taskId) {
     if (jobs.has(taskId) || closing) return;
-    const job = runTask(taskId).finally(() => { jobs.delete(taskId); if (!closing && getTask(taskId).status === 'QUEUED') dispatch(taskId); }); jobs.set(taskId, job);
+    let settled = false;
+    const job = runTask(taskId).then(() => { settled = true; }).finally(() => { jobs.delete(taskId); if (settled && !closing && getTask(taskId).status === 'QUEUED') dispatch(taskId); });
+    job.catch(error => { jobFailures.push(error); }); // whenIdle observes the failure; do not replay a lost-lease mutation.
+    jobs.set(taskId, job);
   }
 
   async function createTask(body) {
@@ -388,7 +406,7 @@ export async function createLabServer(options = {}) {
         if (previous.fingerprint !== fingerprint) throw httpError(409, 'IDEMPOTENCY_CONFLICT');
         return { task: state.tasks.find(task => task.id === previous.taskId), reused: true };
       }
-      const task = { id: id('task'), title, inputText, scenario, status: 'QUEUED', currentStage: 'REQUEST', mode: ['research', 'failover'].includes(scenario) ? 'MOCK' : 'LOCAL', createdAt: now(), updatedAt: now(), plan: [], workUnits: [], selectedResource: null, checkpoint: { nextStage: 0, completedWorkUnits: [] }, events: [], qa: null, artifactId: null, receiptId: null, error: null, approval: null };
+      const task = { id: id('task'), title, inputText, scenario, status: 'QUEUED', currentStage: 'REQUEST', mode: ['research', 'failover'].includes(scenario) ? 'MOCK' : realMode, createdAt: now(), updatedAt: now(), plan: [], workUnits: [], selectedResource: null, checkpoint: { nextStage: 0, completedWorkUnits: [] }, events: [], qa: null, artifactId: null, receiptId: null, error: null, approval: null };
       state.tasks.push(task); state.idempotency[key] = { fingerprint, taskId: task.id };
       return { task, reused: false };
     });
@@ -419,7 +437,7 @@ export async function createLabServer(options = {}) {
       if (/%|\\|\.\./.test(rawPath)) throw httpError(404, 'PATH_NOT_ALLOWED');
       const url = new URL(req.url, `http://${allowedHost}`);
       const route = url.pathname;
-      if (req.method === 'GET' && route === '/api/health') return json(res, 200, { status: 'READY', mode: 'LOCAL', environment: ENVIRONMENT, singleWriter: true });
+      if (req.method === 'GET' && route === '/api/health') return json(res, 200, { status: 'READY', mode: realMode, environment, singleWriter: true });
       if (req.method === 'GET' && route === '/api/state') return json(res, 200, stateView());
       if (req.method === 'GET' && route === '/api/events') {
         if (clients.size >= 20) throw httpError(429, 'SSE_CLIENT_LIMIT');
@@ -460,7 +478,7 @@ export async function createLabServer(options = {}) {
       if (req.method === 'GET' && artifact) {
         const entry = store.state.artifacts.find(row => row.id === artifact[1]); if (!entry) throw httpError(404, 'ARTIFACT_NOT_FOUND');
         if (!/^[a-zA-Z0-9_-]+\.md$/.test(entry.name)) throw httpError(409, 'ARTIFACT_PATH_INVALID');
-        const content = await fs.readFile(path.join(outputDir, entry.name));
+        const content = await artifactStorage.read(entry.name);
         if (sha(content) !== entry.sha256) throw httpError(409, 'ARTIFACT_INTEGRITY_FAILED');
         res.writeHead(200, { 'content-type': 'text/markdown; charset=utf-8', 'content-disposition': `attachment; filename="${entry.name}"`, 'cache-control': 'no-store' }); return res.end(content);
       }
@@ -479,9 +497,20 @@ export async function createLabServer(options = {}) {
     for (const client of clients) client.end(); clients.clear();
     if (server.listening) await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
     await Promise.allSettled([...jobs.values()]);
+    await artifactStorage.close?.();
     await store.close();
   }
-  return { server, store, resources, adapters, externalAdapters, host: '127.0.0.1', stateView, close, waitForIdle: () => Promise.allSettled([...jobs.values()]) };
+  async function whenIdle() {
+    if (jobFailures.length) throw jobFailures[0];
+    while (jobs.size) {
+      const results = await Promise.allSettled([...jobs.values()]);
+      const failure = results.find(result => result.status === 'rejected');
+      if (failure) throw failure.reason;
+    }
+    if (jobFailures.length) throw jobFailures[0];
+    await store.queue;
+  }
+  return { server, store, resources, adapters, externalAdapters, host: '127.0.0.1', stateView, close, whenIdle, waitForIdle: whenIdle };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

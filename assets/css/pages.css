@@ -471,3 +471,9 @@
   .channel { grid-template-columns: 42px minmax(0, 1fr); }
   .channel__go { display: none; }
 }
+
+/* Invite-only entry; account verification is performed on the Console server. */
+.invite-login-entry > p,.invite-signup-note{margin:0 0 20px;color:var(--tx-on-dark-muted);font-size:var(--fs-small);line-height:1.8}
+.sso-btn:disabled{cursor:not-allowed;opacity:.75}
+.sso-btn:disabled:hover{transform:none;background:rgba(255,255,255,.025);border-color:var(--ink-line-strong)}
+.sso-btn__coming{margin-left:auto;color:var(--tx-on-dark-dim);font-size:12px;white-space:nowrap}

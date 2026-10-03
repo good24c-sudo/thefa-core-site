@@ -54,7 +54,7 @@
       { name: 'Checkpoint', value: '중단 후 확인', sub: '처음부터 재실행하기 전 상태 확인' }
     ],
     connections: [
-      { name: 'THEFA Core 계정', state: '미연결', sub: '계정 기능 준비 중' },
+      { name: 'THEFA Core 계정', state: 'Preview 미연결', sub: '이 공개 화면은 예시입니다. 초대 Console은 별도 이메일 인증' },
       { name: '저장소 연결', state: '미연결', sub: '연결 시 권한 범위를 함께 설정' },
       { name: '브라우저 실행 환경', state: '미연결', sub: '허용된 환경에서만 실행' },
       { name: '알림 채널', state: '미연결', sub: '승인 요청 전달용' }
@@ -215,7 +215,7 @@
 
     connections: function () {
       return '<div class="console-view">' +
-        head('Connections', '외부 실행 환경과 계정을 연결하는 자리입니다. 현재는 어떤 연결도 활성화되어 있지 않습니다.') +
+        head('Connections', '외부 실행 환경과 계정 연결을 설명하는 Preview입니다. 이 공개 화면에는 실제 연결이 활성화되어 있지 않습니다.') +
         '<div class="table-simple">' + DEMO.connections.map(function (c) {
           return '<div class="table-simple__row">' +
             '<span class="table-simple__k">' + esc(c.name) +
@@ -223,18 +223,18 @@
             '<span class="table-simple__spacer" aria-hidden="true"></span>' +
             '<span class="badge badge--soon">' + esc(c.state) + '</span></div>';
         }).join('') + '</div>' +
-        '<p class="caption">연결 상태를 실제처럼 보이게 만들지 않습니다. 연결되면 이 화면의 라벨과 상태만 갱신됩니다.</p>' +
+        '<p class="caption">위 상태는 이 공개 Preview의 예시입니다. 초대 참가자용 Console은 별도 이메일 인증 후 접근하며, 실제 자원 연결은 해당 Console에서 확인합니다.</p>' +
       '</div>';
     },
 
     settings: function () {
       return '<div class="console-view">' +
-        head('Settings', '계정과 실행 정책을 관리하는 영역입니다. 계정 기능이 열리기 전까지는 사용할 수 없습니다.') +
+        head('Settings', '계정과 실행 정책을 관리하는 화면의 Preview입니다. 이 공개 화면에서는 실제 설정을 변경하지 않습니다.') +
         '<div class="empty-state">' +
-          badge(D.LABELS.comingSoon) +
-          '<h3 style="margin-top:8px">계정 연결 후 사용 가능</h3>' +
-          '<p>Settings는 계정과 권한 체계가 연결된 뒤에 열립니다. 지금은 화면 구성만 확인할 수 있으며, 어떤 설정값도 저장되지 않습니다.</p>' +
-          '<a class="btn btn--ghost btn--sm" href="signup.html" data-track="early_access_click">Early Access 문의</a>' +
+          badge(D.LABELS.preview) +
+          '<h3 style="margin-top:8px">공개 Preview · 설정 저장 없음</h3>' +
+          '<p>이곳에서는 화면 구성만 확인하며 설정값을 저장하지 않습니다. 별도 초대 Console은 사전에 허가된 이메일의 인증 후 참여할 수 있습니다. 간편가입은 준비 중입니다.</p>' +
+          '<a class="btn btn--ghost btn--sm" href="login.html" data-track="login_click">초대 참가자 로그인 →</a>' +
         '</div>' +
         '<div class="kv">' +
           '<div class="kv__row"><span class="kv__k">권한 분리</span><span class="kv__v">허용된 범위 밖의 실행은 하지 않습니다.</span></div>' +
@@ -277,8 +277,8 @@
     if (grid) {
       var items = [
         { t: 'Demo · 설명용', tone: 'demo', body: '7단계 실행 흐름 Demo, Console 구조 Preview, 활용 사례 예시는 모두 제품 구조 설명용이며 실제 실행이 아닙니다.' },
-        { t: 'Preview · 설계 화면', tone: 'concept', body: 'Console의 화면 구성과 정보 구조는 설계 단계입니다. 실제 화면과 다를 수 있습니다.' },
-        { t: 'Coming Soon · 미연결', tone: 'soon', body: '계정, 로그인, 실행 엔진, 저장소 연결은 아직 공개되지 않았습니다. 없는 기능을 구현된 것처럼 표시하지 않습니다.' },
+        { t: 'Preview · 예시 화면', tone: 'concept', body: '이 공개 페이지의 Console 구조와 데이터는 예시입니다. 이메일 인증 후 여는 참가자용 Console과 구분합니다.' },
+        { t: '초대 전용 · 이메일 인증', tone: 'early', body: '사전에 허가된 이메일의 참가자만 별도 인증 후 Console에 접근합니다. 이 Preview의 예시 상태는 실제 연결을 의미하지 않으며, 간편가입은 준비 중입니다.' },
         { t: 'Early Access · 접수 중', tone: 'early', body: '도입 검토 문의는 받고 있습니다. 가격과 제공 범위는 확정 전까지 “별도 문의”로 안내합니다.' }
       ];
       grid.innerHTML = items.map(function (i) {
