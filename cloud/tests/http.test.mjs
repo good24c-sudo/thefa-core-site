@@ -5,6 +5,7 @@ import { once } from 'node:events';
 import { createCloudHandler } from '../server.mjs';
 
 const ORIGIN = 'https://thefa-core-console.vercel.app';
+const APP_ORIGIN = 'https://app.thefacore.com';
 const EMAIL = 'invited@example.test';
 const COOKIE = '__Host-core_session=test-only-session';
 const fail = (status, message) => Object.assign(new Error(message), { status });
@@ -52,7 +53,9 @@ async function fixture(t, overrides = {}) {
   const port = server.address().port;
   const call = ({ path = '/', method = 'GET', headers = {}, body, chunked = false } = {}) => new Promise((resolve, reject) => {
     const payload = typeof body === 'object' && body !== null ? JSON.stringify(body) : body;
-    const req = request({ hostname: '127.0.0.1', port, path, method, headers: { ...(!chunked && payload !== undefined ? { 'content-length': Buffer.byteLength(payload) } : {}), ...headers } }, res => {
+    const requestHeaders = { host: new URL(ORIGIN).host, ...(!chunked && payload !== undefined ? { 'content-length': Buffer.byteLength(payload) } : {}), ...headers };
+    const wireHeaders = Array.isArray(requestHeaders.host) ? Object.entries(requestHeaders).flatMap(([name, value]) => Array.isArray(value) ? value.flatMap(item => [name, item]) : [name, value]) : requestHeaders;
+    const req = request({ hostname: '127.0.0.1', port, path, method, headers: wireHeaders }, res => {
       const chunks = [];
       res.on('data', chunk => chunks.push(chunk));
       res.on('error', reject);
@@ -242,4 +245,77 @@ test('incomplete configuration fails closed while login remains public', async t
   for (const path of ['/', '/app.js', '/api/state']) assert.equal((await call({ path, headers: { cookie: COOKIE } })).status, 503, path);
   assert.equal((await call({ path: '/auth/request-code', method: 'POST', headers: jsonHeaders, body: { email: EMAIL } })).status, 503);
   assert.equal(calls.engine.length, 0);
+});
+
+test('Both exact HTTPS hosts support OTP login, session reads, tasks and logout', async t => {
+  for (const origin of [ORIGIN, APP_ORIGIN]) {
+    const { call, calls } = await fixture(t, { env: { CORE_CONSOLE_ORIGINS: JSON.stringify([ORIGIN, APP_ORIGIN]) } });
+    const host = new URL(origin).host;
+    const browser = { ...jsonHeaders, host, origin, 'x-forwarded-host': host, 'x-forwarded-proto': 'https', 'x-forwarded-port': '443' };
+    assert.equal((await call({ path: '/login.html', headers: { host } })).status, 200);
+    assert.equal((await call({ path: '/api/state', headers: { host } })).status, 401);
+    assert.equal((await call({ path: '/auth/request-code', method: 'POST', headers: browser, body: { email: EMAIL } })).status, 200);
+    const verified = await call({ path: '/auth/verify-code', method: 'POST', headers: browser, body: { email: EMAIL, code: '123456' } });
+    assert.equal(verified.status, 200);
+    const cookie = verified.headers['set-cookie'][0];
+    assert.match(cookie, /^__Host-core_session=/); assert.match(cookie, /HttpOnly/); assert.match(cookie, /Secure/); assert.match(cookie, /Path=\//); assert.doesNotMatch(cookie, /(?:^|;)\s*Domain=/i);
+    const authenticated = { ...browser, cookie: cookie.split(';')[0] };
+    assert.equal((await call({ path: '/api/state', headers: authenticated })).status, 200);
+    assert.equal((await call({ path: '/api/tasks', method: 'POST', headers: authenticated, body: { title: 'Cloud 샌드박스 시험' } })).status, 201);
+    assert.equal((await call({ path: '/auth/logout', method: 'POST', headers: authenticated, body: {} })).status, 200);
+    assert.equal((await call({ path: '/api/state', headers: authenticated })).status, 401);
+    assert.equal(calls.requests.length, 1); assert.equal(calls.verifications.length, 1); assert.equal(calls.engine.filter(call => call.path === '/api/tasks').length, 1); assert.equal(calls.logout.length, 1);
+  }
+});
+
+test('Adding a custom host keeps the old cookie valid and rejects crossed Host/Origin', async t => {
+  const { call, calls } = await fixture(t, { env: { CORE_CONSOLE_ORIGINS: JSON.stringify([APP_ORIGIN]) } });
+  assert.equal((await call({ path: '/api/state', headers: sessionHeaders })).status, 200);
+  const initialCalls = calls.sessions.length;
+  for (const [host, origin] of [[new URL(ORIGIN).host, APP_ORIGIN], [new URL(APP_ORIGIN).host, ORIGIN]]) {
+    for (const path of ['/auth/request-code', '/auth/verify-code', '/auth/logout', '/api/tasks']) {
+      const result = await call({ path, method: 'POST', headers: { ...sessionHeaders, host, origin }, body: { email: EMAIL, code: '123456', title: 'crossed request' } });
+      assert.equal(result.status, 403, `${host} ${origin} ${path}`);
+    }
+    assert.equal((await call({ path: '/api/state', headers: { host, origin, cookie: COOKIE } })).status, 403);
+  }
+  assert.equal(calls.sessions.length, initialCalls); assert.equal(calls.requests.length, 0); assert.equal(calls.verifications.length, 0); assert.equal(calls.logout.length, 0);
+});
+
+test('Unlisted hosts, explicit ports and forwarded header manipulation fail before auth', async t => {
+  const { call, calls } = await fixture(t, { env: { CORE_CONSOLE_ORIGINS: JSON.stringify([APP_ORIGIN]) } });
+  const appHost = new URL(APP_ORIGIN).host;
+  const headers = { ...sessionHeaders, host: appHost, origin: APP_ORIGIN };
+  const invalidHeaders = [
+    { host: 'attacker.example.test' }, { host: 'other.thefacore.com' }, { host: 'app.thefacore.com.attacker.test' },
+    { host: 'app.thefacore.com:443' }, { host: 'app.thefacore.com:8443' }, { host: 'app.thefacore.com.' },
+    { host: [appHost, new URL(ORIGIN).host] },
+    { 'x-forwarded-host': new URL(ORIGIN).host }, { 'x-forwarded-host': `${appHost}, attacker.example.test` },
+    { 'x-forwarded-proto': 'http' }, { 'x-forwarded-proto': 'https,http' }, { 'x-forwarded-port': '8443' },
+    { forwarded: `for=127.0.0.1;host=${appHost};proto=https` }
+  ];
+  for (const injected of invalidHeaders) {
+    assert.equal((await call({ path: '/auth/request-code', method: 'POST', headers: { ...headers, ...injected }, body: { email: EMAIL } })).status, 403, JSON.stringify(injected));
+    assert.equal((await call({ path: '/api/state', headers: { ...headers, ...injected } })).status, 403, JSON.stringify(injected));
+  }
+  assert.deepEqual(calls, { requests: [], verifications: [], sessions: [], logout: [], engine: [] });
+});
+
+test('Both allowed hosts refuse same-site and cross-site mutation requests', async t => {
+  const { call, calls } = await fixture(t, { env: { CORE_CONSOLE_ORIGINS: JSON.stringify([APP_ORIGIN]) } });
+  for (const origin of [ORIGIN, APP_ORIGIN]) for (const site of ['same-site', 'cross-site']) {
+    const headers = { ...sessionHeaders, host: new URL(origin).host, origin, 'sec-fetch-site': site };
+    for (const path of ['/auth/request-code', '/auth/verify-code', '/auth/logout', '/api/tasks']) assert.equal((await call({ path, method: 'POST', headers, body: { email: EMAIL, code: '123456', title: 'untrusted site' } })).status, 403);
+  }
+  assert.deepEqual(calls, { requests: [], verifications: [], sessions: [], logout: [], engine: [] });
+});
+
+test('Origin configuration rejects malformed, wildcard, non-HTTPS and noncanonical values', async t => {
+  for (const config of ['not-json', '{}', '[null]', '["http://app.thefacore.com"]', '["https://*.thefacore.com"]', '["https://app.thefacore.com/"]', '["https://app.thefacore.com:443"]', '["https://user:pass@app.thefacore.com"]', '["https://app.thefacore.com/path"]']) {
+    const { call, calls } = await fixture(t, { env: { CORE_CONSOLE_ORIGINS: config } });
+    assert.equal((await call({ path: '/login.html' })).status, 200);
+    assert.equal((await call({ path: '/api/state', headers: sessionHeaders })).status, 503, config);
+    assert.equal((await call({ path: '/auth/request-code', method: 'POST', headers: jsonHeaders, body: { email: EMAIL } })).status, 503, config);
+    assert.equal(calls.requests.length, 0); assert.equal(calls.engine.length, 0);
+  }
 });

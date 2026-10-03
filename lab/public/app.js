@@ -3,7 +3,7 @@
 const $ = selector => document.querySelector(selector);
 const model = { state: null, selectedTaskId: null, view: 'home', connected: false, creating: false, pending: new Set(), receipts: new Map(), receiptLoading: null };
 const transport = { timer: null, events: null, failures: 0, active: false, inFlight: false, errorVisible: false, sessionExpired: false };
-const cloudHost = location.hostname === 'thefa-core-console.vercel.app';
+const cloudHost = ['thefa-core-console.vercel.app', 'app.thefacore.com'].includes(location.hostname);
 const viewNames = { home: '홈', projects: '프로젝트', resources: 'AI 팀 / 자원', approvals: '승인 필요', results: '결과물', memory: 'Memory', connections: 'Connections', usage: 'Usage' };
 const statusNames = { VERIFIED: '시험 결과 검증됨', RUNNING: '실행 중', QUEUED: '실행 대기', CREATED: '목표 접수', PLANNED: '계획 준비', PAUSED: '일시 정지 · 이어서 실행 가능', WAITING_APPROVAL: '승인 대기', FAILED: '실패 · 이어서 실행 가능', FAILED_RETRYABLE: '실패 · 이어서 실행 가능', REJECTED: '승인 거절됨', SKIPPED: '실행 건너뜀', COMPLETED: '단계 수행됨', PENDING: '대기', PASSED: '검사 통과', PASS: '검사 통과', APPROVED: '시험 승인됨' };
 const stageNames = { REQUEST: '목표 접수', GOAL: '목표 이해', PLAN: '계획', WORK_UNITS: '작업 나누기', RESOURCE_SELECTION: '자원 선택', EXECUTION: '실행', REVIEW: '검토', QA: '검사', ARTIFACT: '결과 파일', RECEIPT: '실행 영수증', VERIFIED: '결과 검증' };
@@ -74,7 +74,7 @@ function renderRuntimeCopy() {
   $('#session-controls').hidden = !cloud || !model.state;
   $('#session-email').textContent = model.state?.auth?.email || model.state?.user?.email || '';
   $('#session-email').title = model.state?.auth?.email || model.state?.user?.email || '로그인한 계정';
-  $('#homepage-link').href = cloud ? 'https://core.thefa.kr/' : 'http://127.0.0.1:4174/';
+  $('#homepage-link').href = cloud ? 'https://thefacore.com/' : 'http://127.0.0.1:4174/';
   $('#homepage-link').innerHTML = `${cloud ? 'THE FA Core 홈페이지' : '홈페이지 로컬 Preview'} <span aria-hidden="true">↗</span>`;
   $('#goal-description').textContent = cloud ? '목표를 입력하고 Cloud 샌드박스에서 실행 흐름을 시험하세요. 일반 업무의 실제 수행은 아직 연결되지 않았습니다.' : '목표를 알려주세요. 계획부터 실행, 결과 확인까지 Core가 이어갑니다.';
   $('#scenario option[value="safe"]').textContent = cloud ? 'Cloud 시험 보고서 만들기' : '로컬 보고서 만들기';

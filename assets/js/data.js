@@ -39,7 +39,7 @@ window.BUILDUP_DATA = (function () {
           Leave '' and the page falls back to relative URLs, which work
           on any host — including a file:// preview. Fill it in before
           submitting the sitemap to Search Console. */
-    siteUrl: 'https://core.thefa.kr',
+    siteUrl: 'https://thefacore.com',
 
     /* 2. Where the contact form goes.
           ''      -> the form composes a complete email addressed to
@@ -54,8 +54,8 @@ window.BUILDUP_DATA = (function () {
     /* Invite-only email authentication is handled by the separate server.
        Social signup remains unavailable. No client-side allowlist or session. */
     authEnabled: true,
-    authBaseUrl: 'https://thefa-core-console.vercel.app',
-    consoleLoginUrl: 'https://thefa-core-console.vercel.app/login.html'
+    authBaseUrl: 'https://app.thefacore.com',
+    consoleLoginUrl: 'https://app.thefacore.com/login.html'
   };
 
   /* ---------- site-wide ---------- */
