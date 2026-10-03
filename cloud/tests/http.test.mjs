@@ -251,9 +251,10 @@ test('Both exact HTTPS hosts support OTP login, session reads, tasks and logout'
   for (const origin of [ORIGIN, APP_ORIGIN]) {
     const { call, calls } = await fixture(t, { env: { CORE_CONSOLE_ORIGINS: JSON.stringify([ORIGIN, APP_ORIGIN]) } });
     const host = new URL(origin).host;
-    const browser = { ...jsonHeaders, host, origin, 'x-forwarded-host': host, 'x-forwarded-proto': 'https', 'x-forwarded-port': '443' };
-    assert.equal((await call({ path: '/login.html', headers: { host } })).status, 200);
-    assert.equal((await call({ path: '/api/state', headers: { host } })).status, 401);
+    const forwarded = `for=192.0.2.1;host=${host};proto=https`;
+    const browser = { ...jsonHeaders, host, origin, forwarded, 'x-forwarded-host': host, 'x-forwarded-proto': 'https', 'x-forwarded-port': '443' };
+    assert.equal((await call({ path: '/login.html', headers: { host, forwarded } })).status, 200);
+    assert.equal((await call({ path: '/api/state', headers: { host, forwarded } })).status, 401);
     assert.equal((await call({ path: '/auth/request-code', method: 'POST', headers: browser, body: { email: EMAIL } })).status, 200);
     const verified = await call({ path: '/auth/verify-code', method: 'POST', headers: browser, body: { email: EMAIL, code: '123456' } });
     assert.equal(verified.status, 200);
@@ -282,7 +283,30 @@ test('Adding a custom host keeps the old cookie valid and rejects crossed Host/O
   assert.equal(calls.sessions.length, initialCalls); assert.equal(calls.requests.length, 0); assert.equal(calls.verifications.length, 0); assert.equal(calls.logout.length, 0);
 });
 
-test('Unlisted hosts, explicit ports and forwarded header manipulation fail before auth', async t => {
+test('Forwarded metadata cannot override Host or Origin authority', async t => {
+  const { call, calls } = await fixture(t, { env: { CORE_CONSOLE_ORIGINS: JSON.stringify([APP_ORIGIN]) } });
+  for (const origin of [ORIGIN, APP_ORIGIN]) {
+    const host = new URL(origin).host;
+    for (const forwarded of [`for=192.0.2.1;host=${host};proto=https`, 'for=192.0.2.1;host=attacker.example.test;proto=http']) {
+      const headers = { ...sessionHeaders, host, origin, forwarded };
+      assert.equal((await call({ path: '/login.html', headers })).status, 200);
+      assert.equal((await call({ path: '/api/state', headers })).status, 200);
+      assert.equal((await call({ path: '/api/tasks', method: 'POST', headers, body: { title: 'Forwarded metadata test' } })).status, 201);
+    }
+  }
+  const before = Object.fromEntries(Object.entries(calls).map(([name, values]) => [name, values.length]));
+  const forwarded = `for=192.0.2.1;host=${new URL(ORIGIN).host};proto=https`;
+  for (const injected of [{ host: 'attacker.example.test' }, { origin: 'https://attacker.example.test' }, { origin: APP_ORIGIN }]) {
+    const headers = { ...sessionHeaders, forwarded, ...injected };
+    assert.equal((await call({ path: '/api/state', headers })).status, 403);
+    for (const path of ['/auth/request-code', '/auth/verify-code', '/auth/logout', '/api/tasks']) {
+      assert.equal((await call({ path, method: 'POST', headers, body: { email: EMAIL, code: '123456', title: 'untrusted request' } })).status, 403);
+    }
+  }
+  assert.deepEqual(Object.fromEntries(Object.entries(calls).map(([name, values]) => [name, values.length])), before);
+});
+
+test('Unlisted hosts, explicit ports and x-forwarded header manipulation fail before auth', async t => {
   const { call, calls } = await fixture(t, { env: { CORE_CONSOLE_ORIGINS: JSON.stringify([APP_ORIGIN]) } });
   const appHost = new URL(APP_ORIGIN).host;
   const headers = { ...sessionHeaders, host: appHost, origin: APP_ORIGIN };
@@ -291,8 +315,7 @@ test('Unlisted hosts, explicit ports and forwarded header manipulation fail befo
     { host: 'app.thefacore.com:443' }, { host: 'app.thefacore.com:8443' }, { host: 'app.thefacore.com.' },
     { host: [appHost, new URL(ORIGIN).host] },
     { 'x-forwarded-host': new URL(ORIGIN).host }, { 'x-forwarded-host': `${appHost}, attacker.example.test` },
-    { 'x-forwarded-proto': 'http' }, { 'x-forwarded-proto': 'https,http' }, { 'x-forwarded-port': '8443' },
-    { forwarded: `for=127.0.0.1;host=${appHost};proto=https` }
+    { 'x-forwarded-proto': 'http' }, { 'x-forwarded-proto': 'https,http' }, { 'x-forwarded-port': '8443' }
   ];
   for (const injected of invalidHeaders) {
     assert.equal((await call({ path: '/auth/request-code', method: 'POST', headers: { ...headers, ...injected }, body: { email: EMAIL } })).status, 403, JSON.stringify(injected));

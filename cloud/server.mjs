@@ -48,11 +48,11 @@ export function createCloudHandler({origin=process.env.CORE_CONSOLE_ORIGIN,auth,
       const host=req.headers.host;
       const requestOrigin=typeof host==='string'?`https://${host}`:null;
       const hostCount=(req.rawHeaders||[]).filter((value,index)=>index%2===0&&value.toLowerCase()==='host').length;
+      // Vercel adds Forwarded metadata; it never selects the request authority.
       if(!publicOrigins.has(requestOrigin)||hostCount!==1||
         (req.headers['x-forwarded-host']!==undefined&&req.headers['x-forwarded-host']!==host)||
         (req.headers['x-forwarded-proto']!==undefined&&req.headers['x-forwarded-proto']!=='https')||
-        (req.headers['x-forwarded-port']!==undefined&&req.headers['x-forwarded-port']!=='443')||
-        req.headers.forwarded!==undefined)return reply(403,{error:'허용된 서비스 주소에서 요청해 주세요.'});
+        (req.headers['x-forwarded-port']!==undefined&&req.headers['x-forwarded-port']!=='443'))return reply(403,{error:'허용된 서비스 주소에서 요청해 주세요.'});
       if(req.headers.origin!==undefined&&req.headers.origin!==requestOrigin)return reply(403,{error:'현재 사이트의 화면에서 요청해 주세요.'});
       if(typeof req.url!=='string'||!req.url.startsWith('/')||req.url.startsWith('//'))return reply(404,{error:'페이지를 찾지 못했습니다.'});
       const url=new URL(req.url,requestOrigin);
