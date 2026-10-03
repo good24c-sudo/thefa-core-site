@@ -15,7 +15,9 @@ foreach($relative in $ownedFiles){
 Copy-Item -LiteralPath (Join-Path $sourceRoot 'cloud/vercel.json') -Destination (Join-Path $Destination 'vercel.json')
 New-Item -ItemType Directory -Path (Join-Path $Destination 'public') -Force | Out-Null
 Set-Content -LiteralPath (Join-Path $Destination 'public/.gitkeep') -Value '' -NoNewline
-'{"private":true,"type":"module","engines":{"node":"24.x"}}' | Set-Content -LiteralPath (Join-Path $Destination 'package.json') -Encoding utf8
-'deployment-source.json' | Set-Content -LiteralPath (Join-Path $Destination '.vercelignore') -Encoding utf8
-[ordered]@{source=$sourceRoot;created=(Get-Date).ToUniversalTime().ToString('o');files=$ownedFiles;runtime_data_included=$false;secrets_included=$false} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $Destination 'deployment-source.json') -Encoding utf8
+$utf8=New-Object System.Text.UTF8Encoding($false)
+[IO.File]::WriteAllText((Join-Path $Destination 'package.json'),'{"private":true,"type":"module","engines":{"node":"24.x"}}',$utf8)
+[IO.File]::WriteAllText((Join-Path $Destination '.vercelignore'),'deployment-source.json',$utf8)
+$manifest=[ordered]@{source=$sourceRoot;created=(Get-Date).ToUniversalTime().ToString('o');files=$ownedFiles;runtime_data_included=$false;secrets_included=$false}
+[IO.File]::WriteAllText((Join-Path $Destination 'deployment-source.json'),($manifest | ConvertTo-Json -Depth 5),$utf8)
 Write-Output "Cloud bundle ready: $Destination ($($ownedFiles.Count) files; no runtime data or secrets)"
