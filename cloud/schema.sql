@@ -1,3 +1,12 @@
+create table public.core_console_invites_v2 (
+  email text primary key check (email=lower(btrim(email)) and email ~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$'),
+  approved_at timestamptz not null default now()
+);
+alter table public.core_console_invites_v2 enable row level security;
+revoke all on public.core_console_invites_v2 from public, anon, authenticated, service_role;
+grant select on public.core_console_invites_v2 to service_role;
+insert into public.core_console_invites_v2(email) values ('thefa@thefa.kr'),('ceo@thefa.kr');
+
 -- Dedicated objects only. Fail rather than overwrite a preexisting object.
 begin;
 create table public.core_console_state_v2 (
@@ -17,7 +26,7 @@ create table public.core_console_artifacts_v2 (
   primary key (workspace_id, name)
 );
 create table public.core_console_email_challenges_v2 (
-  email text primary key check (email in ('thefa@thefa.kr','ceo@thefa.kr')),
+  email text primary key references public.core_console_invites_v2(email),
   id uuid not null unique,
   code_hash text not null check (code_hash ~ '^[a-f0-9]{64}$'),
   expires_at timestamptz not null,
@@ -27,7 +36,7 @@ create table public.core_console_email_challenges_v2 (
 );
 create table public.core_console_sessions_v2 (
   token_hash text primary key check (token_hash ~ '^[a-f0-9]{64}$'),
-  email text not null check (email in ('thefa@thefa.kr','ceo@thefa.kr')),
+  email text not null references public.core_console_invites_v2(email),
   expires_at timestamptz not null,
   created_at timestamptz not null default now()
 );
@@ -89,7 +98,7 @@ create function public.core_console_request_code_v2(p_email text,p_challenge_id 
 returns jsonb language plpgsql security invoker set search_path=pg_catalog,public as $$
 declare r public.core_console_email_challenges_v2;
 begin
-  if p_email not in ('thefa@thefa.kr','ceo@thefa.kr') or p_email is null then raise exception 'EMAIL_NOT_ALLOWED'; end if;
+  if p_email is null or not exists(select 1 from public.core_console_invites_v2 where email=p_email) then raise exception 'EMAIL_NOT_ALLOWED'; end if;
   insert into public.core_console_email_challenges_v2(email,id,code_hash,expires_at,last_sent_at)
     values(p_email,p_challenge_id,p_code_hash,clock_timestamp()+interval '10 minutes',clock_timestamp())
     on conflict(email) do update set id=excluded.id,code_hash=excluded.code_hash,expires_at=excluded.expires_at,attempts=0,used_at=null,last_sent_at=excluded.last_sent_at

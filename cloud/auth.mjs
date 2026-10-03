@@ -7,7 +7,14 @@ const failure=(status,message,extra={})=>Object.assign(new Error(message),{statu
 const emailOf=value=>typeof value==='string'?value.trim().toLowerCase():'';
 const UUID=/^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i;
 
-export function createAuthService({origin,otpSecret,database,sendEmail,clock=Date.now}={}) {
+export function parseAllowedEmails(value) {
+  if(value===undefined)return new Set(ALLOWED_EMAILS);
+  const emails=JSON.parse(value);
+  if(!Array.isArray(emails)||!emails.length||emails.length>1000||emails.some(email=>typeof email!=='string'||email!==emailOf(email)||email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))throw new Error('INVALID_EMAIL_ALLOWLIST');
+  return new Set(emails);
+}
+
+export function createAuthService({origin,otpSecret,database,sendEmail,allowedEmails=ALLOWED_EMAILS,clock=Date.now}={}) {
   if(!origin?.startsWith('https://')||typeof otpSecret!=='string'||otpSecret.length<32||!database||!sendEmail) throw new Error('AUTH_CONFIGURATION_REQUIRED');
   const codeHash=(challengeId,email,code)=>createHmac('sha256',otpSecret).update(`${challengeId}\n${email}\n${code}`).digest('hex');
   function tokenFrom(header='') {
@@ -21,7 +28,7 @@ export function createAuthService({origin,otpSecret,database,sendEmail,clock=Dat
   return {
     async requestCode(value) {
       const email=emailOf(value);
-      if(!ALLOWED_EMAILS.has(email)) throw failure(403,'사전에 허가된 이메일만 참가할 수 있습니다.');
+      if(!allowedEmails.has(email)) throw failure(403,'사전에 허가된 이메일만 참가할 수 있습니다.');
       const challengeId=randomUUID(),code=String(randomInt(0,1000000)).padStart(6,'0');
       const result=await database.rpc('core_console_request_code_v2',{p_email:email,p_challenge_id:challengeId,p_code_hash:codeHash(challengeId,email,code)});
       if(!result?.accepted)throw failure(429,'잠시 후 인증코드를 다시 요청해 주세요.',{retryAfter:Math.max(1,Number(result?.retryAfter)||60)});
@@ -32,16 +39,16 @@ export function createAuthService({origin,otpSecret,database,sendEmail,clock=Dat
     async verifyCode({challengeId,code}={}) {
       if(typeof challengeId!=='string'||!UUID.test(challengeId)||typeof code!=='string'||!/^\d{6}$/.test(code))throw failure(400,'인증코드가 올바르지 않거나 만료되었습니다.');
       const challenge=await database.getChallenge(challengeId);
-      if(!challenge||!ALLOWED_EMAILS.has(challenge.email))throw failure(400,'인증코드가 올바르지 않거나 만료되었습니다.');
+      if(!challenge||!allowedEmails.has(challenge.email))throw failure(400,'인증코드가 올바르지 않거나 만료되었습니다.');
       const token=randomBytes(32).toString('base64url');
       const result=await database.rpc('core_console_verify_code_v2',{p_challenge_id:challengeId,p_code_hash:codeHash(challengeId,challenge.email,code),p_session_hash:digest(token)});
-      if(!result?.verified||!ALLOWED_EMAILS.has(result.email))throw failure(400,'인증코드가 올바르지 않거나 만료되었습니다.');
+      if(!result?.verified||!allowedEmails.has(result.email))throw failure(400,'인증코드가 올바르지 않거나 만료되었습니다.');
       return {email:result.email,cookie:cookie(token,28800)};
     },
     async getSession(header) {
       const token=tokenFrom(header);if(!token)return null;
       const row=await database.getSession(digest(token));
-      if(!row||!ALLOWED_EMAILS.has(row.email)||!Number.isFinite(Date.parse(row.expires_at))||Date.parse(row.expires_at)<=clock())return null;
+      if(!row||!allowedEmails.has(row.email)||!Number.isFinite(Date.parse(row.expires_at))||Date.parse(row.expires_at)<=clock())return null;
       return {email:row.email,expiresAt:row.expires_at};
     },
     async logout(header) {
@@ -68,10 +75,10 @@ export function createRestDatabase({url,key,fetchImpl=fetch}={}) {
   };
 }
 
-export function createResendSender({key,fetchImpl=fetch}={}) {
+export function createResendSender({key,allowedEmails=ALLOWED_EMAILS,fetchImpl=fetch}={}) {
   if(typeof key!=='string'||!key.startsWith('re_'))throw new Error('EMAIL_SENDER_CONFIGURATION_REQUIRED');
   return async ({email,code,challengeId})=>{
-    if(!ALLOWED_EMAILS.has(email)||!/^\d{6}$/.test(code))throw new Error('INVALID_EMAIL_REQUEST');
+    if(!allowedEmails.has(email)||!/^\d{6}$/.test(code))throw new Error('INVALID_EMAIL_REQUEST');
     const response=await fetchImpl('https://api.resend.com/emails',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json','Idempotency-Key':'core-console-auth-'+challengeId},body:JSON.stringify({from:'THE FA Core <no-reply@thefa.kr>',to:[email],subject:'THE FA Core 참가 인증코드',text:`THE FA Core 초대 참가 인증코드: ${code}\n\n10분 안에 로그인 화면에 입력해 주세요. 한 번만 사용할 수 있습니다.\n요청하지 않으셨다면 이 메일을 무시해 주세요.\n\nTHE FA · https://core.thefa.kr`,html:`<div style="font-family:Arial,sans-serif;line-height:1.7"><h1>THE FA Core 참가 인증</h1><p>로그인 화면에 아래 인증코드를 입력해 주세요.</p><p style="font-size:28px;letter-spacing:6px;font-weight:700">${code}</p><p>10분 안에 한 번만 사용할 수 있습니다. 요청하지 않으셨다면 이 메일을 무시해 주세요.</p><p>THE FA · <a href="https://core.thefa.kr">core.thefa.kr</a></p></div>`}),signal:AbortSignal.timeout(12000)});
     if(!response.ok)throw new Error('EMAIL_DELIVERY_NOT_ACCEPTED');
     const data=await response.json();if(!data.id)throw new Error('EMAIL_DELIVERY_RECEIPT_MISSING');

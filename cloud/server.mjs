@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { createAuthService, createRestDatabase, createResendSender } from './auth.mjs';
+import { createAuthService, createRestDatabase, createResendSender, parseAllowedEmails } from './auth.mjs';
 import { executeApi } from './engine-adapter.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
@@ -38,7 +38,7 @@ export function createCloudHandler({origin=process.env.CORE_CONSOLE_ORIGIN,auth,
     }
   }catch{setupError=true;allowedOrigins=new Set();}
   const publicOrigins=allowedOrigins.size?allowedOrigins:new Set(['https://thefa-core-console.vercel.app']);
-  if(!auth)try{auth=createAuthService({origin,otpSecret:env.CORE_OTP_SECRET,database:createRestDatabase({url:env.SUPABASE_URL,key:env.SUPABASE_SERVICE_ROLE_KEY}),sendEmail:createResendSender({key:env.RESEND_API_KEY})});}catch{setupError=true;}
+  if(!auth)try{const allowedEmails=parseAllowedEmails(env.CORE_CONSOLE_ALLOWED_EMAILS);auth=createAuthService({origin,allowedEmails,otpSecret:env.CORE_OTP_SECRET,database:createRestDatabase({url:env.SUPABASE_URL,key:env.SUPABASE_SERVICE_ROLE_KEY}),sendEmail:createResendSender({key:env.RESEND_API_KEY,allowedEmails})});}catch{setupError=true;}
   return async(req,res)=>{
     const reply=(status,body,type='application/json; charset=utf-8')=>{res.statusCode=status;res.setHeader('content-type',type);res.end(type.startsWith('application/json')?JSON.stringify(body):body);};
     res.setHeader('cache-control','no-store');res.setHeader('x-content-type-options','nosniff');res.setHeader('referrer-policy','no-referrer');res.setHeader('x-frame-options','DENY');res.setHeader('strict-transport-security','max-age=31536000');

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createAuthService, COOKIE_NAME } from '../auth.mjs';
+import { createAuthService, createResendSender, parseAllowedEmails, COOKIE_NAME } from '../auth.mjs';
 
 function fixture(options={}) {
   let time=Date.now(), mails=[], rows=new Map(), sessions=new Map();
@@ -26,7 +26,7 @@ function fixture(options={}) {
     async getSession(hash){return sessions.get(hash)||null;},
     async deleteSession(hash){sessions.delete(hash);}
   };
-  const auth=createAuthService({origin:'https://thefa-core-console.vercel.app',otpSecret:'test-only-secret-never-production-32bytes',database,sendEmail:async mail=>{mails.push(mail);if(options.mailFailure)throw new Error('Sender failed');return {id:'test-email-id'};},clock:()=>time});
+  const auth=createAuthService({origin:'https://thefa-core-console.vercel.app',otpSecret:'test-only-secret-never-production-32bytes',database,allowedEmails:options.allowedEmails,sendEmail:async mail=>{mails.push(mail);if(options.mailFailure)throw new Error('Sender failed');return {id:'test-email-id'};},clock:()=>time});
   return {auth,mails,rows,sessions,advance:ms=>{time+=ms;}};
 }
 const cookieHeader=result=>result.cookie.split(';')[0];
@@ -85,4 +85,27 @@ test('Expired and non-allowlisted stored sessions are refused',async()=>{
 test('Mail delivery errors fail closed and weak configuration is refused',async()=>{
   const f=fixture({mailFailure:true});await assert.rejects(f.auth.requestCode('thefa@thefa.kr'),e=>e.status===502);
   assert.throws(()=>createAuthService({origin:'https://x.example',otpSecret:'weak'}),/AUTH_CONFIGURATION/);
+});
+
+
+test('Configured invitations require exact email, OTP and session verification',async()=>{
+  const allowedEmails=parseAllowedEmails(JSON.stringify(['thefa@thefa.kr','ceo@thefa.kr','director@example.com']));
+  const f=fixture({allowedEmails});
+  await assert.rejects(f.auth.requestCode('outsider@example.com'),e=>e.status===403);
+  await assert.rejects(f.auth.requestCode('director+alias@example.com'),e=>e.status===403);
+  const challenge=await f.auth.requestCode(' DIRECTOR@EXAMPLE.COM ');
+  const result=await f.auth.verifyCode({challengeId:challenge.challengeId,code:f.mails[0].code});
+  assert.equal((await f.auth.getSession(cookieHeader(result))).email,'director@example.com');
+  allowedEmails.delete('director@example.com');
+  assert.equal(await f.auth.getSession(cookieHeader(result)),null);
+});
+test('Malformed or wildcard invitation configuration fails closed',()=>{
+  for(const value of ['null','{}','[]','["*"]','["bad"]','["UPPER@example.com"]','["x@example.com",null]'])assert.throws(()=>parseAllowedEmails(value));
+  assert.deepEqual([...parseAllowedEmails(undefined)],['thefa@thefa.kr','ceo@thefa.kr']);
+});
+test('Mail sender accepts configured invitees and rejects everyone else',async()=>{
+  let sent=0;const allowedEmails=parseAllowedEmails('["director@example.com"]');
+  const sender=createResendSender({key:'re_test_only_not_a_secret',allowedEmails,fetchImpl:async()=>{sent++;return {ok:true,json:async()=>({id:'test-receipt'})};}});
+  await sender({email:'director@example.com',code:'123456',challengeId:'test-id'});
+  await assert.rejects(sender({email:'outsider@example.com',code:'123456'}));assert.equal(sent,1);
 });
