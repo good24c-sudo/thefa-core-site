@@ -6,3 +6,6 @@ exclude:
   - tools
   - docs
   - supabase
+
+include:
+  - .well-known

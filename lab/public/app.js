@@ -4,7 +4,7 @@ const $ = selector => document.querySelector(selector);
 const model = { state: null, selectedTaskId: null, view: 'home', connected: false, creating: false, pending: new Set(), receipts: new Map(), receiptLoading: null };
 const transport = { timer: null, events: null, failures: 0, active: false, inFlight: false, errorVisible: false, sessionExpired: false };
 const cloudHost = ['thefa-core-console.vercel.app', 'app.thefacore.com'].includes(location.hostname);
-const viewNames = { home: '홈', projects: '프로젝트', resources: 'AI 팀 / 자원', approvals: '승인 필요', results: '결과물', memory: 'Memory', connections: 'Connections', usage: 'Usage' };
+const viewNames = { home: '홈', projects: '프로젝트', resources: '실행 자원', ava: '나의 AVA', evidence: '작업 근거', approvals: '승인 필요', results: '결과물', memory: 'Memory', connections: 'Connections', usage: 'Usage' };
 const statusNames = { VERIFIED: '시험 결과 검증됨', RUNNING: '실행 중', QUEUED: '실행 대기', CREATED: '목표 접수', PLANNED: '계획 준비', PAUSED: '일시 정지 · 이어서 실행 가능', WAITING_APPROVAL: '승인 대기', FAILED: '실패 · 이어서 실행 가능', FAILED_RETRYABLE: '실패 · 이어서 실행 가능', REJECTED: '승인 거절됨', SKIPPED: '실행 건너뜀', COMPLETED: '단계 수행됨', PENDING: '대기', PASSED: '검사 통과', PASS: '검사 통과', APPROVED: '시험 승인됨' };
 const stageNames = { REQUEST: '목표 접수', GOAL: '목표 이해', PLAN: '계획', WORK_UNITS: '작업 나누기', RESOURCE_SELECTION: '자원 선택', EXECUTION: '실행', REVIEW: '검토', QA: '검사', ARTIFACT: '결과 파일', RECEIPT: '실행 영수증', VERIFIED: '결과 검증' };
 const presets = { safe: 'THE FA Core 테스트 보고서를 만들어줘', research: 'THE FA Core 시장 리서치 흐름을 시험해줘', summary: '이 텍스트를 3줄로 요약해줘', approval: 'Production에 배포', failure: '실패한 작업을 기록한 지점부터 이어서 실행해줘', failover: '모의 제공자 장애 시 다른 제공자로 전환해줘' };
@@ -16,18 +16,18 @@ function badge(mode) { const validMode = ['REAL', 'LOCAL', 'MOCK', 'PLANNED', 'D
 function status(statusValue) { return `<span class="status-pill ${esc(String(statusValue || '').toLowerCase())}">${esc(statusNames[statusValue] || statusValue || '상태 확인 중')}</span>`; }
 function empty(title, description) { return `<div class="empty-state"><span class="empty-symbol" aria-hidden="true">◇</span><h3>${esc(title)}</h3><p>${esc(description)}</p></div>`; }
 function selectedTask() { return model.state?.tasks.find(task => task.id === model.selectedTaskId); }
-function taskTitle(taskId) { return model.state?.tasks.find(task => task.id === taskId)?.title || taskId; }
+function taskTitle(taskId) { return model.state?.tasks.find(task => task.id === taskId)?.title || '작업'; }
 function isCloud() { return model.state?.environment?.deploymentMode === 'private-beta' || model.state?.environment?.executionLocation === 'Cloud' || (!model.state && cloudHost); }
 function sandboxName() { return isCloud() ? 'Cloud 샌드박스' : '로컬 시험 공간'; }
 function resourceMode(resource) {
   if (resource.status === 'CONNECTED' && resource.executionLocation === 'Cloud') return 'REAL';
   return resource.status === 'CONNECTED' && resource.executionLocation === 'PC' ? 'LOCAL' : ['MOCK', 'PLANNED'].includes(resource.status) ? resource.status : 'DISCONNECTED';
 }
-function resourceName(resource) { return resource.model ? `${resource.provider} · ${resource.model}` : resource.provider || resource.id; }
+function resourceName(resource) { return resource.model ? `${resource.provider} · ${resource.model}` : resource.provider || '실행 자원'; }
 function identifierPath(value) { return encodeURIComponent(String(value)); }
 function scopeNote(task) {
   if (!task) return `${sandboxName()}의 시험 결과입니다. 실제 업무 수행은 별도로 검증해야 합니다.`;
-  if (task.scenario === 'approval') return `검증 범위: 모의 승인 절차와 ${sandboxName()}의 시험 보고서. 실제 배포는 수행하지 않습니다. 승인 범위는 SANDBOX_SIMULATION_ONLY입니다.`;
+  if (task.scenario === 'approval') return `검증 범위: 모의 승인 절차와 ${sandboxName()}의 시험 보고서. 실제 배포는 수행하지 않습니다. 승인 범위는 시험 절차로 제한됩니다.`;
   if (task.scenario === 'summary' || task.qa?.scope === 'OUTPUT_EXISTS_AND_INTEGRITY_ONLY') return isCloud() ? '대표 PC의 Local AI와 연결되지 않았습니다. Cloud에서는 요약 실행을 건너뛰고 이유를 기록합니다.' : '검증 범위: 기존 Local AI의 응답 존재와 파일 무결성. 요약 내용의 의미 정확도는 아직 검증되지 않았습니다.';
   if (task.mode === 'MOCK' || ['research', 'failover'].includes(task.scenario)) return '검증 범위: 가상 제공자의 예시 출력과 파일 무결성. 실제 시장 조사와 유료 AI 실행은 수행하지 않습니다.';
   if (task.scenario === 'failure') return `검증 범위: ${sandboxName()} Worker 실패, 저장한 지점부터 재개, 시험 보고서와 파일 검사.`;
@@ -72,9 +72,11 @@ function renderRuntimeCopy() {
   $('#runtime-badge').className = `badge ${cloud ? (model.state ? 'real' : 'planned') : 'local'}`;
   $('#runtime-badge').textContent = cloud ? (model.state ? 'REAL · SANDBOX' : 'CLOUD · 확인 중') : 'LOCAL';
   $('#session-controls').hidden = !cloud || !model.state;
-  $('#session-email').textContent = model.state?.auth?.email || model.state?.user?.email || '';
-  $('#session-email').title = model.state?.auth?.email || model.state?.user?.email || '로그인한 계정';
-  $('#homepage-link').href = cloud ? 'https://thefacore.com/' : 'http://127.0.0.1:4174/';
+  const email = model.state?.auth?.email || model.state?.user?.email || '';
+  $('#session-email').textContent = maskEmail(email);
+  $('#session-full-email').textContent = email;
+  $('#session-email').title = '계정 상세 보기';
+  $('#homepage-link').href = cloud ? 'https://thefacore.com/' : (location.port === '4180' ? 'http://127.0.0.1:4175/' : 'http://127.0.0.1:4174/');
   $('#homepage-link').innerHTML = `${cloud ? 'THE FA Core 홈페이지' : '홈페이지 로컬 Preview'} <span aria-hidden="true">↗</span>`;
   $('#goal-description').textContent = cloud ? '목표를 입력하고 Cloud 샌드박스에서 실행 흐름을 시험하세요. 일반 업무의 실제 수행은 아직 연결되지 않았습니다.' : '목표를 알려주세요. 계획부터 실행, 결과 확인까지 Core가 이어갑니다.';
   $('#scenario option[value="safe"]').textContent = cloud ? 'Cloud 시험 보고서 만들기' : '로컬 보고서 만들기';
@@ -99,7 +101,7 @@ function switchView(view) {
   document.querySelectorAll('.view').forEach(element => { element.hidden = element.id !== `${view}-view`; });
   document.querySelectorAll('.nav-item').forEach(element => { const active = element.dataset.view === view; element.classList.toggle('active', active); active ? element.setAttribute('aria-current', 'page') : element.removeAttribute('aria-current'); });
   $('#view-name').textContent = viewNames[view];
-  history.replaceState(null, '', `#${view}`);
+  if (location.hash !== `#${view}`) history.pushState(null, '', `#${view}`);
   $('#main').focus({ preventScroll: true });
 }
 function applyState(state) {
@@ -119,7 +121,7 @@ function applyState(state) {
 }
 
 function renderAll() {
-  renderTasks(); renderTaskDetail(); renderResourceSummary(); renderResources(); renderApprovals(); renderArtifacts(); renderMemory(); renderConnections(); renderUsage(); renderProjects(); renderAdvanced();
+  renderEvidence(); renderTasks(); renderTaskDetail(); renderResourceSummary(); renderResources(); renderApprovals(); renderArtifacts(); renderMemory(); renderConnections(); renderUsage(); renderProjects(); renderAdvanced();
 }
 function renderTasks() {
   const tasks = model.state.tasks.slice().sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt));
@@ -141,7 +143,7 @@ function renderTaskDetail() {
   const approval = model.state.approvals.find(item => item.taskId === task.id && item.status === 'PENDING');
   const checks = task.qa?.checks || [];
   const runningAction = model.pending.has(task.id);
-  $('#task-detail').innerHTML = `<div class="detail-heading"><div><span class="eyebrow">YOUR CURRENT WORK</span><h2>${esc(task.title)}</h2><p class="detail-subtitle">${esc(task.id)} · ${fmt(task.createdAt)}</p></div>${status(task.status)}</div>${task.error ? `<div class="notice ${task.status === 'SKIPPED' ? '' : 'error'}">${esc(typeof task.error === 'object' ? task.error.message || JSON.stringify(task.error) : task.error)}</div>` : ''}${approval ? '<div class="notice">위험 작업을 감지하여 멈췄습니다. 승인해도 시험 결과만 기록하며 실제 Production은 변경하지 않습니다.</div>' : ''}<div class="pipeline" aria-label="실행 단계">${model.state.pipeline.map(stage => `<span class="pipeline-step ${stage === task.currentStage ? 'current' : recordedStages.has(stage) ? 'done' : ''}"${stage === task.currentStage ? ' aria-current="step"' : ''}>${esc(stageNames[stage] || stage)}</span>`).join('')}</div><div class="detail-actions">${['FAILED', 'FAILED_RETRYABLE', 'PAUSED'].includes(task.status) ? `<button class="button secondary" data-action="resume" data-id="${esc(task.id)}"${runningAction ? ' disabled' : ''}>${runningAction ? '이어서 실행 요청 중…' : '기록한 지점부터 이어서 실행'}</button>` : ''}${approval ? `<button class="button secondary" data-action="approve" data-id="${esc(task.id)}"${runningAction ? ' disabled' : ''}>시험 절차만 승인</button><button class="button danger" data-action="reject" data-id="${esc(task.id)}"${runningAction ? ' disabled' : ''}>승인 거절</button>` : ''}${artifact ? `<a class="button secondary" href="/api/artifacts/${identifierPath(artifact.id)}" download="${esc(artifact.name)}">결과 파일 다운로드 <span aria-hidden="true">↗</span></a>` : ''}${task.receiptId ? `<button class="button" data-action="receipt" data-id="${esc(task.id)}">실행 영수증 확인</button>` : ''}</div><div class="detail-columns"><section><h3>Core의 실행 계획</h3>${task.plan?.length ? `<ol class="plan-list">${task.plan.map(step => `<li>${esc(step.title)}</li>`).join('')}</ol>` : '<p class="subtle">계획을 준비하고 있습니다.</p>'}${resource ? `<div class="record-meta">${badge(resource.mode || task.mode)}<span>${esc(resource.provider)}${resource.model ? ` / ${esc(resource.model)}` : ''}</span><span>위치: ${esc(resource.executionLocation || '확인 중')}</span></div>` : ''}</section><section><h3>최근 실행 기록</h3>${events.length ? events.slice(-6).reverse().map(event => `<div class="execution-event"><strong>${esc(event.message)}</strong><time datetime="${esc(event.at)}">${fmt(event.at)}</time> · ${esc(stageNames[event.stage] || event.stage)} · ${esc(event.mode || task.mode)}</div>`).join('') : '<p class="subtle">아직 실행 기록이 없습니다.</p>'}</section></div><section class="detail-qa"><h3>결과 확인</h3>${checks.length ? checks.map(check => `<div class="qa-check ${check.passed ? '' : 'failed'}"><span aria-hidden="true">${check.passed ? '✓' : '×'}</span>${esc(check.name)} · ${check.passed ? '통과' : '통과하지 못함'}</div>`).join('') : '<p class="subtle">검사가 끝나면 확인 항목과 결과를 표시합니다.</p>'}${task.qa?.artifactSha256 ? `<div class="record-meta">SHA-256 <code>${esc(task.qa.artifactSha256)}</code></div>` : ''}</section>`;
+  $('#task-detail').innerHTML = `<div class="detail-heading"><div><span class="eyebrow">YOUR CURRENT WORK</span><h2>${esc(task.title)}</h2><p class="detail-subtitle">${esc(shortTask(task.id))} · ${fmt(task.createdAt)}</p></div>${status(task.status)}</div>${task.error ? `<div class="notice ${task.status === 'SKIPPED' ? '' : 'error'}">${esc(task.status === 'SKIPPED' ? '사용 가능한 연결이 없어 실행을 건너뛰었습니다. 상세 원인은 고급 실행 정보에서 확인할 수 있습니다.' : '시험 작업이 중단되었습니다. 상세 원인은 고급 실행 정보에서 확인하고, 기록한 지점부터 재개할 수 있습니다.')}</div>` : ''}${approval ? '<div class="notice">위험 작업을 감지하여 멈췄습니다. 승인해도 시험 결과만 기록하며 실제 Production은 변경하지 않습니다.</div>' : ''}<div class="pipeline" aria-label="실행 단계">${model.state.pipeline.map(stage => `<span class="pipeline-step ${stage === task.currentStage ? 'current' : recordedStages.has(stage) ? 'done' : ''}"${stage === task.currentStage ? ' aria-current="step"' : ''}>${esc(stageNames[stage] || stage)}</span>`).join('')}</div><div class="detail-actions">${['FAILED', 'FAILED_RETRYABLE', 'PAUSED'].includes(task.status) ? `<button class="button secondary" data-action="resume" data-id="${esc(task.id)}"${runningAction ? ' disabled' : ''}>${runningAction ? '이어서 실행 요청 중…' : '기록한 지점부터 이어서 실행'}</button>` : ''}${approval ? `<button class="button secondary" data-action="approve" data-id="${esc(task.id)}"${runningAction ? ' disabled' : ''}>시험 절차만 승인</button><button class="button danger" data-action="reject" data-id="${esc(task.id)}"${runningAction ? ' disabled' : ''}>승인 거절</button>` : ''}${artifact ? `<a class="button secondary" href="/api/artifacts/${identifierPath(artifact.id)}" download="${esc(artifact.name)}">결과 파일 다운로드 <span aria-hidden="true">↗</span></a>` : ''}${task.receiptId ? `<button class="button" data-action="receipt" data-id="${esc(task.id)}">실행 영수증 확인</button>` : ''}</div><div class="detail-columns"><section><h3>Core의 실행 계획</h3>${task.plan?.length ? `<ol class="plan-list">${task.plan.map(step => `<li>${esc(step.title)}</li>`).join('')}</ol>` : '<p class="subtle">계획을 준비하고 있습니다.</p>'}${resource ? `<div class="record-meta">${badge(resource.mode || task.mode)}<span>${esc(resource.provider)}${resource.model ? ` / ${esc(resource.model)}` : ''}</span><span>위치: ${esc(resource.executionLocation || '확인 중')}</span></div>` : ''}</section><section><h3>최근 실행 기록</h3>${events.length ? events.slice(-6).reverse().map(event => `<div class="execution-event"><strong>${esc(stageNames[event.stage] || '실행 기록')}</strong><time datetime="${esc(event.at)}">${fmt(event.at)}</time> · ${esc(stageNames[event.stage] || event.stage)} · ${esc(event.mode || task.mode)}</div>`).join('') : '<p class="subtle">아직 실행 기록이 없습니다.</p>'}</section></div><section class="detail-qa"><h3>결과 확인</h3>${checks.length ? checks.map(check => `<div class="qa-check ${check.passed ? '' : 'failed'}"><span aria-hidden="true">${check.passed ? '✓' : '×'}</span>결과 검사 · ${check.passed ? '통과' : '통과하지 못함'}</div>`).join('') : '<p class="subtle">검사가 끝나면 확인 항목과 결과를 표시합니다.</p>'}${task.qa?.artifactSha256 ? `<details><summary>고급 무결성 정보</summary><code>${esc(task.qa.artifactSha256)}</code></details>` : ''}</section>`;
   const scope = document.createElement('p');
   scope.className = 'notice';
   scope.textContent = scopeNote(task);
@@ -150,10 +152,10 @@ function renderTaskDetail() {
 function renderResourceSummary() {
   const connected = model.state.resources.filter(resource => resource.status === 'CONNECTED');
   const visible = connected.slice(0, 3);
-  $('#resource-summary').innerHTML = visible.length ? visible.map(resource => `<div class="resource-summary-row"><span class="resource-summary-icon" aria-hidden="true">◇</span><div><strong>${esc(resourceName(resource))}</strong><small>${esc(resource.executionLocation)} · ${esc((resource.capabilities || []).slice(0, 2).join(', '))}</small></div>${badge(resourceMode(resource))}</div>`).join('') : '<p class="subtle">사용 가능함을 확인한 자원이 없습니다.</p>';
+  $('#resource-summary').innerHTML = visible.length ? visible.map(resource => `<div class="resource-summary-row"><span class="resource-summary-icon" aria-hidden="true">◇</span><div><strong>${esc(resourceName(resource))}</strong><small>${esc(resource.executionLocation)} · 시험 자원</small></div>${badge(resourceMode(resource))}</div>`).join('') : '<p class="subtle">사용 가능함을 확인한 자원이 없습니다.</p>';
 }
 function resourceCard(resource) {
-  return `<article class="resource-card"><div class="record-top"><h3>${esc(resourceName(resource))}</h3>${badge(resourceMode(resource))}</div><p>${esc((resource.capabilities || []).join(' · ') || '지원 기능 미확인')}</p><dl><dt>자원 ID</dt><dd><code>${esc(resource.id)}</code></dd><dt>사용 가능 여부</dt><dd>${esc({ available: '사용 가능함을 확인', unavailable: '현재 사용 불가', unverified: '확인하지 못함' }[resource.availability] || resource.availability)}</dd><dt>연결 방식</dt><dd>${esc(resource.connectionMode)}</dd><dt>비용 분류</dt><dd>${esc({ 'local-compute': 'PC의 로컬 연산', unverified: '측정되지 않음', none: '외부 비용 없음' }[resource.costClass] || resource.costClass)}</dd><dt>실행 위치</dt><dd>${esc(resource.executionLocation)}</dd><dt>마지막 확인</dt><dd>${fmt(resource.lastCheck)}</dd>${Array.isArray(resource.models) ? `<dt>확인한 기존 모델</dt><dd>${esc(resource.models.join(', ') || '사용 가능한 모델 없음')}</dd>` : ''}${resource.runtime ? `<dt>실행환경</dt><dd>${esc(resource.runtime)}</dd>` : ''}${resource.reason ? `<dt>확인 범위</dt><dd>${esc(resource.reason)}</dd>` : ''}</dl></article>`;
+ return `<article class="resource-card"><div class="record-top"><h3>${esc(resourceName(resource))}</h3>${badge(resourceMode(resource))}</div><p>AVA가 역할에 맞게 선택할 실행 자원입니다. 현재는 시험 공간의 연결 상태를 표시합니다.</p><p>실행 위치: ${esc(resource.executionLocation)} · 마지막 확인: ${fmt(resource.lastCheck)}</p><details><summary>고급 자원 정보</summary><pre>${esc(JSON.stringify(resource, null, 2))}</pre></details></article>`;
 }
 function renderResources() {
   const groups = [...new Set(model.state.resources.map(resource => resource.type))];
@@ -163,12 +165,12 @@ function renderApprovals() {
   const pending = model.state.approvals.filter(approval => approval.status === 'PENDING');
   $('#approval-count').hidden = !pending.length;
   $('#approval-count').textContent = pending.length;
-  $('#approval-list').innerHTML = model.state.approvals.length ? model.state.approvals.slice().reverse().map(approval => `<article class="record-card"><div class="record-top"><h2>${esc(approval.title || taskTitle(approval.taskId))}</h2>${status(approval.status)}</div><p>요청: ${esc(approval.requestedAction || '위험 작업의 시험 승인')}</p><p>승인 범위: <strong>${isCloud() ? 'Cloud 샌드박스 시험 절차만' : '로컬 시험 절차만'}</strong>. 실제 외부 업무와 배포는 수행하지 않습니다.</p><div class="record-meta">${badge('MOCK')}<span>${fmt(approval.createdAt)}</span><code>${esc(approval.scope)}</code></div>${approval.status === 'PENDING' ? `<div class="detail-actions"><button class="button secondary" data-action="approve" data-id="${esc(approval.taskId)}"${model.pending.has(approval.taskId) ? ' disabled' : ''}>시험 절차만 승인</button><button class="button danger" data-action="reject" data-id="${esc(approval.taskId)}"${model.pending.has(approval.taskId) ? ' disabled' : ''}>승인 거절</button></div>` : `<p class="subtle">${fmt(approval.decidedAt)} · ${approval.status === 'APPROVED' ? '시험 절차의 승인이 기록되었습니다.' : '거절 결정이 기록되었습니다.'}</p>`}</article>`).join('') : empty('현재 승인 요청이 없습니다', '중요한 작업은 실행 전에 승인을 기다립니다.');
+  $('#approval-list').innerHTML = model.state.approvals.length ? model.state.approvals.slice().reverse().map(approval => `<article class="record-card"><div class="record-top"><h2>${esc(approval.title || taskTitle(approval.taskId))}</h2>${status(approval.status)}</div><p>요청: ${esc(approval.requestedAction || '위험 작업의 시험 승인')}</p><p>승인 범위: <strong>${isCloud() ? 'Cloud 샌드박스 시험 절차만' : '로컬 시험 절차만'}</strong>. 실제 외부 업무와 배포는 수행하지 않습니다.</p><div class="record-meta">${badge('MOCK')}<span>${fmt(approval.createdAt)}</span><code>시험 절차 한정</code></div>${approval.status === 'PENDING' ? `<div class="detail-actions"><button class="button secondary" data-action="approve" data-id="${esc(approval.taskId)}"${model.pending.has(approval.taskId) ? ' disabled' : ''}>시험 절차만 승인</button><button class="button danger" data-action="reject" data-id="${esc(approval.taskId)}"${model.pending.has(approval.taskId) ? ' disabled' : ''}>승인 거절</button></div>` : `<p class="subtle">${fmt(approval.decidedAt)} · ${approval.status === 'APPROVED' ? '시험 절차의 승인이 기록되었습니다.' : '거절 결정이 기록되었습니다.'}</p>`}</article>`).join('') : empty('현재 승인 요청이 없습니다', '중요한 작업은 실행 전에 승인을 기다립니다.');
 }
 function renderArtifacts() {
   $('#artifact-list').innerHTML = model.state.artifacts.length ? model.state.artifacts.slice().reverse().map(artifact => {
     const task = model.state.tasks.find(item => item.id === artifact.taskId);
-    return `<article class="record-card"><div class="record-top"><h2>${esc(artifact.name)}</h2>${badge(artifact.mode)}</div><p>${esc(task?.title || artifact.taskId)}</p><div class="record-meta"><span>${fmt(artifact.createdAt)}</span><span>${Number(artifact.bytes).toLocaleString('ko-KR')} bytes</span><span>${task?.status === 'VERIFIED' ? 'QA와 실행 영수증 확인됨' : '검증 진행 상태를 확인하세요'}</span></div><div class="record-meta">파일 <code>${esc(artifact.relativePath)}</code></div><div class="record-meta">SHA-256 <code>${esc(artifact.sha256)}</code></div><div class="record-links"><a href="/api/artifacts/${identifierPath(artifact.id)}" download="${esc(artifact.name)}">실제 파일 다운로드 <span aria-hidden="true">↗</span></a><button class="text-button" data-action="select-task" data-id="${esc(artifact.taskId)}">작업과 QA 보기</button>${task?.receiptId ? `<button class="text-button" data-action="receipt" data-id="${esc(task.id)}">실행 영수증</button>` : ''}</div></article>`;
+    return `<article class="record-card"><div class="record-top"><h2>${esc(shortTask(artifact.taskId))} · 결과 파일</h2>${badge(artifact.mode)}</div><p>${esc(task?.title || artifact.taskId)}</p><div class="record-meta"><span>${fmt(artifact.createdAt)}</span><span>${Number(artifact.bytes).toLocaleString('ko-KR')} bytes</span><span>${task?.status === 'VERIFIED' ? 'QA와 실행 영수증 확인됨' : '검증 진행 상태를 확인하세요'}</span></div><details><summary>고급 파일 정보</summary><p>${esc(artifact.name)}</p><p>${esc(artifact.relativePath)}</p><code>${esc(artifact.sha256)}</code></details><div class="record-links"><a href="/api/artifacts/${identifierPath(artifact.id)}" download="${esc(artifact.name)}">실제 파일 다운로드 <span aria-hidden="true">↗</span></a><button class="text-button" data-action="select-task" data-id="${esc(artifact.taskId)}">작업과 QA 보기</button>${task?.receiptId ? `<button class="text-button" data-action="receipt" data-id="${esc(task.id)}">실행 영수증</button>` : ''}</div></article>`;
   }).join('') : empty('아직 결과 파일이 없습니다', '실행으로 실제 파일이 생성되면 다운로드할 수 있습니다.');
   const artifacts = model.state.artifacts.slice().reverse();
   document.querySelectorAll('#artifact-list .record-card').forEach((card, index) => {
@@ -184,7 +186,7 @@ function renderMemory() {
 }
 function renderConnections() {
   const groups = [...new Set(model.state.resources.map(resource => resource.type))];
-  $('#connection-list').innerHTML = groups.map(group => `<article class="record-card"><div class="record-top"><h2>${esc(group)}</h2><span class="subtle">상태 확인</span></div>${model.state.resources.filter(resource => resource.type === group).map(resource => `<div class="resource-summary-row"><div><strong>${esc(resourceName(resource))}</strong><small>${esc(resource.connectionMode)} · ${esc(resource.executionLocation)} · ${fmt(resource.lastCheck)}</small></div>${badge(resourceMode(resource))}</div>`).join('')}</article>`).join('') || empty('연결 상태 기록이 없습니다', '서버의 자원 감지가 끝나면 실제 상태를 표시합니다.');
+  $('#connection-list').innerHTML = groups.map(group => `<article class="record-card"><div class="record-top"><h2>${esc(group)}</h2><span class="subtle">상태 확인</span></div>${model.state.resources.filter(resource => resource.type === group).map(resource => `<div class="resource-summary-row"><div><strong>${esc(resourceName(resource))}</strong><small>${esc(resource.executionLocation)} · ${fmt(resource.lastCheck)}</small></div>${badge(resourceMode(resource))}</div>`).join('')}</article>`).join('') || empty('연결 상태 기록이 없습니다', '서버의 자원 감지가 끝나면 실제 상태를 표시합니다.');
 }
 function renderUsage() {
   const usage = model.state.usage || {};
@@ -194,7 +196,7 @@ function renderUsage() {
   const environment = model.state.environment || {};
   const production = environment.businessProductionConnected ?? environment.productionConnected;
   const fields = [['appMode', '앱 모드'], ['dataMode', '데이터'], ['executionMode', '실행'], ['providerMode', '자원 선택'], ['selectionAuthority', '선택 권위']];
-  $('#environment-info').innerHTML = `<h2>현재 실행환경</h2><div class="environment-grid">${fields.map(([key, label]) => `<p>${label}<strong>${esc(environment[key] || '확인되지 않음')}</strong></p>`).join('')}<p>실제 회사 운영 연결<strong>${production === false ? '연결되지 않음' : '상태 확인 필요'}</strong></p><p>전사 Router 연결<strong>${environment.enterpriseRouterConnected === false ? '연결되지 않음' : '상태 확인 필요'}</strong></p>${cloud ? `<p>Private Beta 시험 저장소<strong>${environment.privateBetaStorageConnected === true ? '연결됨 · 시험 전용' : '상태 확인 필요'}</strong></p>` : ''}</div>`;
+  $('#environment-info').innerHTML = `<h2>현재 실행환경</h2><div class="environment-grid"><p>시험 환경<strong>${cloud ? 'Cloud 샌드박스' : '이 PC의 로컬 시험 공간'}</strong></p><p>실제 회사 운영 연결<strong>${production === false ? '연결되지 않음' : '상태 확인 필요'}</strong></p><p>전사 Router 연결<strong>${environment.enterpriseRouterConnected === false ? '연결되지 않음' : '상태 확인 필요'}</strong></p>${cloud ? `<p>Private Beta 시험 저장소<strong>${environment.privateBetaStorageConnected === true ? '연결됨 · 시험 전용' : '상태 확인 필요'}</strong></p>` : ''}</div><details><summary>고급 실행환경 정보</summary><pre>${esc(JSON.stringify(environment, null, 2))}</pre></details>`;
 }
 function renderProjects() {
   const tasks = model.state.tasks;
@@ -277,7 +279,7 @@ document.addEventListener('click', async event => {
   if (action === 'select-task' || action === 'receipt') {
     model.selectedTaskId = id;
     switchView('home');
-    renderTasks(); renderTaskDetail();
+    renderEvidence(); renderTasks(); renderTaskDetail();
     if (action === 'receipt') { $('#advanced').open = true; $('#record-type').value = 'receipt'; renderAdvanced(); $('#advanced').scrollIntoView({ behavior: 'auto', block: 'start' }); }
     else { renderAdvanced(); $('#task-detail').scrollIntoView({ behavior: 'auto', block: 'nearest' }); $('#task-detail').focus({ preventScroll: true }); }
     return;
@@ -396,3 +398,39 @@ async function bootstrap() {
 if (viewNames[location.hash.slice(1)]) switchView(location.hash.slice(1));
 if (cloudHost) renderRuntimeCopy();
 bootstrap();
+
+function maskEmail(email) { const [name, domain] = String(email || '').split('@'); return domain ? `${name.slice(0, 2)}***@${domain}` : '계정'; }
+function shortTask(id) { const index = model.state?.tasks.findIndex(task => task.id === id) ?? -1; return index >= 0 ? `작업 #${index + 1}` : '작업'; }
+const avaRoles = ['기획', '개발', '디자인', '사업', '검토'];
+const avaSteps = [
+ ['역할', '이 AVA가 맡을 역할', '기획'], ['기억 범위', '사용자가 선택할 자료 범위', '선택한 프로젝트 자료만'],
+ ['목표와 선호', '달성할 목표와 일하는 방식', '근거를 먼저 확인하고 짧게 보고'], ['권한과 도구', '허용할 도구와 경계', '읽기와 초안 작성만'],
+ ['실행 자원', '사용할 자원 후보', '연결된 자원 중 선택 · 현재 미연결'], ['예산', '예산 한도 후보', '외부 유료 호출 없음'],
+ ['승인', '사람의 승인이 필요한 행동', '외부 전송·배포·권한 변경 전 승인'], ['첫 시험', '첫 시험의 목표와 검증 기준', '초안 작성 후 근거와 오류 확인'], ['AVA v1', '설정 검토', '']
+];
+const avaDraft = { step: 0, values: avaSteps.map(step => step[2]) };
+function renderAva() {
+ $('#ava-team').innerHTML = avaRoles.map(role => `<article class="resource-card"><div class="record-top"><h2>${role} AVA</h2><span class="badge planned">PREVIEW</span></div><p>역할: ${role} 업무의 초안과 검토</p><p>기억: 사용자가 선택한 자료만</p><p>도구: 연결 전 · 권한: 읽기·초안 후보</p><p>예산: 설정 예정 · 최근 활동: 기록 없음</p><p>마지막 검증: 기록 없음</p><button class="button" data-ava-role="${role}">설정 흐름 살펴보기</button></article>`).join('');
+ renderAvaWizard();
+}
+function renderAvaWizard() {
+ const step = avaDraft.step; const definition = avaSteps[step];
+ $('#ava-wizard').innerHTML = `<span class="eyebrow">AVA 생성 흐름 · PREVIEW · ${step + 1} / 9</span><h2>${definition[0]}</h2><p>후보 설정을 검토하는 화면입니다. 실제 AVA는 생성되지 않습니다.</p>${step < 8 ? `<label for="ava-input">${definition[1]}</label><textarea id="ava-input" rows="3" maxlength="500">${esc(avaDraft.values[step])}</textarea>` : `<dl>${avaSteps.slice(0, 8).map((item, i) => `<dt>${item[0]}</dt><dd>${esc(avaDraft.values[i])}</dd>`).join('')}</dl><p class="notice">검증 대기 · AVA v1 후보입니다. 첫 시험 실행과 버전 저장은 아직 제공하지 않습니다.</p>`}<div class="detail-actions"><button class="button" data-ava-action="previous" ${step === 0 ? 'disabled' : ''}>이전</button>${step < 8 ? '<button class="button secondary" data-ava-action="next">다음</button>' : '<button class="button secondary" disabled>AVA 생성 · 준비 중</button>'}<button class="button" data-ava-action="reset">입력 지우기</button></div>`;
+}
+function renderEvidence() {
+ if (!model.state) return;
+ $('#evidence-list').innerHTML = model.state.tasks.length ? model.state.tasks.slice().reverse().map(task => `<article class="record-card"><div class="record-top"><h2>${esc(shortTask(task.id))} · ${esc(task.title)}</h2>${status(task.status)}</div><p>${esc(scopeNote(task))}</p><ol>${(task.events || []).map(event => `<li>${esc(stageNames[event.stage] || '실행 기록')} · ${fmt(event.at)}</li>`).join('')}</ol><p>승인: ${task.approval ? '시험 절차에 대한 결정 기록 있음' : '별도 승인 요청 없음'} · QA: ${task.qa?.checks?.length && task.qa.checks.every(check => check.passed) ? '통과' : '고급 기록에서 확인'} · 영수증: ${task.receiptId ? '기록 있음' : '기록 없음'}</p><button class="button" data-action="select-task" data-id="${esc(task.id)}">작업과 결과 확인</button></article>`).join('') : empty('아직 작업 근거가 없습니다', '홈에서 시험 작업을 실행하면 기존 QA와 영수증을 함께 살펴볼 수 있습니다.');
+}
+document.addEventListener('click', event => {
+ const role = event.target.closest('[data-ava-role]'); const action = event.target.closest('[data-ava-action]');
+ if (role) { avaDraft.step = 0; avaDraft.values[0] = role.dataset.avaRole; renderAvaWizard(); $('#ava-wizard').scrollIntoView({ block: 'nearest' }); }
+ if (!action) return;
+ if ($('#ava-input')) avaDraft.values[avaDraft.step] = $('#ava-input').value;
+ if (action.dataset.avaAction === 'next') avaDraft.step = Math.min(8, avaDraft.step + 1);
+ if (action.dataset.avaAction === 'previous') avaDraft.step = Math.max(0, avaDraft.step - 1);
+ if (action.dataset.avaAction === 'reset') { avaDraft.step = 0; avaDraft.values = avaSteps.map(() => ''); }
+ renderAvaWizard(); $('#ava-wizard h2').setAttribute('tabindex', '-1'); $('#ava-wizard h2').focus({ preventScroll: true });
+});
+renderAva();
+
+window.addEventListener('popstate', () => switchView(viewNames[location.hash.slice(1)] ? location.hash.slice(1) : 'home'));

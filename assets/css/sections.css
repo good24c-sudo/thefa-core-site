@@ -2186,3 +2186,5 @@ html[data-tweak-motion="medium"] .card--hover:hover { transform: translateY(-5px
   .v3-mesh-core,.v3-engine-map,.v3-workflow,.v3-workspace { border-color: CanvasText; }
   .v3-step-tabs button[aria-selected="true"],.v3-use-tabs button[aria-selected="true"] { border: 2px solid Highlight; }
 }
+
+.ava-flow{display:flex;flex-wrap:wrap;gap:12px;padding:20px 0;list-style:none;margin:0}.ava-flow>*{border:1px solid #8f7950;border-radius:12px;padding:16px 20px;flex:1 1 170px;min-width:0}.v3-engine-map details{padding:20px}.v3-engine-map summary{cursor:pointer;min-height:44px}
