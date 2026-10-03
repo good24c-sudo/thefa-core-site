@@ -5,6 +5,7 @@ import { executeApi } from './engine-adapter.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const files={
+  '/downloads/THEFA-Local-Setup-Windows.zip':['lab/public/downloads/THEFA-Local-Setup-Windows.zip','application/zip',false],
   '/login.html':['cloud/login.html','text/html; charset=utf-8',true],
   '/login.css':['cloud/login.css','text/css; charset=utf-8',true],
   '/login.js':['cloud/login.js','application/javascript; charset=utf-8',true],

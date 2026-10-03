@@ -17,3 +17,6 @@ __pycache__/
 .vercel/
 .env*
 supabase/.temp/
+
+# Generated local setup package; recreate with tools/build-local-setup.py
+lab/public/downloads/*.zip

@@ -4,7 +4,7 @@ const $ = selector => document.querySelector(selector);
 const model = { state: null, selectedTaskId: null, view: 'home', connected: false, creating: false, pending: new Set(), receipts: new Map(), receiptLoading: null };
 const transport = { timer: null, events: null, failures: 0, active: false, inFlight: false, errorVisible: false, sessionExpired: false };
 const cloudHost = ['thefa-core-console.vercel.app', 'app.thefacore.com'].includes(location.hostname);
-const viewNames = { home: '홈', projects: '프로젝트', resources: '실행 자원', ava: '나의 AVA', evidence: '작업 근거', approvals: '승인 필요', results: '결과물', memory: 'Memory', connections: 'Connections', usage: 'Usage' };
+const viewNames = { home: '홈', projects: '프로젝트', resources: '실행 자원', ava: '나의 AVA', evidence: '작업 근거', setup: '로컬 설정 · 앱', approvals: '승인 필요', results: '결과물', memory: 'Memory', connections: 'Connections', usage: 'Usage' };
 const statusNames = { VERIFIED: '시험 결과 검증됨', RUNNING: '실행 중', QUEUED: '실행 대기', CREATED: '목표 접수', PLANNED: '계획 준비', PAUSED: '일시 정지 · 이어서 실행 가능', WAITING_APPROVAL: '승인 대기', FAILED: '실패 · 이어서 실행 가능', FAILED_RETRYABLE: '실패 · 이어서 실행 가능', REJECTED: '승인 거절됨', SKIPPED: '실행 건너뜀', COMPLETED: '단계 수행됨', PENDING: '대기', PASSED: '검사 통과', PASS: '검사 통과', APPROVED: '시험 승인됨' };
 const stageNames = { REQUEST: '목표 접수', GOAL: '목표 이해', PLAN: '계획', WORK_UNITS: '작업 나누기', RESOURCE_SELECTION: '자원 선택', EXECUTION: '실행', REVIEW: '검토', QA: '검사', ARTIFACT: '결과 파일', RECEIPT: '실행 영수증', VERIFIED: '결과 검증' };
 const presets = { safe: 'THE FA Core 테스트 보고서를 만들어줘', research: 'THE FA Core 시장 리서치 흐름을 시험해줘', summary: '이 텍스트를 3줄로 요약해줘', approval: 'Production에 배포', failure: '실패한 작업을 기록한 지점부터 이어서 실행해줘', failover: '모의 제공자 장애 시 다른 제공자로 전환해줘' };
@@ -121,7 +121,7 @@ function applyState(state) {
 }
 
 function renderAll() {
-  renderEvidence(); renderTasks(); renderTaskDetail(); renderResourceSummary(); renderResources(); renderApprovals(); renderArtifacts(); renderMemory(); renderConnections(); renderUsage(); renderProjects(); renderAdvanced();
+  renderSetup(); renderEvidence(); renderTasks(); renderTaskDetail(); renderResourceSummary(); renderResources(); renderApprovals(); renderArtifacts(); renderMemory(); renderConnections(); renderUsage(); renderProjects(); renderAdvanced();
 }
 function renderTasks() {
   const tasks = model.state.tasks.slice().sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt));
@@ -434,3 +434,13 @@ document.addEventListener('click', event => {
 renderAva();
 
 window.addEventListener('popstate', () => switchView(viewNames[location.hash.slice(1)] ? location.hash.slice(1) : 'home'));
+
+function renderSetup() {
+ const installed = location.port === '4176';
+ const download = $('#local-setup-download');
+ download.hidden = installed;
+ const cloud = isCloud();
+ const localAi = model.state?.resources.find(resource => resource.provider === 'Ollama');
+ const connected = localAi?.status === 'CONNECTED';
+ $('#local-setup-status').innerHTML = `<h2>이 화면에서 확인한 상태</h2><p>현재 작업실: ${cloud ? 'Cloud 샌드박스 · PC 설정 상태 확인 불가' : installed ? '원클릭 패키지의 PC 작업실' : '로컬 검토용 작업실'}</p><p>Local AI: ${cloud ? 'PC 연결 미제공' : connected ? '기존 모델 연결 확인' : '사용 가능한 모델 연결을 확인하지 못함'}</p><p>중앙 Core·로그인 계정과 PC 연결: 아직 제공하지 않음</p><p>실제 AVA 생성·버전 저장: 준비 중</p>${installed ? '<p>현재 이 PC에서 패키지의 로컬 작업실을 실행하고 있습니다. 설치 결과는 패키지의 setup-result.json에서 확인하세요.</p>' : '<p>패키지 다운로드와 설치 완료는 다릅니다. 설치 프로그램이 실행환경을 확인한 뒤에만 완료를 표시합니다.</p>'}`;
+}

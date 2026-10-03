@@ -87,7 +87,7 @@ test('anonymous documents redirect to login; protected API, artifact and app ass
     assert.equal(response.headers.location, '/login.html');
     assert.equal(response.text, '');
   }
-  for (const path of ['/api/state', '/api/artifacts/artifact-test', '/styles.css', '/app.js']) {
+  for (const path of ['/api/state', '/api/artifacts/artifact-test', '/styles.css', '/app.js', '/downloads/THEFA-Local-Setup-Windows.zip']) {
     const response = await call({ path });
     assert.equal(response.status, 401, path);
     assert.doesNotMatch(response.text, /Cloud sandbox report|goal-form|const model/);
@@ -341,4 +341,10 @@ test('Origin configuration rejects malformed, wildcard, non-HTTPS and noncanonic
     assert.equal((await call({ path: '/auth/request-code', method: 'POST', headers: jsonHeaders, body: { email: EMAIL } })).status, 503, config);
     assert.equal(calls.requests.length, 0); assert.equal(calls.engine.length, 0);
   }
+});
+
+test('setup package download requires an invited session and never invokes execution engine', async t => {
+ const {call,calls}=await fixture(t,{read:async file=>{assert.equal(file,'lab/public/downloads/THEFA-Local-Setup-Windows.zip');return Buffer.from('PK-test-package');}});
+ const response=await call({path:'/downloads/THEFA-Local-Setup-Windows.zip',headers:sessionHeaders});
+ assert.equal(response.status,200);assert.equal(response.headers['content-type'],'application/zip');assert.equal(response.text,'PK-test-package');assert.equal(calls.engine.length,0);
 });
