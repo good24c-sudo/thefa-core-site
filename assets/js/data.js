@@ -62,7 +62,7 @@ window.BUILDUP_DATA = (function () {
     company: 'THE FA',
     legal: '주식회사 더파 (The FA Co., Ltd.)',
     tagline: '한 번의 지시를, 검증된 실행으로.',
-    category: 'AI 실행 운영체제',
+    category: 'AI Work OS · 업무 실행 운영체제',
     links: {
       thefa: 'https://thefa.kr',
       thefaContact: 'https://thefa.kr/contact.html',
@@ -195,18 +195,18 @@ window.BUILDUP_DATA = (function () {
   var nav = [
     { label: '제품', href: 'index.html#product' },
     { label: '작동 방식', href: 'index.html#how' },
+    { label: 'AI 자원', href: 'index.html#resources' },
     { label: '활용 사례', href: 'index.html#usecases' },
-    { label: 'Demo', href: 'demo.html' },
     { label: '보안·검증', href: 'index.html#trust' },
-    { label: '도입 문의', href: 'contact.html' }
+    { label: 'Demo', href: 'demo.html' }
   ];
 
   /* ---------- 01 HERO ---------- */
   var hero = {
-    eyebrow: 'AI EXECUTION OPERATING SYSTEM',
-    h1: ['한 번의 지시를,', '검증된 실행으로.'],
+    eyebrow: 'AI WORK OPERATING SYSTEM',
+    h1: ['모든 AI와 도구를,', '하나의 Core로.'],
     sub: ['AI에게 질문만 하는 시대에서,', 'AI가 실제 작업을 수행하고 결과까지 검증하는 시대로.'],
-    body: 'THEFA Core는 사용자의 요청을 작업으로 분해하고, 적합한 AI와 실행 자원을 연결한 뒤, 실제 실행과 검증 결과까지 하나의 흐름으로 이어주는 THE FA의 AI 실행 운영체제입니다.',
+    body: 'THE FA Core는 목표와 필요한 회사·프로젝트 기억을 이해하고, AI·Agent·PC·도구를 조합해 실행·QA·결과물·다음 작업까지 연결하는 AI Work OS입니다.',
     flowChip: ['신뢰할 수 있는 실행', '권한 기반 통제', '검증 결과 기록'],
     microcopy: '제품 구조를 설명하기 위한 예시 화면입니다. 실제 연결 범위는 실행 환경과 권한에 따라 달라질 수 있습니다.',
     /* Two hero visual directions, switchable via Tweaks. */

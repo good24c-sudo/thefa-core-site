@@ -9,3 +9,8 @@
 # OS / editor noise
 Thumbs.db
 .DS_Store
+
+# Local semantic indexing and Python QA output
+.serena/
+__pycache__/
+*.pyc

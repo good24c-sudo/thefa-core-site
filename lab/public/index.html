@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex,nofollow">
+  <title>THE FA Core · Functional Console Lab</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 바로가기</a>
+  <div class="shell">
+    <aside class="sidebar" aria-label="작업실 탐색">
+      <a class="brand" href="/" aria-label="THE FA Core Lab 홈"><img src="/assets/THEFA_Core_Wordmark_Dark_web.svg" alt="THE FA Core" width="180" height="50"></a>
+      <div class="workspace-name"><span class="workspace-symbol" aria-hidden="true">C</span><div><strong>나의 Core 작업실</strong><small>LOCAL WORKSPACE</small></div></div>
+      <nav class="navigation" aria-label="메뉴">
+        <button class="nav-item active" data-view="home" aria-current="page"><span aria-hidden="true">⌂</span> 홈</button>
+        <button class="nav-item" data-view="projects"><span aria-hidden="true">▤</span> 프로젝트</button>
+        <button class="nav-item" data-view="resources"><span aria-hidden="true">◇</span> AI 팀 / 자원</button>
+        <button class="nav-item" data-view="approvals"><span aria-hidden="true">◎</span> 승인 필요 <span class="nav-count" id="approval-count" hidden></span></button>
+        <button class="nav-item" data-view="results"><span aria-hidden="true">↗</span> 결과물</button>
+        <button class="nav-item" data-view="memory"><span aria-hidden="true">◈</span> Memory</button>
+        <button class="nav-item" data-view="connections"><span aria-hidden="true">⌘</span> Connections</button>
+        <button class="nav-item" data-view="usage"><span aria-hidden="true">▥</span> Usage</button>
+      </nav>
+      <div class="sidebar-bottom"><span class="eyebrow">ONE CORE. EVERY RESOURCE.</span><p>지시에서 실행으로.<br>검증에서 다음 작업으로.</p><a href="http://127.0.0.1:4174/" target="_blank" rel="noopener">홈페이지 로컬 Preview <span aria-hidden="true">↗</span></a></div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar"><div><span class="topbar-label">Functional Console</span><span class="topbar-separator">/</span><span id="view-name">홈</span></div><div class="topbar-status"><span class="badge local">LOCAL</span><span class="connection-dot" id="connection-dot" aria-hidden="true"></span><span id="connection-status" role="status">로컬 서버 확인 중</span></div></header>
+      <div class="development-banner"><span aria-hidden="true">◉</span><strong>Local Development Mode</strong><span>이 PC의 기능 시험 공간입니다. 공개 서비스와 연결되지 않습니다.</span></div>
+      <main id="main" tabindex="-1">
+        <div class="notice error" id="global-error" role="alert" hidden></div>
+        <section id="home-view" class="view">
+          <div class="home-heading"><span class="eyebrow">YOUR INTENT. OUR EXECUTION.</span><h1>무엇을 해드릴까요?</h1><p>목표를 알려주세요. 계획부터 실행, 결과 확인까지 Core가 이어갑니다.</p></div>
+          <form id="goal-form" class="composer">
+            <label class="sr-only" for="goal-input">Core에 맡길 목표</label>
+            <textarea id="goal-input" name="title" rows="3" maxlength="200" placeholder="예: THE FA Core 테스트 보고서를 만들어줘" required></textarea>
+            <div class="composer-meta"><span><span class="small-core" aria-hidden="true">✦</span> Core가 실행 경로를 선택합니다</span><span class="badge local" id="scenario-mode">LOCAL</span></div>
+            <div class="composer-footer"><div class="scenario-select"><label for="scenario">시험할 기능</label><select id="scenario" name="scenario"><option value="safe">로컬 보고서 만들기</option><option value="research">리서치 흐름 · MOCK</option><option value="summary">기존 Local AI로 요약</option><option value="approval">승인 절차 · MOCK</option><option value="failure">실패 후 이어서 실행</option><option value="failover">제공자 전환 · MOCK</option></select></div><button id="submit-goal" class="button primary" type="submit" disabled><span>Core에 맡기기</span><span aria-hidden="true">↗</span></button></div>
+            <div id="summary-input-wrap" class="summary-input" hidden><label for="summary-input">요약할 원문</label><textarea id="summary-input" rows="4" maxlength="4000" placeholder="이 PC에 이미 설치된 Local AI가 읽을 텍스트를 붙여 넣으세요."></textarea><p>기존 Ollama 모델이 없으면 실행을 건너뛰고 이유를 기록합니다.</p></div>
+            <p class="form-message" id="form-message" role="status" aria-live="polite"></p>
+          </form>
+          <div class="suggestions" aria-label="예시 목표"><button data-preset="safe">테스트 보고서 만들기 <span aria-hidden="true">↗</span></button><button data-preset="research">리서치 흐름 살펴보기 <span class="subtle">MOCK</span></button><button data-preset="summary">텍스트 3줄 요약 <span class="subtle">LOCAL AI</span></button></div>
+          <div class="home-grid">
+            <section class="activity-panel" aria-labelledby="activity-heading"><div class="section-heading"><div><span class="eyebrow">WORK IN MOTION</span><h2 id="activity-heading">내 작업</h2></div><span id="task-count" class="subtle">확인 중</span></div><div id="task-list" class="task-list"><div class="empty-state"><span class="empty-symbol" aria-hidden="true">↗</span><h3>목표가 실행의 시작입니다</h3><p>첫 지시를 맡기면 진행 과정과 결과가 이곳에 쌓입니다.</p></div></div></section>
+            <aside class="context-panel"><section class="context-card"><div class="section-heading"><h2>함께 실행할 자원</h2><button class="text-button" data-view="resources">전체 보기 <span aria-hidden="true">↗</span></button></div><div id="resource-summary"><p class="subtle">PC 자원 상태를 확인하고 있습니다.</p></div><p class="card-footnote">사용 가능한 자원만 선택합니다.<br>유료 AI는 현재 연결되지 않았습니다.</p></section><section class="context-card assurance-card"><span class="eyebrow">EVIDENCE COMES FIRST</span><h2>완료는 확인할 수 있어야 합니다.</h2><p>생성된 파일, 검사 결과, 실행 영수증을 함께 보관합니다.</p><div class="assurance-line"><span aria-hidden="true">✓</span> 실제 파일 확인</div><div class="assurance-line"><span aria-hidden="true">✓</span> 같은 결과의 QA</div><div class="assurance-line"><span aria-hidden="true">✓</span> 이어서 실행할 기록</div></section></aside>
+          </div>
+          <section id="task-detail" class="detail-panel" aria-label="선택한 작업 상세" tabindex="-1" hidden></section>
+        </section>
+        <section id="projects-view" class="view" hidden><div class="page-heading"><span class="eyebrow">GOALS WITH CONTEXT</span><h1>프로젝트</h1><p>이 로컬 작업실에서 수행한 목표와 결과를 함께 확인합니다.</p></div><div id="project-list"></div></section>
+        <section id="resources-view" class="view" hidden><div class="page-heading"><span class="eyebrow">EVERY RESOURCE, ONE CORE</span><h1>AI 팀 / 자원</h1><p>Core가 사용할 수 있는 자원과 연결 상태입니다. 감지와 실제 실행을 구분합니다.</p></div><div class="notice">현재 자원 선택은 Lab의 로컬 시험 규칙으로 수행합니다. 전사 THE FA Router V2 연결은 아직 제공되지 않습니다.</div><div id="resource-groups" class="resource-groups"></div></section>
+        <section id="approvals-view" class="view" hidden><div class="page-heading"><span class="eyebrow">YOU STAY IN CONTROL</span><h1>승인 필요</h1><p>중요한 행동은 대표님의 결정을 기다립니다. 이 Lab의 승인은 시험 절차에만 적용됩니다.</p></div><div id="approval-list" class="card-list"></div></section>
+        <section id="results-view" class="view" hidden><div class="page-heading"><span class="eyebrow">WORK YOU CAN VERIFY</span><h1>결과물</h1><p>로컬 실행으로 생성된 파일과 검증 기록입니다.</p></div><div id="artifact-list" class="card-list"></div></section>
+        <section id="memory-view" class="view" hidden><div class="page-heading"><span class="eyebrow">NOT LOST. READY FOR NEXT.</span><h1>Memory</h1><p>이 Lab이 저장한 작업 결과와 이어서 실행할 기록입니다.</p></div><div class="notice">로컬 기록만 표시됩니다. 전사 Company Memory와 연결되어 있지 않습니다.</div><div id="memory-list" class="card-list"></div></section>
+        <section id="connections-view" class="view" hidden><div class="page-heading"><span class="eyebrow">A CLEAR VIEW OF CONNECTIONS</span><h1>Connections</h1><p>연결 여부와 지원 예정인 경로를 명확하게 확인합니다.</p></div><div class="notice">이 시험 공간에서는 API Key, OAuth, 실제 계정 연결을 설정하지 않습니다.</div><div id="connection-list" class="card-list"></div></section>
+        <section id="usage-view" class="view" hidden><div class="page-heading"><span class="eyebrow">MEASURED, NEVER INVENTED</span><h1>Usage</h1><p>로컬 실행 기록에서 확인되는 사용량만 표시합니다.</p></div><div id="usage-grid" class="usage-grid"></div><div class="notice">계정 요금, Codex 토큰, 공유 할당량과 비용 절감률은 이 Lab에서 측정하지 않습니다.</div><div id="environment-info" class="context-card"></div></section>
+        <details class="advanced" id="advanced"><summary><span><span aria-hidden="true">⌁</span> 고급 실행 정보</span><span class="subtle">Tasks · Runs · WorkUnits · QA · Receipts</span></summary><div class="advanced-body"><p class="subtle">현재 선택한 작업의 실제 저장 기록입니다. 작업 목록에서 확인할 작업을 선택하세요.</p><label for="record-type">실행 기록</label><select id="record-type"><option value="task">Task / Run</option><option value="workUnits">WorkUnits</option><option value="qa">QA</option><option value="receipt">Receipt</option></select><pre id="record-output" tabindex="0">아직 선택한 작업이 없습니다.</pre></div></details>
+        <footer class="main-footer"><span>THE FA Core · Functional Console Lab V2</span><details class="mode-guide"><summary>상태 표기의 의미</summary><dl><dt>REAL</dt><dd>실제 외부 시스템에서 수행됨. 이 Lab은 외부 실행을 제공하지 않습니다.</dd><dt>LOCAL</dt><dd>이 PC의 코드 또는 기존 Local AI가 실제로 수행함.</dd><dt>MOCK</dt><dd>기능 흐름 확인을 위한 모의 자원 / 모의 실행.</dd><dt>PLANNED</dt><dd>향후 지원할 연결이며 아직 실행할 수 없음.</dd><dt>DISCONNECTED</dt><dd>연결이 없거나 사용 가능함을 확인하지 못함.</dd></dl></details></footer>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
