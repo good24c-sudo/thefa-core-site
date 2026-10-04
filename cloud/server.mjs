@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { createAuthService, createRestDatabase, createResendSender, parseAllowedEmails } from './auth.mjs';
 import { executeApi } from './engine-adapter.mjs';
-import { createCoreIngressAdapter, createOpaqueActorRef } from './core-ingress-adapter.mjs';
+import { createCoreIngressAdapter, createFounderLiveHttpTransport, createOpaqueActorRef } from './core-ingress-adapter.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const files={
@@ -26,7 +26,7 @@ async function jsonBody(req) {
   try{const value=JSON.parse(Buffer.concat(chunks).toString('utf8'));if(!value||typeof value!=='object'||Array.isArray(value))throw new Error();return value;}
   catch{throw problem(400,'요청 형식을 확인해 주세요.');}
 }
-export function createCloudHandler({origin=process.env.CORE_CONSOLE_ORIGIN,auth,engine=executeApi,coreIngress,env=process.env,read=path=>readFile(root+path)}={}) {
+export function createCloudHandler({origin=process.env.CORE_CONSOLE_ORIGIN,auth,engine=executeApi,coreIngress,coreFetch=globalThis.fetch,env=process.env,read=path=>readFile(root+path)}={}) {
   let setupError=false;
   let allowedOrigins=new Set();
   try{
@@ -43,7 +43,11 @@ export function createCloudHandler({origin=process.env.CORE_CONSOLE_ORIGIN,auth,
   const requestedExecutionMode=env.CORE_CONSOLE_EXECUTION_MODE??'cloud-sandbox';
   const executionMode=requestedExecutionMode==='sandbox'?'cloud-sandbox':requestedExecutionMode;
   if(!['cloud-sandbox','core'].includes(executionMode))setupError=true;
-  if(!coreIngress)coreIngress=createCoreIngressAdapter({sourceSha:env.CORE_SOURCE_SHA});
+  if(!coreIngress){
+    let transport;
+    if(executionMode==='core')try{transport=createFounderLiveHttpTransport({supabaseUrl:env.SUPABASE_URL,serviceRoleKey:env.SUPABASE_SERVICE_ROLE_KEY,fetchImpl:coreFetch});}catch{/* Adapter remains fail-closed until server transport is configured. */}
+    coreIngress=createCoreIngressAdapter({transport,sourceSha:env.CORE_SOURCE_SHA});
+  }
   if(!auth)try{const allowedEmails=parseAllowedEmails(env.CORE_CONSOLE_ALLOWED_EMAILS);auth=createAuthService({origin,allowedEmails,otpSecret:env.CORE_OTP_SECRET,database:createRestDatabase({url:env.SUPABASE_URL,key:env.SUPABASE_SERVICE_ROLE_KEY}),sendEmail:createResendSender({key:env.RESEND_API_KEY,allowedEmails})});}catch{setupError=true;}
   return async(req,res)=>{
     const reply=(status,body,type='application/json; charset=utf-8')=>{res.statusCode=status;res.setHeader('content-type',type);res.end(type.startsWith('application/json')?JSON.stringify(body):body);};
@@ -85,7 +89,7 @@ export function createCloudHandler({origin=process.env.CORE_CONSOLE_ORIGIN,auth,
       if(path==='/api/state'&&output.status===200){
         const state=JSON.parse(output.body);const realCore=executionMode==='core';
         state.auth={email:session.email};
-        state.environment={...state.environment,deploymentMode:'private-beta',executionLocation:'Cloud',transport:'polling',executionMode:realCore?'core':'cloud-sandbox',coreIngressConnected:realCore,privateBetaStorageConnected:!realCore,businessProductionConnected:false,...(realCore?{}:{enterpriseRouterConnected:false})};
+        state.environment={...state.environment,deploymentMode:'private-beta',executionLocation:'Cloud',transport:realCore?(state.environment?.transport||'CORE_HTTP'):'polling',executionMode:realCore?'core':'cloud-sandbox',coreIngressConnected:realCore,privateBetaStorageConnected:!realCore,businessProductionConnected:false,...(realCore?{}:{enterpriseRouterConnected:false})};
         output.body=JSON.stringify(state);
       }
       res.statusCode=output.status;res.end(output.body);

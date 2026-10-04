@@ -229,13 +229,54 @@ test('explicit Core mode sends authenticated API traffic only to the server-side
   const created = await call({ path: '/api/tasks', method: 'POST', headers: sessionHeaders, body: { title: 'Founder Live real Core', idempotencyKey: 'request-12345678' } });
   assert.equal(created.status, 201);
   assert.equal(created.json.task.id, 'job_core_001');
-  const receipt = await call({ path: '/api/receipts/receipt_core_001', headers: { cookie: COOKIE } });
+  const receipt = await call({ path: '/api/receipts/0123456789abcdef01234567', headers: { cookie: COOKIE } });
   assert.equal(receipt.status, 200);
   assert.equal(receipt.json.receipt.terminal, true);
   assert.equal(calls.engine.length, 0);
   assert.deepEqual(coreCalls.map(call => call[0]), ['state', 'submit', 'receipt']);
   assert.match(coreCalls[0][1].actorRef, /^actor_sha256:[0-9a-f]{64}$/);
   assert.doesNotMatch(JSON.stringify(coreCalls), new RegExp(EMAIL.replace('.', '\\.')));
+});
+
+test('Core mode auto-wires the existing Supabase server credential to the Founder Live staging ingress', async t => {
+  const sourceSha = '392a4a5526b41152890c32aa8e53958a036c3170';
+  const serviceRole = 'service-role-test-only-value';
+  const ingressCalls = [];
+  const coreFetch = async (url, init) => {
+    const body = JSON.parse(init.body);
+    ingressCalls.push({ url, init, body });
+    const payload = body.action === 'READ_STATE'
+      ? { tasks: [], environment: { enterpriseRouterConnected: true, executionPlane: 'CORE', transport: 'IMMUTABLE_GITHUB_INBOX' } }
+      : body.action === 'READ_RECEIPT'
+        ? { receipt: { id: body.receipt_id, status: 'VERIFIED', terminal: true } }
+        : { task: { id: '0123456789abcdef01234567', title: body.goal, status: 'QUEUED', receiptId: '0123456789abcdef01234567' }, reused: false };
+    return new Response(JSON.stringify(payload), { status: 200, headers: { 'content-type': 'application/json' } });
+  };
+  const { call, calls } = await fixture(t, {
+    coreFetch,
+    env: {
+      CORE_CONSOLE_EXECUTION_MODE: 'core',
+      CORE_SOURCE_SHA: sourceSha,
+      SUPABASE_URL: 'https://project-ref.supabase.co',
+      SUPABASE_SERVICE_ROLE_KEY: serviceRole
+    }
+  });
+  const state = await call({ path: '/api/state', headers: { cookie: COOKIE } });
+  assert.equal(state.status, 200);
+  assert.equal(state.json.environment.executionMode, 'core');
+  assert.equal(state.json.environment.executionPlane, 'CORE');
+  assert.equal(state.json.environment.transport, 'IMMUTABLE_GITHUB_INBOX');
+  const created = await call({ path: '/api/tasks', method: 'POST', headers: sessionHeaders, body: { title: 'Founder Live 실제 Core', idempotencyKey: 'request-12345678' } });
+  assert.equal(created.status, 201);
+  assert.equal(created.json.task.id, '0123456789abcdef01234567');
+  const receipt = await call({ path: '/api/receipts/0123456789abcdef01234567', headers: { cookie: COOKIE } });
+  assert.equal(receipt.status, 200);
+  assert.equal(receipt.json.receipt.terminal, true);
+  assert.deepEqual(ingressCalls.map(call => call.body.action), ['READ_STATE', 'SUBMIT', 'READ_RECEIPT']);
+  assert.ok(ingressCalls.every(call => call.url === 'https://project-ref.supabase.co/functions/v1/thefa-founder-live-ingress-v1'));
+  assert.ok(ingressCalls.every(call => call.init.headers.authorization === 'Bearer ' + serviceRole));
+  assert.ok(ingressCalls.every(call => !call.init.body.includes(serviceRole)));
+  assert.equal(calls.engine.length, 0);
 });
 
 test('Core mode fails closed and never falls back to the Cloud Sandbox engine', async t => {

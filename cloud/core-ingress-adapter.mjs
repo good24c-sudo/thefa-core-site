@@ -5,6 +5,7 @@ export const FOUNDER_LIVE_DOWNSTREAM = Object.freeze([
   'THE_FA_MOBILE_DEVELOPMENT_ENTRY_V1',
   'THE_FA_WORK_UNIT_API_V2'
 ]);
+export const FOUNDER_LIVE_EXECUTION_WORKSPACE = 'P02:19_v1:THE_FA_CORE_V2';
 
 const jsonResponse = (status, payload) => ({
   status,
@@ -18,8 +19,68 @@ const unavailable = () => jsonResponse(503, {
 });
 
 const requestIdPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/;
-const receiptIdPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]{2,191}$/;
+const receiptIdPattern = /^[0-9a-f]{24}$/;
 const shaPattern = /^[0-9a-f]{40}$/;
+
+function ingressEndpoint(supabaseUrl) {
+  const parsed = new URL(String(supabaseUrl || ''));
+  if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.search || parsed.hash || !parsed.hostname || !['', '/'].includes(parsed.pathname)) {
+    throw new TypeError('CORE_SUPABASE_URL_INVALID');
+  }
+  return parsed.origin + '/functions/v1/thefa-founder-live-ingress-v1';
+}
+
+export function createFounderLiveHttpTransport({ supabaseUrl, serviceRoleKey, fetchImpl = globalThis.fetch } = {}) {
+  const endpoint = ingressEndpoint(supabaseUrl);
+  const credential = String(serviceRoleKey || '').trim();
+  if (!credential || typeof fetchImpl !== 'function') throw new TypeError('CORE_SERVER_TRANSPORT_CONFIG_REQUIRED');
+
+  async function call(action, payload = {}) {
+    const body = { action, ...payload };
+    const response = await fetchImpl(endpoint, {
+      method: 'POST',
+      headers: {
+        authorization: 'Bearer ' + credential,
+        apikey: credential,
+        'content-type': 'application/json',
+        accept: 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+    let parsed;
+    try { parsed = await response.json(); }
+    catch { throw Object.assign(new Error('CORE_INGRESS_RESPONSE_INVALID'), { status: 502 }); }
+    if (!response.ok) {
+      const message = typeof parsed?.error === 'string' ? parsed.error : typeof parsed?.code === 'string' ? parsed.code : 'CORE_INGRESS_REQUEST_FAILED';
+      throw Object.assign(new Error(message.slice(0, 160)), { status: response.status >= 400 && response.status < 600 ? response.status : 503 });
+    }
+    return safeObject(parsed, 'CORE_INGRESS_RESPONSE_INVALID');
+  }
+
+  return Object.freeze({
+    async submit(value) {
+      return call('SUBMIT', {
+        contract: value.contract,
+        actor_ref: value.actorRef,
+        workspace_ref: value.workspaceRef,
+        request_id: value.requestId,
+        goal: value.goal,
+        source: value.source,
+        downstream_capabilities: value.downstreamCapabilities
+      });
+    },
+    async readState(context) {
+      return call('READ_STATE', { actor_ref: context.actorRef, workspace_ref: context.workspaceRef });
+    },
+    async readReceipt(context) {
+      return call('READ_RECEIPT', {
+        actor_ref: context.actorRef,
+        workspace_ref: context.workspaceRef,
+        receipt_id: context.receiptId
+      });
+    }
+  });
+}
 
 export function createOpaqueActorRef(identity) {
   const value = String(identity || '').trim().toLowerCase();
@@ -47,7 +108,7 @@ export function createCoreIngressAdapter({
   transport,
   sourceSha,
   sourceChannel = 'FOUNDER_CONSOLE',
-  workspaceRef = 'P04:00_v25:THE_FA_CORE_FOUNDER_LIVE_V1'
+  workspaceRef = FOUNDER_LIVE_EXECUTION_WORKSPACE
 } = {}) {
   const ready = validTransport(transport) && shaPattern.test(String(sourceSha || ''));
 
