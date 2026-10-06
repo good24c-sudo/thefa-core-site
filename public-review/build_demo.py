@@ -1,7 +1,13 @@
 from pathlib import Path
+import argparse
 import re
 
 ROOT = Path(__file__).parent
+parser = argparse.ArgumentParser()
+parser.add_argument('--production', action='store_true')
+parser.add_argument('--output', type=Path, default=ROOT)
+options = parser.parse_args()
+options.output.mkdir(parents=True, exist_ok=True)
 logo = '<img src="assets/brand/core/THEFA_Core_Primary_Dark_web.svg" width="1621" height="424" alt="THEFA Core — a product by THE FA">'
 mascot = lambda name, extra='': f'<img class="mascot {extra}" src="assets/mascots/{name}-320.webp" width="160" height="160" alt="" aria-hidden="true" loading="lazy">'
 
@@ -21,7 +27,16 @@ def review():
 def page(filename,title,body,kind):
     html=f'''<!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="description" content="THEFA Core 제품 소개와 자체 개발 사례의 로컬 검토 데모"><title>{title} · THEFA Core 수정안</title><link rel="icon" href="assets/img/apple-touch-icon.png"><link rel="stylesheet" href="site.css"><script src="cases.js" defer></script><script src="site.js" defer></script></head><body>{header(kind)}<main id="main">{body}</main>{footer()}{review()}</body></html>'''
-    (ROOT/filename).write_text(html,encoding='utf-8')
+    if options.production:
+        html = re.sub(r'<div class="reviewbar">.*?</div></div>', '', html, flags=re.S)
+        html = html.replace(review(), '')
+        html = html.replace('<meta name="robots" content="noindex,nofollow">', '<meta name="robots" content="index,follow">')
+        html = html.replace('THEFA Core 제품 소개와 자체 개발 사례의 로컬 검토 데모', '더파코어의 제품 경험, THE FA 자체 개발 사례와 공개 체험을 만나보세요.')
+        html = html.replace(' · THEFA Core 수정안', ' | THEFA Core')
+        html = html.replace('이 홈페이지 수정안은 제품 소개와 공개 체험을 위한 로컬 데모입니다.', '이 홈페이지는 제품 소개와 가상 데이터 공개 체험을 제공합니다.')
+        html = html.replace('검토용 데모 · 화면의 데이터는 가상 예시입니다.', '공개 체험 화면은 가상 데이터 예시입니다.')
+        html = html.replace('이 홈페이지 데모에서는 이메일이나 비밀번호를 수집하지 않습니다.', '이 홈페이지에서는 로그인 정보를 수집하지 않습니다.')
+    (options.output/filename).write_text(html,encoding='utf-8')
 
 home=f'''
 <section class="hero" id="product"><div class="shell"><div class="hero-grid"><div class="hero-copy"><p class="eyebrow">THEFA CORE · AI FOR YOUR WORK</p><h1>흩어진 일을,<br><em>하나의 흐름으로.</em></h1><p>여러 도구와 AI 사이를 오가던 업무.<br>요청하고, 결과를 확인하고, 다음 일을 이어가는<br>THEFA Core의 경험을 만나보세요.</p><div class="actions"><a class="button primary" href="demo.html">제품 체험하기 <span aria-hidden="true">→</span></a><a class="button" href="#cases">우리의 제품 사례 <span aria-hidden="true">↗</span></a></div><p class="hero-note">THE FA가 직접 개발한 제품과 업무 사례를 소개합니다.</p></div><div class="workspace" aria-label="가상 업무 화면 예시"><div class="windowbar"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><span>THEFA Core · 업무 공간</span><span>화면 예시</span></div><div class="workspace-body"><div class="workspace-head"><span>오늘, 이런 일을 하고 싶어요.</span><span class="tag">가상 업무</span></div><div class="request-card"><small>MY REQUEST</small>이번 주 매장 운영을 정리하고,<br>다음에 할 일을 알려줘.</div><div class="result-row"><span class="check" aria-hidden="true">✓</span><div>매장 현황 요약<small>한눈에 확인하는 운영 내용</small></div></div><div class="result-row"><span class="check" aria-hidden="true">✓</span><div>고객 의견 확인<small>놓치지 않고 살펴볼 내용</small></div></div><div class="result-row"><span class="check" aria-hidden="true">✓</span><div>다음 작업 정리<small>검토하고 이어갈 업무</small></div></div><div class="workspace-bottom"><span>실제 고객 데이터가 없는 예시 화면</span><a href="demo.html?case=core">직접 살펴보기 →</a></div></div></div></div><div class="hero-strip"><span>THE FA가 개발해 온 업무의 영역</span><strong>매장과 고객</strong><strong>회사와 팀</strong><strong>AI와 업무 정보</strong><strong>모바일과 PC</strong></div></div></section>
@@ -67,6 +82,7 @@ experience='''
 home=home.replace('</div><input class="search" id="caseSearch"', '<button type="button" class="filter" data-category="창작·생활" aria-pressed="false">창작·생활</button></div><input class="search" id="caseSearch"')
 home=home.replace('<section class="section" id="how">',creation+cost+'<section class="section" id="how">')
 home=re.sub(r'<section class="section" id="how">.*?</section>',lambda _:experience,home,count=1,flags=re.S)
+confidential = confidential.replace('<strong>특허 출원 4건</strong>', '''<strong>특허 출원 4건</strong><ul class="patent-numbers" aria-label="특허 출원번호"><li>10-2026-0072290</li><li>10-2026-0072291</li><li>10-2026-0072292</li><li>10-2026-0072293</li></ul><small class="patent-status">출원일 2026.04.21 · 출원 단계</small>''')
 home=home.replace('<section class="section faq" id="faq">',confidential+'<section class="section faq" id="faq">')
 home=home.replace('THE FA의 자체 개발 자산을 제품 사례로 모았습니다.', '상미부터 Visual Studio Desktop, 단골리턴과 더파코어까지.<br>THE FA의 제품과 자체 제작물을 한곳에 모았습니다.')
 home=home.replace('자체 개발 사례이며 고객 도입 실적을 의미하지 않습니다.', 'THE FA의 제품·제작물·개발 영역 사례이며 고객 도입 실적을 의미하지 않습니다. 모든 제품을 더파코어나 Visual Studio로 제작했다는 뜻은 아닙니다.')
@@ -82,9 +98,12 @@ page('demo.html','제품 체험',demo,'demo')
 
 contact=f'''
 <div class="shell form-layout"><section class="form-intro"><p class="eyebrow">LET’S TALK ABOUT YOUR WORK</p><h1>우리 회사에 필요한 일,<br><span class="gold">함께 살펴보겠습니다.</span></h1><p>지금 사용 중인 도구와 해결하고 싶은 업무를 알려주세요.<br>필요한 제품과 연결 범위부터 함께 확인합니다.</p><div class="intro-support">{mascot('talk')}<p>매장 운영부터 회사 업무까지.<br>작은 업무 하나에서 시작해도 좋습니다.</p></div><p><a class="link" href="mailto:thefa@thefa.kr">thefa@thefa.kr ↗</a></p></section><section class="form-card"><h2>도입 문의</h2><p>관심 있는 제품과 업무를 남겨주세요.</p><form id="contactForm"><div class="form-grid"><div class="field"><label for="company">회사·매장 이름</label><input id="company" name="company" autocomplete="organization" maxlength="100" placeholder="회사 또는 매장명" required></div><div class="field"><label for="person">담당자 이름</label><input id="person" name="person" autocomplete="name" maxlength="80" placeholder="담당자명" required></div></div><div class="field"><label for="email">연락받을 이메일</label><input id="email" name="email" type="email" autocomplete="email" maxlength="150" placeholder="name@company.com" required></div><div class="field"><label for="interest">관심 있는 제품 사례</label><select id="interest" name="interest"><option value="">아직 정하지 않았어요</option></select></div><div class="field"><label for="message">해결하고 싶은 업무</label><textarea id="message" name="message" maxlength="2000" placeholder="어떤 업무가 어렵거나 반복되는지 알려주세요." required></textarea></div><label class="checkbox"><input type="checkbox" required><span>검토용 화면임을 확인했습니다. 실제 고객 정보와 민감한 내용을 입력하지 않습니다.</span></label><button class="button primary" type="submit">문의 입력 확인 →</button><p class="form-info">로컬 검토용 데모로, 입력 내용을 저장하거나 전송하지 않습니다.<br>실제 도입 문의는 위 이메일을 이용해 주세요.</p><div class="form-status" id="contactStatus" role="status" hidden></div></form></section></div>'''
+if options.production:
+    contact = re.sub(r'<form id="contactForm">.*?</form>', '''<div class="contact-email"><p>관심 있는 제품, 해결하고 싶은 업무와 연락받을 이메일을 보내주세요. 확인 후 필요한 도입 범위를 함께 살펴보겠습니다.</p><a class="button primary" href="mailto:thefa@thefa.kr?subject=THEFA%20Core%20%EB%8F%84%EC%9E%85%20%EB%AC%B8%EC%9D%98">메일로 도입 문의하기 ↗</a><p class="form-info">메일 앱에서 내용을 작성하고 직접 전송하실 수 있습니다.<br>수신 주소: <a href="mailto:thefa@thefa.kr">thefa@thefa.kr</a></p></div>''', contact, flags=re.S)
+    contact = contact.replace('관심 있는 제품과 업무를 남겨주세요.', '우리 회사에 맞는 시작을 함께 찾아보세요.')
 page('contact.html','도입 문의',contact,'contact')
 
 login=f'''
 <div class="shell form-layout"><section class="form-intro"><p class="eyebrow">WELCOME BACK</p><h1>하던 일을,<br><span class="gold">이어서 시작하세요.</span></h1><p>이미 사용 중인 고객은 THEFA Core 고객 서비스로 이동하세요.<br>제품이 궁금하다면 공개 체험에서 먼저 살펴볼 수 있습니다.</p><div class="intro-support">{mascot('welcome')}<p>오늘 필요한 업무부터,<br>차근차근 이어가세요.</p></div></section><section class="form-card"><h2>THEFA Core 로그인</h2><p>고객 서비스의 로그인 화면으로 안내합니다.</p><div class="login-divider"></div><a class="button primary" href="https://app.thefacore.com/login.html" target="_blank" rel="noopener">고객 서비스 로그인으로 이동 ↗</a><p class="form-info">로그인은 app.thefacore.com에서 진행합니다.<br>이 홈페이지 데모에서는 이메일이나 비밀번호를 수집하지 않습니다.</p><div class="login-divider"></div><p>처음 방문하셨나요?</p><div class="login-links"><a href="demo.html">공개 체험하기 →</a><a href="contact.html">도입 문의하기 →</a></div></section></div>'''
 page('login.html','고객 서비스 로그인',login,'login')
-print('Generated 4 local review pages. Customer service source and production unchanged.')
+print('Generated 4 public pages.' if options.production else 'Generated 4 local review pages.')
