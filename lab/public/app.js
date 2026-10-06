@@ -415,28 +415,82 @@ const avaSteps = [
  ['실행 자원', '사용할 자원 후보', '연결된 자원 중 선택 · 현재 미연결'], ['예산', '예산 한도 후보', '외부 유료 호출 없음'],
  ['승인', '사람의 승인이 필요한 행동', '외부 전송·배포·권한 변경 전 승인'], ['첫 시험', '첫 시험의 목표와 검증 기준', '초안 작성 후 근거와 오류 확인'], ['AVA v1', '설정 검토', '']
 ];
-const avaDraft = { step: 0, values: avaSteps.map(step => step[2]) };
+const avaDraft = { step: 0, values: avaSteps.map(step => step[2]), candidate: null, message: '' };
+
+function buildAvaCandidate(values, steps, generatedAt = new Date().toISOString()) {
+ const configured = values.slice(0, 8).map(value => String(value ?? '').trim());
+ if (configured.some(value => !value)) return { ok: false, error: '8개 설정을 모두 입력해 주세요.' };
+ return {
+  ok: true,
+  candidate: {
+   version: 'AVA_V1_CANDIDATE',
+   status: 'CANDIDATE',
+   generatedAt,
+   settings: steps.slice(0, 8).map((step, index) => ({ label: step[0], value: configured[index] })),
+   clientOnly: true,
+   saved: false,
+   executable: false
+  }
+ };
+}
+
 function renderAva() {
  $('#ava-team').innerHTML = avaRoles.map(role => `<article class="resource-card"><div class="record-top"><h2>${role} AVA</h2><span class="badge planned">PREVIEW</span></div><p>역할: ${role} 업무의 초안과 검토</p><p>기억: 사용자가 선택한 자료만</p><p>도구: 연결 전 · 권한: 읽기·초안 후보</p><p>예산: 설정 예정 · 최근 활동: 기록 없음</p><p>마지막 검증: 기록 없음</p><button class="button" data-ava-role="${role}">설정 흐름 살펴보기</button></article>`).join('');
  renderAvaWizard();
 }
+
 function renderAvaWizard() {
- const step = avaDraft.step; const definition = avaSteps[step];
- $('#ava-wizard').innerHTML = `<span class="eyebrow">AVA 생성 흐름 · PREVIEW · ${step + 1} / 9</span><h2>${definition[0]}</h2><p>후보 설정을 검토하는 화면입니다. 실제 AVA는 생성되지 않습니다.</p>${step < 8 ? `<label for="ava-input">${definition[1]}</label><textarea id="ava-input" rows="3" maxlength="500">${esc(avaDraft.values[step])}</textarea>` : `<dl>${avaSteps.slice(0, 8).map((item, i) => `<dt>${item[0]}</dt><dd>${esc(avaDraft.values[i])}</dd>`).join('')}</dl><p class="notice">검증 대기 · AVA v1 후보입니다. 첫 시험 실행과 버전 저장은 아직 제공하지 않습니다.</p>`}<div class="detail-actions"><button class="button" data-ava-action="previous" ${step === 0 ? 'disabled' : ''}>이전</button>${step < 8 ? '<button class="button secondary" data-ava-action="next">다음</button>' : '<button class="button secondary" disabled>AVA 생성 · 준비 중</button>'}<button class="button" data-ava-action="reset">입력 지우기</button></div>`;
+ const step = avaDraft.step;
+ const definition = avaSteps[step];
+ const candidate = avaDraft.candidate;
+ const candidateHtml = candidate ? `<div class="record-card" id="ava-candidate"><div class="record-top"><h3>AVA v1 후보</h3><span class="badge planned">CANDIDATE</span></div><p>이 브라우저 화면에서만 만들어진 후보입니다. 서버에 저장되지 않습니다. 실행 권한이 없습니다.</p><dl>${candidate.settings.map(item => `<dt>${esc(item.label)}</dt><dd>${esc(item.value)}</dd>`).join('')}</dl><p class="subtle">생성 ${fmt(candidate.generatedAt)} · AI 호출 없음 · 외부 실행 없음</p></div>` : '';
+ $('#ava-wizard').innerHTML = `<span class="eyebrow">AVA 생성 흐름 · PREVIEW · ${step + 1} / 9</span><h2>${definition[0]}</h2><p>후보 설정을 검토하는 화면입니다. 실제 저장·권한 부여·AI 실행은 하지 않습니다.</p>${step < 8 ? `<label for="ava-input">${definition[1]}</label><textarea id="ava-input" rows="3" maxlength="500">${esc(avaDraft.values[step])}</textarea>` : `<dl>${avaSteps.slice(0, 8).map((item, i) => `<dt>${item[0]}</dt><dd>${esc(avaDraft.values[i])}</dd>`).join('')}</dl><p class="notice">검증 전 AVA v1 후보를 이 화면 메모리에서만 만들어볼 수 있습니다. 새로고침하면 사라집니다.</p>`}${candidateHtml}<div class="detail-actions"><button class="button" data-ava-action="previous" ${step === 0 ? 'disabled' : ''}>이전</button>${step < 8 ? '<button class="button secondary" data-ava-action="next">다음</button>' : '<button class="button secondary" data-ava-action="create">AVA v1 후보 생성</button>'}<button class="button" data-ava-action="reset">입력 지우기</button></div>`;
+ const liveStatus = $('#ava-live-status');
+ liveStatus.textContent = avaDraft.message;
+ liveStatus.classList.toggle('error', avaDraft.message === '8개 설정을 모두 입력해 주세요.');
 }
+
 function renderEvidence() {
  if (!model.state) return;
  $('#evidence-list').innerHTML = model.state.tasks.length ? model.state.tasks.slice().reverse().map(task => `<article class="record-card"><div class="record-top"><h2>${esc(shortTask(task.id))} · ${esc(task.title)}</h2>${status(task.status)}</div><p>${esc(scopeNote(task))}</p><ol>${(task.events || []).map(event => `<li>${esc(stageNames[event.stage] || '실행 기록')} · ${fmt(event.at)}</li>`).join('')}</ol><p>승인: ${task.approval ? '시험 절차에 대한 결정 기록 있음' : '별도 승인 요청 없음'} · QA: ${task.qa?.checks?.length && task.qa.checks.every(check => check.passed) ? '통과' : '고급 기록에서 확인'} · 영수증: ${task.receiptId ? '기록 있음' : '기록 없음'}</p><button class="button" data-action="select-task" data-id="${esc(task.id)}">작업과 결과 확인</button></article>`).join('') : empty('아직 작업 근거가 없습니다', '홈에서 시험 작업을 실행하면 기존 QA와 영수증을 함께 살펴볼 수 있습니다.');
 }
 document.addEventListener('click', event => {
- const role = event.target.closest('[data-ava-role]'); const action = event.target.closest('[data-ava-action]');
- if (role) { avaDraft.step = 0; avaDraft.values[0] = role.dataset.avaRole; renderAvaWizard(); $('#ava-wizard').scrollIntoView({ block: 'nearest' }); }
+ const role = event.target.closest('[data-ava-role]');
+ const action = event.target.closest('[data-ava-action]');
+ if (role) {
+  avaDraft.step = 0;
+  avaDraft.values[0] = role.dataset.avaRole;
+  avaDraft.candidate = null;
+  avaDraft.message = '';
+  renderAvaWizard();
+  $('#ava-wizard').scrollIntoView({ block: 'nearest' });
+ }
  if (!action) return;
- if ($('#ava-input')) avaDraft.values[avaDraft.step] = $('#ava-input').value;
+ if ($('#ava-input')) {
+  const nextValue = $('#ava-input').value;
+  if (avaDraft.values[avaDraft.step] !== nextValue) avaDraft.candidate = null;
+  avaDraft.values[avaDraft.step] = nextValue;
+ }
+ avaDraft.message = '';
  if (action.dataset.avaAction === 'next') avaDraft.step = Math.min(8, avaDraft.step + 1);
  if (action.dataset.avaAction === 'previous') avaDraft.step = Math.max(0, avaDraft.step - 1);
- if (action.dataset.avaAction === 'reset') { avaDraft.step = 0; avaDraft.values = avaSteps.map(() => ''); }
- renderAvaWizard(); $('#ava-wizard h2').setAttribute('tabindex', '-1'); $('#ava-wizard h2').focus({ preventScroll: true });
+ if (action.dataset.avaAction === 'create') {
+  const built = buildAvaCandidate(avaDraft.values, avaSteps);
+  if (!built.ok) avaDraft.message = built.error;
+  else {
+   avaDraft.candidate = built.candidate;
+   avaDraft.message = 'AVA v1 후보를 이 화면에 만들었습니다. 저장·실행 권한은 부여되지 않았습니다.';
+  }
+ }
+ if (action.dataset.avaAction === 'reset') {
+  avaDraft.step = 0;
+  avaDraft.values = avaSteps.map(() => '');
+  avaDraft.candidate = null;
+  avaDraft.message = '입력과 AVA 후보를 이 화면에서 지웠습니다.';
+ }
+ renderAvaWizard();
+ $('#ava-wizard h2').setAttribute('tabindex', '-1');
+ $('#ava-wizard h2').focus({ preventScroll: true });
 });
 renderAva();
 
