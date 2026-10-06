@@ -1,7 +1,8 @@
 from pathlib import Path
+import re
 
 ROOT = Path(__file__).parent
-logo = '<span class="brand-icon" aria-hidden="true"></span><span>THE<b>FA</b> Core</span>'
+logo = '<img src="assets/brand/core/THEFA_Core_Primary_Dark_web.svg" width="1621" height="424" alt="THEFA Core — a product by THE FA">'
 mascot = lambda name, extra='': f'<img class="mascot {extra}" src="assets/mascots/{name}-320.webp" width="160" height="160" alt="" aria-hidden="true" loading="lazy">'
 
 def header(page):
@@ -40,6 +41,8 @@ home=home.replace('THE FA의 자체 개발 자산을 제품 사례로 모았습�
 home=home.replace('자체 개발 사례이며 고객 도입 실적을 의미하지 않습니다.', 'THE FA의 제품·제작물·개발 영역 사례이며 고객 도입 실적을 의미하지 않습니다. 모든 제품을 Core나 Visual Studio로 제작했다는 뜻은 아닙니다.')
 home=home.replace('모든 체험 화면은 가상 예시입니다.', '모든 체험 화면은 가상 예시입니다. 비공개 연구와 특허 관련 세부 내용은 포함하지 않습니다.')
 home=home.replace('<p class="hero-note">THE FA가 직접 개발한 제품과 업무 사례를 소개합니다.</p>', '<p class="hero-note">업무를 돕고, 새로운 제품과 콘텐츠를 만드는 시작점.</p>')
+restored_hero='''<section class="v3-hero" id="product" aria-labelledby="heroTitle"><div class="shell shell--wide v3-hero-grid"><div class="v3-hero-copy"><p class="v3-eyebrow">AI WORK OPERATING SYSTEM</p><h1 id="heroTitle">모든 AI와 도구를,<br><em>하나의 Core로.</em></h1><p class="v3-hero-sub">한 번의 지시를, 검증된 실행으로.</p><p class="v3-lead">하고 싶은 일을 말하면, 필요한 업무와 제작을 이어갑니다.<br>문서·디자인·웹서비스부터 회사와 매장의 일까지,<br>결과를 확인하고 다음 작업으로 연결하세요.</p><div class="actions v3-actions"><a class="button primary" href="demo.html">THE FA Core 체험하기 ↗</a><a class="button" href="#cases">우리의 제품 사례</a></div><p class="v3-hero-note">공개 체험은 가상 예시입니다. 실제 제작 범위와 사용 환경은 도입 시 확인합니다.</p><a class="link" href="contact.html">도입 문의 →</a></div><figure class="v3-mesh" aria-label="요청과 제품 경험을 Core로 연결하는 가상 예시"><div class="v3-mesh-request"><span class="v3-micro">REQUEST</span><p>“우리 회사에 필요한 웹서비스를 만들고,<br>문서와 디자인, 사용할 화면까지<br>함께 확인해줘.”</p></div><div class="v3-mesh-network"><svg class="v3-mesh-lines" viewBox="0 0 600 280" preserveAspectRatio="none" aria-hidden="true"><path d="M130 30 C240 30 195 140 300 140 M130 100 C210 100 210 140 300 140 M130 175 C220 175 220 140 300 140 M130 250 C230 250 210 140 300 140 M300 140 C390 140 375 30 470 30 M300 140 C390 140 390 100 470 100 M300 140 C390 140 390 175 470 175 M300 140 C390 140 390 250 470 250"/><path class="v3-mesh-route" d="M130 100 C210 100 210 140 300 140 C390 140 390 100 470 100 M130 175 C220 175 220 140 300 140 C390 140 390 175 470 175"/></svg><div class="v3-mesh-bank"><span class="v3-micro">CREATE / WORK</span><span>문서 · 보고서</span><span>디자인 · 콘텐츠</span><span class="is-selected">웹 · 앱 제작</span><span>자료 · 분석</span></div><div class="v3-mesh-core"><span class="v3-micro">ONE CORE</span><strong>THE FA<br>CORE</strong><span>요청과 결과를 하나로</span></div><div class="v3-mesh-bank"><span class="v3-micro">PRODUCTS / BUSINESS</span><span>회사 · 업무</span><span class="is-selected">매장 · 고객</span><span>브랜드 · 마케팅</span><span>제품 · 서비스</span></div></div><div class="v3-mesh-result"><span>만들고 확인할 결과</span><b>문서 · 디자인 · 웹서비스 · 다음 업무</b><div><span>요청</span><i aria-hidden="true">→</i><span>결과 확인</span><i aria-hidden="true">→</i><strong>다음 작업</strong></div></div><figcaption>EXAMPLE · 사용 경험 설명용 가상 예시 · 실제 고객 자료 미사용</figcaption></figure></div></section>'''
+home=re.sub(r'<section class="hero" id="product">.*?</section>',lambda _:restored_hero,home,count=1,flags=re.S)
 page('index.html','제품 소개',home,'home')
 
 demo=f'''
