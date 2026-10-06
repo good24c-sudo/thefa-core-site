@@ -4,6 +4,7 @@ Before continuing any AVA / THE FA Core product work, read:
 
 1. `docs/AVA_NORTH_STAR_V1.md`
 2. `docs/AVA_NEXT_ROOM_FAST_BOOT_V1.md`
+3. `docs/CORE_SKILL_OS_NEXT_ROOM_INTEGRATION_V1.md`
 
 Canonical product direction:
 
