@@ -862,3 +862,11 @@ button {
 .header-actions{gap:14px}
 .header-actions .header-cta{min-width:184px;min-height:50px;padding-inline:20px}
 @media(max-width:560px){.brand img{height:34px}.header-actions .header-cta{min-width:0}}
+
+/* Preserve the complete contact label alongside the wordmark and menu on narrow phones. */
+@media (max-width: 560px) {
+  .header-inner { gap: 8px; }
+  .header-actions { gap: 6px; flex: none; }
+  .header-actions .header-cta { padding-inline: 10px; font-size: 12px; flex: none; }
+  .header-cta__label { overflow: visible; text-overflow: clip; }
+}

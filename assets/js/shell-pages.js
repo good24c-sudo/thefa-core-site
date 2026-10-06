@@ -414,102 +414,55 @@
      ============================================================ */
 
   function ssoList() {
-    return '<div class="sso-list">' + D.auth.providers.map(function (p) {
-      return '<button class="sso-btn" type="button" data-provider="' + esc(p.id) + '">' +
+    return '<div class="sso-list" aria-label="간편가입 준비 중">' + D.auth.providers.map(function (p) {
+      return '<button class="sso-btn" type="button" data-provider="' + esc(p.id) + '" disabled aria-disabled="true">' +
         '<span class="sso-btn__mark" aria-hidden="true">' + (MARKS[p.id] || '') + '</span>' +
-        '<span>' + esc(p.label) + '</span>' +
-        '<span class="sso-btn__spacer" aria-hidden="true"></span>' +
+        '<span>' + esc(p.label.replace('로 계속하기', '')) + '</span>' +
+        '<span class="sso-btn__coming">준비 중</span>' +
       '</button>';
     }).join('') + '</div>';
   }
 
-  function wireSso(statusId) {
+  function wireSso() {
+    /* Social providers are deliberately unarmed; email auth lives on the server. */
     document.querySelectorAll('.sso-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var provider = btn.getAttribute('data-provider');
-        track('sso_click', { provider: provider });
-
-        if (D.config.authEnabled && D.config.authBaseUrl) {
-          btn.setAttribute('aria-busy', 'true');
-          var base = D.config.authBaseUrl.replace(/\/+$/, '');
-          window.location.href = base + '/' + encodeURIComponent(provider) +
-            '?redirect_uri=' + encodeURIComponent(window.location.origin + '/console.html');
-          return;
-        }
-
-        var status = q(statusId);
-        if (!status) return;
-        status.hidden = false;
-        status.innerHTML =
-          '<strong>' + esc(D.auth.notReadyTitle) + '</strong>' +
-          '<span>' + esc(D.auth.notReadyBody) + '</span>' +
-          '<span style="margin-top:4px">먼저 도입을 검토 중이시라면 <a href="contact.html" style="color:var(--gold-text);font-weight:600">문의 폼</a>으로 알려주세요. 계정이 열리는 시점을 함께 안내드립니다.</span>';
-        status.setAttribute('tabindex', '-1');
-        status.focus();
-      });
+      btn.disabled = true;
+      btn.setAttribute('aria-disabled', 'true');
     });
   }
 
   function bootLogin() {
     var host = q('loginFormHost');
     if (!host) return;
-
+    var loginUrl = D.config.authEnabled && D.config.consoleLoginUrl;
     host.innerHTML =
+      '<div class="invite-login-entry"><p>' + esc(D.auth.emailHint) + '</p>' +
+        (loginUrl ? '<a class="btn btn--primary btn--block btn--lg" href="' + esc(loginUrl) + '" data-track="login_click">' + esc(D.auth.emailLabel) + ' →</a>'
+          : '<p class="form-status">이메일 인증 연결을 확인하고 있습니다. 아직 로그인이 완료되지 않습니다.</p>') +
+      '</div>' +
+      '<div class="sso-divider" role="separator"><span>간편가입은 준비 중</span></div>' +
       ssoList() +
-      '<div class="sso-divider" role="separator"><span>또는</span></div>' +
-      '<form id="loginEmailForm" novalidate>' +
-        '<div class="field">' +
-          '<label for="loginEmail">이메일 주소</label>' +
-          '<input type="email" id="loginEmail" name="email" inputmode="email" autocomplete="email" placeholder="name@company.com">' +
-          '<span class="field__hint">' + esc(D.auth.emailHint) + '</span>' +
-        '</div>' +
-        '<button class="btn btn--primary btn--block btn--lg" type="submit">' + esc(D.auth.emailLabel) + '</button>' +
-        '<div class="form-status" id="loginStatus" hidden role="status"></div>' +
-      '</form>' +
-      '<p class="auth-switch">아직 계정이 없으신가요? <a href="signup.html" data-track="early_access_click">Early Access 신청</a></p>' +
-      '<p class="auth-legal">계속하면 <a href="' + esc(D.meta.links.thefaPrivacy) + '" target="_blank" rel="noopener noreferrer">개인정보 처리방침</a>에 동의하는 것으로 봅니다. THEFA Core는 주식회사 더파의 제품입니다.</p>';
-
-    wireSso('loginStatus');
-
-    var form = q('loginEmailForm');
-    if (form) form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var status = q('loginStatus');
-      if (!status) return;
-      status.hidden = false;
-      status.innerHTML =
-        '<strong>' + esc(D.auth.notReadyTitle) + '</strong>' +
-        '<span>입력하신 주소는 전송되거나 저장되지 않았습니다. 계정 기능이 열리면 이 화면에서 바로 로그인할 수 있습니다.</span>' +
-        '<span style="margin-top:4px">지금 연락처를 남기시려면 <a href="contact.html" style="color:var(--gold-text);font-weight:600">문의 폼</a>을 이용해 주세요.</span>';
-      track('login_click', { result: 'not_connected' });
-    });
+      '<p class="auth-switch">초대받지 않으셨나요? <a href="contact.html" data-track="contact_click">도입 문의</a></p>' +
+      '<p class="auth-legal">이메일을 입력하는 것만으로 로그인되지 않습니다. 메일로 받은 인증번호와 서버의 접근 허가 확인이 필요합니다. <a href="' + esc(D.meta.links.thefaPrivacy) + '" target="_blank" rel="noopener noreferrer">개인정보 처리방침</a></p>';
+    wireSso();
   }
 
   function bootSignup() {
     var host = q('signupFormHost');
     if (!host) return;
-
     host.innerHTML =
+      '<p class="invite-signup-note">' + esc(D.auth.notReadyBody) + '</p>' +
+      '<a class="btn btn--primary btn--block btn--lg" href="login.html" data-track="login_click">초대 참가자 로그인 →</a>' +
+      '<div class="sso-divider" role="separator"><span>간편가입 준비 중</span></div>' +
       ssoList() +
-      '<div class="sso-divider" role="separator"><span>또는</span></div>' +
       '<div class="link-list">' +
-        '<a href="contact.html" data-track="contact_click">문의 폼으로 Early Access 신청' +
-          '<span>사용 환경과 실행 범위를 알려주시면 담당자가 회신드립니다</span></a>' +
-        '<a href="mailto:' + esc(EMAIL) + '?subject=' + encodeURIComponent('[THEFA Core Early Access 문의]') + '">' +
-          '이메일로 바로 신청<span>' + esc(EMAIL) + '</span></a>' +
+        '<a href="contact.html" data-track="contact_click">문의 폼으로 도입 검토 신청<span>사용 환경과 실행 범위를 알려주시면 담당자가 회신드립니다</span></a>' +
+        '<a href="mailto:' + esc(EMAIL) + '?subject=' + encodeURIComponent('[THEFA Core Early Access 문의]') + '">이메일로 도입 문의<span>' + esc(EMAIL) + '</span></a>' +
       '</div>' +
-      '<div class="form-status" id="signupStatus" hidden role="status"></div>' +
-      '<p class="auth-switch">이미 안내를 받으셨나요? <a href="login.html" data-track="login_click">로그인</a></p>' +
-      '<p class="auth-legal">계정 생성과 Console 사용은 아직 열려 있지 않습니다. 현재 접수 중인 것은 도입 검토 문의입니다.</p>';
-
-    wireSso('signupStatus');
-
+      '<p class="auth-legal">도입 문의는 계정 생성이나 접근 허가를 자동으로 완료하지 않습니다. Console 접근은 이메일 인증과 서버의 허가 확인 후 결정됩니다.</p>';
+    wireSso();
     setHTML('audienceGrid', D.earlyAccess.audiences.map(function (a) {
-      return '<article class="trust-card">' +
-        '<span class="trust-card__title">' + esc(a.title) + '</span>' +
-        '<span class="trust-card__body">' + esc(a.body) + '</span>' +
-        '<span class="badge badge--early" style="margin-top:6px">' + esc(a.need) + '</span>' +
-      '</article>';
+      return '<article class="trust-card"><span class="trust-card__title">' + esc(a.title) + '</span><span class="trust-card__body">' + esc(a.body) + '</span><span class="badge badge--early" style="margin-top:6px">' + esc(a.need) + '</span></article>';
     }).join(''));
   }
 

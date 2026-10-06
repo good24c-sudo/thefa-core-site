@@ -1,0 +1,11 @@
+# Public homepage only; the protected Console is hosted by its own server.
+exclude:
+  - lab
+  - cloud
+  - api
+  - tools
+  - docs
+  - supabase
+
+include:
+  - .well-known
