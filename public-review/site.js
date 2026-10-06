@@ -44,8 +44,20 @@
     const search = document.getElementById('caseSearch');
     function renderCases() {
       const query = search.value.trim().toLocaleLowerCase();
+      const featured = ['core', 'visual-studio', 'store', 'sangmi'];
+      const art = {core:'business', 'visual-studio':'develop'};
       const filtered = cases.filter(item => (category === '전체' || item.category === category) && [item.name,item.label,item.description,...item.features].join(' ').toLocaleLowerCase().includes(query));
-      grid.innerHTML = filtered.map(item => `<article class="case-card" data-case="${item.id}"><div class="card-top">${icon(item)}<span class="case-state">${esc(item.status)}</span></div><div class="case-label">${esc(item.label)}</div><h3>${esc(item.name)}</h3><p>${esc(item.description)}</p><div class="card-features">${item.features.slice(0,3).map(feature=>`<span>${esc(feature)}</span>`).join('')}</div><div class="card-bottom"><button type="button" data-detail="${item.id}" aria-label="${esc(item.name)} 사례 자세히 보기">사례 자세히 보기 <span aria-hidden="true">↗</span></button><a href="demo.html?case=${item.id}">체험하기 <span aria-hidden="true">→</span></a></div></article>`).join('');
+      const ordered = [...filtered.filter(item => featured.includes(item.id)).sort((a,b) => featured.indexOf(a.id)-featured.indexOf(b.id)), ...filtered.filter(item => !featured.includes(item.id))];
+      grid.innerHTML = ordered.map(item => {
+        const prominent = featured.includes(item.id);
+        const illustration = art[item.id] ? `<img src="assets/mascots/${art[item.id]}-320.webp" width="160" height="160" alt="" loading="lazy" aria-hidden="true">` : icon(item);
+        return `<article class="case-card${prominent ? ' case-featured case-'+item.id : ''}" data-case="${esc(item.id)}">
+          ${prominent ? `<div class="case-cover"><div><span class="case-cover-label">${esc(item.label)}</span><h3>${esc(item.name)}</h3><p>${esc(item.headline)}</p></div><div class="case-art" aria-hidden="true">${illustration}</div></div>` : ''}
+          <div class="case-card-body"><div class="card-top">${prominent ? `<span class="case-label">${esc(item.category)}</span>` : icon(item)}<span class="case-state">${esc(item.status)}</span></div>
+          ${prominent ? '' : `<div class="case-label">${esc(item.label)}</div><h3>${esc(item.name)}</h3>`}
+          <p>${esc(item.description)}</p><div class="card-features">${item.features.slice(0,3).map(feature=>`<span>${esc(feature)}</span>`).join('')}</div>
+          <div class="card-bottom"><button type="button" data-detail="${esc(item.id)}" aria-label="${esc(item.name)} 사례 자세히 보기">사례 자세히 보기 <span aria-hidden="true">↗</span></button><a href="demo.html?case=${encodeURIComponent(item.id)}">체험하기 <span aria-hidden="true">→</span></a></div></div></article>`;
+      }).join('');
       document.getElementById('caseCount').textContent = `${filtered.length}개 사례 · ${category === '전체' ? '전체 개발 영역' : category}`;
       document.getElementById('caseEmpty').hidden = filtered.length > 0;
     }
@@ -156,18 +168,4 @@
     updateCost();
   }
 
-  const contact = document.getElementById('contactForm');
-  if (contact) {
-    const interest = document.getElementById('interest');
-    cases.forEach(item => { const option=document.createElement('option'); option.value=item.id; option.textContent=item.name; interest.append(option); });
-    const preset = new URLSearchParams(location.search).get('case');
-    if (cases.some(item=>item.id===preset)) interest.value=preset;
-    contact.addEventListener('submit', event => {
-      event.preventDefault();
-      const result = document.getElementById('contactStatus');
-      result.hidden=false;
-      result.textContent='입력 항목을 확인했습니다. 이 화면은 검토용 데모이며 문의를 전송하거나 저장하지 않습니다. 실제 문의는 thefa@thefa.kr로 보내실 수 있습니다.';
-    });
-    contact.addEventListener('reset',()=>{ document.getElementById('contactStatus').hidden=true; });
-  }
 })();
