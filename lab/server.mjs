@@ -422,7 +422,7 @@ export async function createLabServer(options = {}) {
     for await (const chunk of req) { size += chunk.length; if (size > 16384) throw httpError(413, 'BODY_TOO_LARGE'); chunks.push(chunk); }
     try { const body = JSON.parse(Buffer.concat(chunks).toString('utf8')); if (!body || Array.isArray(body) || typeof body !== 'object') throw new Error(); return body; } catch { throw httpError(400, 'INVALID_JSON'); }
   }
-  const staticFiles = new Map([['/downloads/THEFA-Local-Setup-Windows.zip', 'downloads/THEFA-Local-Setup-Windows.zip'],['/', 'index.html'], ['/index.html', 'index.html'], ['/styles.css', 'styles.css'], ['/app.js', 'app.js'], ['/assets/THEFA_Core_Wordmark_Dark_web.svg', 'assets/THEFA_Core_Wordmark_Dark_web.svg'], ['/assets/PretendardVariable-subset.woff2', 'assets/PretendardVariable-subset.woff2']]);
+  const staticFiles = new Map([['/downloads/THEFA-Local-Setup-Windows.zip', 'downloads/THEFA-Local-Setup-Windows.zip'],['/', 'index.html'], ['/index.html', 'index.html'], ['/styles.css', 'styles.css'], ['/app.js', 'app.js'], ['/assets/THEFA_Core_Wordmark_Dark_web.svg', 'assets/THEFA_Core_Wordmark_Dark_web.svg'], ['/assets/THEFA_Core_Primary_Dark_web.svg', 'assets/THEFA_Core_Primary_Dark_web.svg'], ['/assets/PretendardVariable-subset.woff2', 'assets/PretendardVariable-subset.woff2']]);
   const mime = { '.zip': 'application/zip', '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' };
   const server = http.createServer(async (req, res) => {
     res.setHeader('x-content-type-options', 'nosniff'); res.setHeader('referrer-policy', 'no-referrer');

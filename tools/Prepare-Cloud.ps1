@@ -6,7 +6,7 @@ if(Test-Path -LiteralPath $Destination){
   if(!(Test-Path -LiteralPath $marker) -or (Get-Content -LiteralPath $marker -Raw | ConvertFrom-Json).source -ne $sourceRoot){throw 'DESTINATION_OWNERSHIP_REQUIRED'}
 }
 New-Item -ItemType Directory -Path $Destination -Force | Out-Null
-$ownedFiles=@('api/console.mjs','cloud/auth.mjs','cloud/server.mjs','cloud/store.mjs','cloud/engine-adapter.mjs','cloud/login.html','cloud/login.css','cloud/login.js','cloud/assets/mascots/guard-320.webp','cloud/assets/mascots/guard-640.webp','lab/server.mjs','lab/public/app.js','lab/public/index.html','lab/public/styles.css','lab/public/assets/THEFA_Core_Wordmark_Dark_web.svg','lab/public/assets/PretendardVariable-subset.woff2','lab/public/downloads/THEFA-Local-Setup-Windows.zip')
+$ownedFiles=@('api/console.mjs','cloud/auth.mjs','cloud/server.mjs','cloud/store.mjs','cloud/engine-adapter.mjs','cloud/login.html','cloud/login.css','cloud/login.js','cloud/assets/mascots/guard-320.webp','cloud/assets/mascots/guard-640.webp','lab/server.mjs','lab/public/app.js','lab/public/index.html','lab/public/styles.css','lab/public/assets/THEFA_Core_Wordmark_Dark_web.svg','lab/public/assets/THEFA_Core_Primary_Dark_web.svg','lab/public/assets/PretendardVariable-subset.woff2','lab/public/downloads/THEFA-Local-Setup-Windows.zip')
 foreach($relative in $ownedFiles){
   if(!(Test-Path -LiteralPath (Join-Path $sourceRoot $relative))){throw "MISSING_DEPLOYMENT_FILE: $relative (build setup package first)"}
   $target=Join-Path $Destination $relative
