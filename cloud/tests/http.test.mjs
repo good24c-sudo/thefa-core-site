@@ -98,7 +98,7 @@ test('anonymous documents redirect to login; protected API, artifact and app ass
 
 test('login and its allowlisted brand/font assets remain public with security headers', async t => {
   const { call } = await fixture(t);
-  for (const path of ['/login.html', '/login.css', '/login.js', '/assets/THEFA_Core_Wordmark_Dark_web.svg', '/assets/PretendardVariable-subset.woff2', '/assets/mascots/guard-320.webp', '/assets/mascots/guard-640.webp']) {
+  for (const path of ['/login.html', '/login.css', '/login.js', '/assets/THEFA_Core_Wordmark_Dark_web.svg', '/assets/THEFA_Core_Primary_Dark_web.svg', '/assets/PretendardVariable-subset.woff2', '/assets/mascots/guard-320.webp', '/assets/mascots/guard-640.webp']) {
     const response = await call({ path });
     assert.equal(response.status, 200, path);
     assert.ok(response.text.length > 0, path);

@@ -7,3 +7,6 @@
 @media(forced-colors:active){.login-card,.login-card input,.primary-button,.secondary-button,.status-box{border-color:CanvasText}.primary-button{background:ButtonFace;color:ButtonText}}
 .login-card-heading{display:flex;align-items:center;gap:16px}.login-card-heading>div{flex:1;min-width:0}.core-mascot--login{display:block;width:112px;height:auto;aspect-ratio:1;object-fit:contain;flex:none;pointer-events:none;user-select:none}
 @media(max-width:430px){.login-card-heading{gap:12px}.core-mascot--login{width:80px}}
+/* Registered primary logo; desktop scale matches the public homepage. */
+@media(min-width:851px){.login-brand{width:214px}}
+@media(max-width:430px){.login-brand{width:155px}}
