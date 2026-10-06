@@ -65,7 +65,7 @@
       document.getElementById('caseEmpty').hidden = filtered.length > 0;
       const remaining = ordered.length - visible.length;
       more.parentElement.hidden = remaining === 0;
-      more.textContent = `더보기 (${Math.min(3, remaining)}개) +`;
+      more.textContent = '더보기 +';
     }
     document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => {
       category = button.dataset.category;
@@ -76,7 +76,7 @@
     search.addEventListener('input', () => { visibleCount = 7; renderCases(); });
     more.addEventListener('click', event => {
       const firstNew = grid.children.length;
-      visibleCount += 3;
+      visibleCount = cases.length;
       renderCases();
       if (event.detail === 0) grid.children[firstNew]?.querySelector('[data-detail]')?.focus();
     });
