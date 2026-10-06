@@ -34,8 +34,39 @@ home=f'''
 creation='''<section class="section" id="create"><div class="shell"><div class="case-intro"><div><p class="eyebrow">WHAT WILL YOU CREATE?</p><h2>아이디어가 있다면,<br>다음 제작을 시작하세요.</h2></div><p>웹서비스에서 문서·디자인·콘텐츠까지.<br>만들고 싶은 것을 골라 시작 방향을 살펴보세요.</p></div><div class="creation-tabs" role="group" aria-label="만들고 싶은 것" id="creationTabs"></div><div class="creation-preview"><div><span class="case-label">활용·창작 시나리오</span><h3 id="creationTitle"></h3><p id="creationRequest"></p><p class="form-info">새로운 활용 방향의 예시입니다. 제작 범위와 연결 도구는 상담에서 확인합니다.</p></div><div><p class="eyebrow">이런 결과를 준비할 수 있어요.</p><ul id="creationOutputs"></ul><a class="link" href="contact.html">이 아이디어로 도입 문의 →</a></div></div></div></section>'''
 cost='''<section class="section paper" id="cost"><div class="shell"><div class="case-intro"><div><p class="eyebrow">A SMALLER TEAM, MORE POSSIBILITIES</p><h2>개발자 5명이 필요한 일,<br>더파코어와 함께한다면?</h2></div><p>기획·초안·반복 수정은 더파코어의 도움을 받고,<br>사람은 판단과 검수에 집중하는 작업 방식을 비교해 보세요.</p></div><div class="cost-note"><strong>가상 비용 비교 · 실제 절감 실적이 아닙니다.</strong><span>같은 제작 범위를 가정합니다. 인원·기간·금액을 바꾸면 예상 비용이 달라집니다. 사람이 맡을 검수·운영과 도구 비용도 포함해 판단하세요.</span></div><div class="cost-layout"><form id="costForm" class="cost-inputs"><fieldset><legend>기존 제작 방식</legend><div class="cost-fields"><label for="basePeople">개발 인원 (명)<input id="basePeople" type="number" min="1" max="100" step="1" value="5" required></label><label for="baseMonths">개발 기간 (개월)<input id="baseMonths" type="number" min="0.5" max="60" step="0.5" value="3" required></label></div></fieldset><fieldset><legend>더파코어를 활용하는 방식 · 가정</legend><div class="cost-fields"><label for="corePeople">참여 인원 (명)<input id="corePeople" type="number" min="1" max="100" step="1" value="2" required></label><label for="coreMonths">개발 기간 (개월)<input id="coreMonths" type="number" min="0.5" max="60" step="0.5" value="3" required></label></div></fieldset><fieldset><legend>비용 가정</legend><div class="cost-fields"><label for="monthlyCost">1인 월 인건비 (만원)<input id="monthlyCost" type="number" min="0" max="10000" step="1" value="500" required></label><label for="toolCost">더파코어·AI·도구 총비용 (만원)<input id="toolCost" type="number" min="0" max="100000" step="1" value="150" required></label><label for="reviewCost">추가 검수·운영 총비용 (만원)<input id="reviewCost" type="number" min="0" max="100000" step="1" value="300" required></label></div></fieldset><p class="cost-assumptions">금액은 설명을 위한 입력값이며 실제 인건비·더파코어 요금이 아닙니다. 같은 1인 월 인건비를 적용하며, 검수 인력이 참여 인원에 포함된 경우 추가 비용을 중복 입력하지 마세요.</p></form><div class="cost-results" aria-live="polite"><p class="eyebrow">가정을 숫자로 비교하면</p><div class="cost-compare"><div><span>기존 방식</span><strong id="baseTotal"></strong><small id="baseDetail"></small></div><div><span>더파코어 활용 가정</span><strong id="coreTotal"></strong><small id="coreDetail"></small></div></div><div class="cost-saving"><span id="savingLabel">가정상 줄어드는 비용</span><strong id="savingTotal"></strong><p id="savingPercent"></p></div><p id="costStatus" class="cost-assumptions"></p><a class="button primary" href="contact.html?case=core">우리 업무로 비교해 보기 →</a><details class="cost-formula"><summary>계산 기준 보기</summary><p>기존 비용 = 인원 × 개월 × 1인 월 인건비<br>더파코어 활용 비용 = 참여 인원 × 개월 × 1인 월 인건비 + 도구 총비용 + 추가 검수·운영 총비용<br>예상 차이 = 기존 비용 − 더파코어 활용 비용</p></details></div></div></div></section>'''
 confidential='''<section class="section confidential" id="research"><div class="shell confidential-row"><div><p class="eyebrow">PROTECTED RESEARCH</p><h2>공개할 수 있는 경험은 보여드리고,<br>연구의 핵심은 지킵니다.</h2><p>특허 관련 제품과 비공개 연구는 상세 자료를 공개하지 않습니다.<br>명칭·구조·구현 원리·코드·원문 자료는 이 홈페이지에 포함하지 않습니다.</p></div><div class="confidential-card"><span class="confidential-icon" aria-hidden="true">◇</span><strong>특허 출원 4건</strong><p>상세 기술은 비공개입니다.<br>협업이 필요한 경우 상담에서<br>공개 가능한 범위를 먼저 확인합니다.</p><a class="link" href="contact.html">협업 문의 →</a></div></div></section>'''
+experience='''
+<section class="section core-experience" id="how" aria-labelledby="experienceTitle">
+  <div class="shell">
+    <div class="experience-intro">
+      <div><p class="eyebrow">EXPERIENCE &amp; VISION</p><h2 id="experienceTitle">더파코어의 다음 경험.<br><span>AVA에서 더파월드까지.</span></h2></div>
+      <p>내 일에 맞는 AI에서, 함께 만드는 더 넓은 가능성으로.<br>더파코어가 준비하는 경험과 비전을 만나보세요.</p>
+    </div>
+    <div class="experience-features">
+      <article class="experience-card experience-ava" id="ava" aria-labelledby="avaTitle">
+        <div class="experience-card-top"><p class="experience-label">나의 개인 AI · 아바</p><span class="experience-status">개발 미리보기</span></div>
+        <div class="experience-brand" aria-hidden="true">AVA<span>✦</span></div>
+        <h3 id="avaTitle">내 일에 맞춰,<br>나와 함께하는 AI.</h3>
+        <p>내가 선택한 자료와 목표를 바탕으로, 내 업무에 맞는 도움을 받는 개인 AI 경험을 준비합니다.</p>
+      </article>
+      <article class="experience-card experience-world" id="world" aria-labelledby="worldTitle">
+        <div class="experience-card-top"><p class="experience-label">함께하는 미래 · 더파월드</p><span class="experience-status">장기 비전</span></div>
+        <div class="experience-brand" aria-hidden="true">THE FA WORLD</div>
+        <h3 id="worldTitle">나의 AVA에서,<br>함께 일하는 세계로.</h3>
+        <p>서로 다른 전문성과 아이디어가 만나, 개인과 팀이 더 큰 일을 함께 만드는 협업 환경을 향한 장기 비전입니다.</p>
+      </article>
+    </div>
+    <div class="experience-values" aria-label="더파코어가 지향하는 경험">
+      <article><h3>이어지는 업무</h3><p>이전 작업을 바탕으로,<br>다음 일을 자연스럽게.</p></article>
+      <article><h3>다양한 관점</h3><p>여러 시선으로 살펴보고,<br>중요한 선택은 직접 확인.</p></article>
+      <article><h3>알맞은 도움</h3><p>일의 규모와 목적에 맞춰,<br>반복 작업의 부담은 가볍게.</p></article>
+      <article><h3>확인하며 완성</h3><p>어디서든 흐름을 살피고,<br>결과를 확인하며 이어가는 방향.</p></article>
+    </div>
+    <div class="experience-footer"><p>AVA는 개발 미리보기, 더파월드는 장기 비전입니다.<br>기기 간 연속 사용을 포함한 소개 경험은 개발 방향이며, 현재 공개 체험 범위는 체험 페이지에서 확인하실 수 있습니다.</p><a class="link" href="demo.html">현재 공개 체험 보기 →</a></div>
+  </div>
+</section>'''
 home=home.replace('</div><input class="search" id="caseSearch"', '<button type="button" class="filter" data-category="창작·생활" aria-pressed="false">창작·생활</button></div><input class="search" id="caseSearch"')
 home=home.replace('<section class="section" id="how">',creation+cost+'<section class="section" id="how">')
+home=re.sub(r'<section class="section" id="how">.*?</section>',lambda _:experience,home,count=1,flags=re.S)
 home=home.replace('<section class="section faq" id="faq">',confidential+'<section class="section faq" id="faq">')
 home=home.replace('THE FA의 자체 개발 자산을 제품 사례로 모았습니다.', '상미부터 Visual Studio Desktop, 단골리턴과 더파코어까지.<br>THE FA의 제품과 자체 제작물을 한곳에 모았습니다.')
 home=home.replace('자체 개발 사례이며 고객 도입 실적을 의미하지 않습니다.', 'THE FA의 제품·제작물·개발 영역 사례이며 고객 도입 실적을 의미하지 않습니다. 모든 제품을 더파코어나 Visual Studio로 제작했다는 뜻은 아닙니다.')
