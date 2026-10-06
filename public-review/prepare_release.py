@@ -48,9 +48,10 @@ assert '개발 미리보기' in home and '장기 비전' in home
 contact = (output/'contact.html').read_text(encoding='utf-8')
 assert 'id="contactForm"' in contact and 'src="contact.js"' in contact
 assert all('id="'+field+'"' in contact for field in ['cfName','cfCompany','cfEmail','cfPhone','cfTopic','cfScope','cfMessage','cfConsent'])
-assert '문의 메일이 준비되었습니다.' in contact and '문의가 접수되었습니다' not in contact
+assert '문의가 전송되었습니다.' in contact and '문의 메일 준비하기' not in contact
+assert 'action="https://formspree.io/f/mkjwwqaw" method="POST"' in contact
 assert 'https://app.thefacore.com/login.html' in home
 head = subprocess.check_output(['git', '-C', str(repo), 'rev-parse', 'HEAD'], text=True).strip()
 manifest = {'source_head': head, 'source_branch': subprocess.check_output(['git', '-C', str(repo), 'branch', '--show-current'], text=True).strip(), 'files': {name: hashlib.sha256((output/name).read_bytes()).hexdigest() for name in sorted(expected)}, 'customer_app_excluded': True, 'private_source_excluded': True, 'patent_numbers': [f'10-2026-007229{n}' for n in range(4)], 'patent_status': 'application', 'filing_date': '2026-04-21'}
 (output.parent/'production-manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
-print(f'PASS: {len(expected)} allowlisted release files; four application numbers; working email and customer login links.')
+print(f'PASS: {len(expected)} allowlisted release files; four application numbers; configured Formspree POST and customer login links.')
