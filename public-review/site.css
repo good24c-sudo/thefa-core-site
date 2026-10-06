@@ -163,3 +163,4 @@
 .inquiry-card :disabled{cursor:wait;opacity:.65}
 @media(min-width:801px){.demo-sidebar{height:0;min-height:100%;display:flex;flex-direction:column;overflow:hidden}.demo-sidebar>p{flex:none}.demo-sidebar #demoOptions{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}.demo-sidebar #demoOptions::-webkit-scrollbar{display:none}}
 @media(max-width:640px){.inquiry-actions{gap:10px}.inquiry-actions .button{padding:12px 15px;font-size:12px}.inquiry-result{padding:19px}.inquiry-result .inquiry-actions{flex-direction:column}}
+.case-more{display:flex;justify-content:center;margin-top:32px}.case-more[hidden]{display:none}.case-more .button{min-width:220px;justify-content:center;border-color:#c7b994}

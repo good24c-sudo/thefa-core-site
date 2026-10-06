@@ -41,14 +41,17 @@
   const grid = document.getElementById('caseGrid');
   if (grid) {
     let category = '전체';
+    let visibleCount = 7;
     const search = document.getElementById('caseSearch');
+    const more = document.getElementById('caseMore');
     function renderCases() {
       const query = search.value.trim().toLocaleLowerCase();
       const featured = ['core', 'visual-studio', 'store', 'sangmi'];
       const art = {core:'business', 'visual-studio':'develop'};
       const filtered = cases.filter(item => (category === '전체' || item.category === category) && [item.name,item.label,item.description,...item.features].join(' ').toLocaleLowerCase().includes(query));
       const ordered = [...filtered.filter(item => featured.includes(item.id)).sort((a,b) => featured.indexOf(a.id)-featured.indexOf(b.id)), ...filtered.filter(item => !featured.includes(item.id))];
-      grid.innerHTML = ordered.map(item => {
+      const visible = ordered.slice(0, visibleCount);
+      grid.innerHTML = visible.map(item => {
         const prominent = featured.includes(item.id);
         const illustration = art[item.id] ? `<img src="assets/mascots/${art[item.id]}-320.webp" width="160" height="160" alt="" loading="lazy" aria-hidden="true">` : icon(item);
         return `<article class="case-card${prominent ? ' case-featured case-'+item.id : ''}" data-case="${esc(item.id)}">
@@ -58,15 +61,25 @@
           <p>${esc(item.description)}</p><div class="card-features">${item.features.slice(0,3).map(feature=>`<span>${esc(feature)}</span>`).join('')}</div>
           <div class="card-bottom"><button type="button" data-detail="${esc(item.id)}" aria-label="${esc(item.name)} 사례 자세히 보기">사례 자세히 보기 <span aria-hidden="true">↗</span></button><a href="demo.html?case=${encodeURIComponent(item.id)}">체험하기 <span aria-hidden="true">→</span></a></div></div></article>`;
       }).join('');
-      document.getElementById('caseCount').textContent = `${filtered.length}개 사례 · ${category === '전체' ? '전체 개발 영역' : category}`;
+      document.getElementById('caseCount').textContent = `${filtered.length}개 사례 중 ${visible.length}개 보기 · ${category === '전체' ? '전체 개발 영역' : category}`;
       document.getElementById('caseEmpty').hidden = filtered.length > 0;
+      const remaining = ordered.length - visible.length;
+      more.parentElement.hidden = remaining === 0;
+      more.textContent = `더보기 (${Math.min(3, remaining)}개) +`;
     }
     document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => {
       category = button.dataset.category;
+      visibleCount = 7;
       document.querySelectorAll('.filter').forEach(other => other.setAttribute('aria-pressed', String(other === button)));
       renderCases();
     }));
-    search.addEventListener('input', renderCases);
+    search.addEventListener('input', () => { visibleCount = 7; renderCases(); });
+    more.addEventListener('click', event => {
+      const firstNew = grid.children.length;
+      visibleCount += 3;
+      renderCases();
+      if (event.detail === 0) grid.children[firstNew]?.querySelector('[data-detail]')?.focus();
+    });
     grid.addEventListener('click', event => {
       const button = event.target.closest('[data-detail]');
       if (!button) return;
