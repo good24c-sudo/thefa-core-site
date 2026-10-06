@@ -108,6 +108,54 @@
     selectCase(selected.id);
   }
 
+  const creationTabs = document.getElementById('creationTabs');
+  if (creationTabs) {
+    const creations = window.THEFA_CREATIONS || [];
+    creationTabs.innerHTML = creations.map(item => `<button type="button" data-creation="${esc(item.id)}" aria-pressed="false">${esc(item.label)} <span aria-hidden="true">↗</span></button>`).join('');
+    function selectCreation(id) {
+      const selected = creations.find(item => item.id === id);
+      if (!selected) return;
+      creationTabs.querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.creation === id)));
+      document.getElementById('creationTitle').textContent = selected.label;
+      document.getElementById('creationRequest').textContent = selected.request;
+      document.getElementById('creationOutputs').innerHTML = selected.outputs.map(output => `<li>${esc(output)}</li>`).join('');
+    }
+    creationTabs.addEventListener('click', event => { const button = event.target.closest('[data-creation]'); if (button) selectCreation(button.dataset.creation); });
+    selectCreation(creations[0]?.id);
+  }
+
+  const costForm = document.getElementById('costForm');
+  if (costForm) {
+    const ids = ['basePeople','baseMonths','corePeople','coreMonths','monthlyCost','toolCost','reviewCost'];
+    const money = number => `${number.toLocaleString('ko-KR',{maximumFractionDigits:1})}만원`;
+    function updateCost() {
+      const fields = ids.map(id => document.getElementById(id));
+      const status = document.getElementById('costStatus');
+      if (fields.some(field => field.value.trim() === '' || !field.validity.valid || !Number.isFinite(Number(field.value)))) {
+        ['baseTotal','coreTotal','savingTotal'].forEach(id => document.getElementById(id).textContent = '—');
+        ['baseDetail','coreDetail','savingPercent'].forEach(id => document.getElementById(id).textContent = '');
+        document.getElementById('savingLabel').textContent = '비용 비교';
+        status.textContent = '인원·기간과 비용을 표시된 범위에 맞게 입력해 주세요.';
+        return;
+      }
+      const [basePeople,baseMonths,corePeople,coreMonths,monthlyCost,toolCost,reviewCost] = fields.map(field => Number(field.value));
+      const base = basePeople * baseMonths * monthlyCost;
+      const core = corePeople * coreMonths * monthlyCost + toolCost + reviewCost;
+      const difference = base - core;
+      document.getElementById('baseTotal').textContent = money(base);
+      document.getElementById('coreTotal').textContent = money(core);
+      document.getElementById('baseDetail').textContent = `${basePeople}명 × ${baseMonths}개월 × ${money(monthlyCost)}`;
+      document.getElementById('coreDetail').textContent = `${corePeople}명 × ${coreMonths}개월 × ${money(monthlyCost)} + 도구 ${money(toolCost)} + 추가 검수·운영 ${money(reviewCost)}`;
+      document.getElementById('savingLabel').textContent = difference > 0 ? '가정상 줄어드는 비용' : difference < 0 ? '가정상 늘어나는 비용' : '가정상 비용 차이';
+      document.getElementById('savingTotal').textContent = money(Math.abs(difference));
+      document.getElementById('savingPercent').textContent = base > 0 ? `기존 비용 대비 ${Math.abs(difference / base * 100).toLocaleString('ko-KR',{maximumFractionDigits:1})}% ${difference > 0 ? '감소' : difference < 0 ? '증가' : '차이'}` : '기존 비용이 0원이므로 비율을 계산하지 않습니다.';
+      status.textContent = '입력한 가정에 따른 계산입니다. 실제 참여 인원, 작업 기간, 품질과 절감 효과는 업무 범위와 검증 결과에 따라 달라집니다.';
+    }
+    costForm.addEventListener('input', updateCost);
+    costForm.addEventListener('submit', event => event.preventDefault());
+    updateCost();
+  }
+
   const contact = document.getElementById('contactForm');
   if (contact) {
     const interest = document.getElementById('interest');
