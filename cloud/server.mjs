@@ -9,6 +9,8 @@ const files={
   '/downloads/THEFA-Local-Setup-Windows.zip':['lab/public/downloads/THEFA-Local-Setup-Windows.zip','application/zip',false],
   '/login.html':['cloud/login.html','text/html; charset=utf-8',true],
   '/login.css':['cloud/login.css','text/css; charset=utf-8',true],
+  '/assets/mascots/guard-320.webp':['cloud/assets/mascots/guard-320.webp','image/webp',true],
+  '/assets/mascots/guard-640.webp':['cloud/assets/mascots/guard-640.webp','image/webp',true],
   '/login.js':['cloud/login.js','application/javascript; charset=utf-8',true],
   '/assets/THEFA_Core_Wordmark_Dark_web.svg':['lab/public/assets/THEFA_Core_Wordmark_Dark_web.svg','image/svg+xml',true],
   '/assets/PretendardVariable-subset.woff2':['lab/public/assets/PretendardVariable-subset.woff2','font/woff2',true],

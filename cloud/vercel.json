@@ -7,7 +7,7 @@
   "functions": {
     "api/console.mjs": {
       "maxDuration": 30,
-      "includeFiles": "{lab/public/**,cloud/login.html,cloud/login.css,cloud/login.js}"
+      "includeFiles": "{lab/public/**,cloud/login.html,cloud/login.css,cloud/login.js,cloud/assets/mascots/**}"
     }
   },
   "rewrites": [

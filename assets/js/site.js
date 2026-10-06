@@ -329,7 +329,8 @@
           '</div>' +
           col('제품', D.footer.product) +
           col('계정', D.footer.service) +
-          col('회사', D.footer.company) +
+          '<div class="footer-company">' + col('회사', D.footer.company) +
+          (host.dataset.mascot === 'footer' ? '<img class="core-mascot core-mascot--footer" src="assets/img/mascots/goodbye-320.webp" srcset="assets/img/mascots/goodbye-320.webp 320w, assets/img/mascots/goodbye-640.webp 640w" sizes="(max-width: 640px) 112px, 144px" width="320" height="320" alt="" aria-hidden="true" loading="lazy" decoding="async">' : '') + '</div>' +
         '</div>' +
         '<div class="footer-legal">' +
           '<div class="footer-co">' +

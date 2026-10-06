@@ -98,7 +98,7 @@ test('anonymous documents redirect to login; protected API, artifact and app ass
 
 test('login and its allowlisted brand/font assets remain public with security headers', async t => {
   const { call } = await fixture(t);
-  for (const path of ['/login.html', '/login.css', '/login.js', '/assets/THEFA_Core_Wordmark_Dark_web.svg', '/assets/PretendardVariable-subset.woff2']) {
+  for (const path of ['/login.html', '/login.css', '/login.js', '/assets/THEFA_Core_Wordmark_Dark_web.svg', '/assets/PretendardVariable-subset.woff2', '/assets/mascots/guard-320.webp', '/assets/mascots/guard-640.webp']) {
     const response = await call({ path });
     assert.equal(response.status, 200, path);
     assert.ok(response.text.length > 0, path);
@@ -106,6 +106,8 @@ test('login and its allowlisted brand/font assets remain public with security he
     assert.equal(response.headers['x-content-type-options'], 'nosniff');
     assert.equal(response.headers['x-frame-options'], 'DENY');
   }
+  const mascot = await call({ path: '/assets/mascots/guard-320.webp' });
+  assert.equal(mascot.headers['content-type'], 'image/webp');
   const login = await call({ path: '/login.html' });
   assert.doesNotMatch(login.headers['content-security-policy'], /unsafe-inline/);
   const head = await call({ path: '/login.js', method: 'HEAD' });
