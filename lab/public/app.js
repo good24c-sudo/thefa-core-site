@@ -67,6 +67,13 @@ function setConnection(connected, message) {
 function renderRuntimeCopy() {
   const cloud = isCloud();
   const core = isCoreMode();
+  const brandImage = $('.brand img');
+  if (brandImage && cloud) {
+    brandImage.src = '/assets/THEFA_Core_Primary_Light_web.svg';
+    brandImage.width = 180;
+    brandImage.height = 50;
+    brandImage.alt = 'THEFA Core';
+  }
   document.body.classList.toggle('cloud-mode', cloud);
   document.title = core ? 'THE FA Core · Founder Live' : cloud ? 'THE FA Core · 초대 전용 Private Beta' : 'THE FA Core · Functional Console Lab';
   $('#workspace-kind').textContent = core ? 'FOUNDER LIVE · REAL CORE' : cloud ? 'INVITATION ONLY · PRIVATE BETA' : 'LOCAL WORKSPACE';

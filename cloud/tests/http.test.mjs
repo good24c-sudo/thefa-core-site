@@ -98,7 +98,7 @@ test('anonymous documents redirect to login; protected API, artifact and app ass
 
 test('login and its allowlisted brand/font assets remain public with security headers', async t => {
   const { call } = await fixture(t);
-  for (const path of ['/login.html', '/login.css', '/login.js', '/assets/THEFA_Core_Wordmark_Dark_web.svg', '/assets/PretendardVariable-subset.woff2']) {
+  for (const path of ['/login.html', '/login.css', '/login.js', '/assets/THEFA_Core_Wordmark_Dark_web.svg', '/assets/THEFA_Core_Primary_Light_web.svg', '/assets/PretendardVariable-subset.woff2']) {
     const response = await call({ path });
     assert.equal(response.status, 200, path);
     assert.ok(response.text.length > 0, path);
@@ -203,6 +203,7 @@ test('authenticated state adds verified email and explicit Cloud sandbox boundar
   assert.deepEqual(calls.engine[0], { path: '/api/state', method: 'GET', body: undefined });
   const app = await call({ path: '/app.js', headers: { cookie: COOKIE } });
   assert.equal(app.status, 200);
+  assert.match(app.text, /THEFA_Core_Primary_Light_web\.svg/);
   const artifact = await call({ path: '/api/artifacts/artifact-test', headers: { cookie: COOKIE } });
   assert.equal(artifact.status, 200);
   assert.match(artifact.headers['content-type'], /text\/markdown/);

@@ -11,6 +11,7 @@ const files={
   '/login.css':['cloud/login.css','text/css; charset=utf-8',true],
   '/login.js':['cloud/login.js','application/javascript; charset=utf-8',true],
   '/assets/THEFA_Core_Wordmark_Dark_web.svg':['lab/public/assets/THEFA_Core_Wordmark_Dark_web.svg','image/svg+xml',true],
+  '/assets/THEFA_Core_Primary_Light_web.svg':['assets/brand/core/THEFA_Core_Primary_Light_web.svg','image/svg+xml',true],
   '/assets/PretendardVariable-subset.woff2':['lab/public/assets/PretendardVariable-subset.woff2','font/woff2',true],
   '/':['lab/public/index.html','text/html; charset=utf-8',false],
   '/index.html':['lab/public/index.html','text/html; charset=utf-8',false],
