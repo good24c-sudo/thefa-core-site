@@ -1,0 +1,44 @@
+/* Supplied Core characters: decorations stay in normal flow, clear of controls. */
+.core-mascot {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 12px 18px rgb(0 0 0 / 12%));
+}
+.mascot-hero-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin: -20px 0 12px;
+}
+.mascot-hero-intro .v3-eyebrow { margin: 0; max-width: 250px; }
+.core-mascot--hero { width: clamp(130px, 13vw, 180px); flex: 0 0 auto; }
+.mascot-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(150px, 17vw, 210px);
+  align-items: center;
+  gap: clamp(24px, 4vw, 64px);
+  margin-bottom: 36px;
+}
+.mascot-heading .v3-section-head { margin-bottom: 0; }
+.core-mascot--wide { justify-self: end; }
+.core-mascot--split { width: 148px; margin: 24px 0 0; }
+.v3-paper .core-mascot { filter: drop-shadow(0 10px 16px rgb(62 44 15 / 9%)); }
+.core-mascot--final { width: 180px; margin: 0 auto 26px; }
+@media (max-width: 800px) {
+  .core-mascot--split { width: 120px; margin: 18px 0 0 auto; }
+}
+@media (max-width: 640px) {
+  .mascot-hero-intro { gap: 14px; margin: -14px 0 14px; }
+  .mascot-hero-intro .v3-eyebrow { max-width: 180px; }
+  .core-mascot--hero { width: 104px; }
+  .mascot-heading { grid-template-columns: minmax(0, 1fr); gap: 16px; margin-bottom: 28px; }
+  .core-mascot--wide { width: 112px; justify-self: end; }
+  .core-mascot--split { width: 104px; }
+  .core-mascot--final { width: 132px; margin-bottom: 20px; }
+}
