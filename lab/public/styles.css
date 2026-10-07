@@ -22,3 +22,43 @@ html::-webkit-scrollbar,.sidebar::-webkit-scrollbar{display:none;width:0;height:
 
 /* Keep native menus readable on both Windows popup themes. */
 select{color-scheme:dark;color:#f2eee6;background-color:#191919}select option,select optgroup{background-color:#191919;color:#f2eee6}select option:checked{background-color:#c9ab7e;color:#141414}.subtle,.page-heading p,.home-heading p{color:#b7b2a8}.scenario-select label{color:#bbb3a7}.setup-hero h2{font-size:28px!important;line-height:1.4}.setup-hero p,#setup-view .context-card p,#setup-view .resource-card p{font-size:14px;line-height:1.9;color:#c3beb4}.setup-steps{padding:20px 0;list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;counter-reset:setup}.setup-steps li{border-top:1px solid #5f503b;padding-top:12px;font-size:13px;counter-increment:setup}.setup-steps li:before{content:'0' counter(setup);display:block;color:#d2b284;margin-bottom:8px}#setup-view .context-card{margin-bottom:24px}#setup-view .resource-grid{margin:24px 0}#setup-view button,#setup-view .button{min-height:44px}#setup-view [disabled]{opacity:1;color:#aaa399;background:#202020;border-color:#413c34}@media(max-width:760px){.setup-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.setup-hero h2{font-size:23px!important}#local-setup-download{width:100%;white-space:normal;text-align:center}.scenario-select select{font-size:12px!important}.scenario-select label{font-size:11px!important}.home-heading p{font-size:13px!important}.suggestions button{font-size:11px!important}}
+
+
+/* UIUX Alpha V1 — navigation, status clarity, and direct task inspection. */
+.nav-more{border-top:1px solid #242426;margin-top:7px;padding-top:7px}
+.nav-more>summary{list-style:none;display:flex;align-items:center;gap:13px;min-height:46px;padding:10px 14px;border-radius:7px;color:var(--muted);font-size:13px;cursor:pointer}
+.nav-more>summary::-webkit-details-marker{display:none}.nav-more>summary>span{font-family:Arial,sans-serif;width:17px;text-align:center;color:#898889;letter-spacing:.08em}
+.nav-more>summary:hover,.nav-more.contains-active>summary{background:#1b1c1f;color:var(--text)}.nav-more.contains-active>summary{color:var(--gold)}
+.nav-more-list{display:flex;flex-direction:column;gap:5px;margin-top:4px}
+.home-heading{margin-bottom:18px}.home-heading h1{font-size:44px}.home-heading p{max-width:680px}
+.suggestions{margin-bottom:26px}.development-banner{padding-top:7px;padding-bottom:7px}
+.advanced{margin-top:26px}
+.detail-panel{position:fixed;top:82px;right:24px;bottom:24px;width:min(560px,calc(100vw - var(--sidebar) - 72px));max-width:calc(100vw - var(--sidebar) - 48px);margin:0;overflow:auto;z-index:80;border-color:#5b4931;background:#151513;box-shadow:0 24px 80px rgba(0,0,0,.48)}
+.detail-heading{position:sticky;top:-25px;z-index:2;background:#151513;padding-top:25px;padding-bottom:12px;border-bottom:1px solid #29292c}
+.detail-heading-actions{display:flex;align-items:center;gap:9px}.detail-close{width:36px;height:36px;border:1px solid #3b3833;border-radius:7px;background:#1c1c1d;color:#bbb4aa;font-size:22px;line-height:1}.detail-close:hover{color:var(--gold);border-color:#6a5233}
+@media(max-width:1100px){.detail-panel{right:18px;width:min(520px,calc(100vw - var(--sidebar) - 42px));max-width:calc(100vw - var(--sidebar) - 36px)}}
+@media(max-width:760px){
+  .nav-more{position:relative;flex:0 0 auto;border:0;margin:0;padding:0}
+  .nav-more>summary{min-height:44px;white-space:nowrap;gap:7px;padding:7px 11px;font-size:11px}
+  .nav-more>summary>span{font-size:15px;width:15px}
+  .nav-more-list{position:fixed;top:78px;left:12px;right:12px;z-index:120;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin:0;padding:10px;background:#101113;border:1px solid #34302a;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+  .nav-more-list .nav-item{width:100%;min-width:0}
+  .detail-panel{top:68px;left:12px;right:12px;bottom:12px;width:auto;max-width:none;padding:18px}
+  .detail-heading{top:-18px;padding-top:18px}
+  .home-heading{margin-bottom:14px}.home-heading h1{font-size:34px}.suggestions{margin-bottom:22px}
+}
+@media(max-width:430px){.nav-more-list{top:72px;grid-template-columns:1fr}.detail-panel{top:62px;left:8px;right:8px;bottom:8px}}
+
+
+/* UIUX Alpha V1 mobile fit */
+@media(max-width:430px){
+  .navigation{margin-left:-12px;margin-right:-12px;padding-left:8px;padding-right:8px;gap:1px;overflow-x:visible}
+  .nav-item,.nav-more>summary{padding:7px 8px;font-size:10px;gap:4px}
+  .nav-item>span:first-child,.nav-more>summary>span{display:none}
+  .topbar{height:auto;min-height:54px;flex-wrap:wrap;row-gap:3px;padding-top:8px;padding-bottom:8px}
+  .topbar-page{flex:1}.topbar-status{flex-basis:100%;margin-left:0;justify-content:flex-start}
+  .composer-footer{display:grid;grid-template-columns:1fr;align-items:stretch}
+  .scenario-select{width:100%}.scenario-select select{max-width:none;width:100%}
+  .composer-footer .button{width:100%;justify-content:center}
+  .suggestions{display:grid;grid-template-columns:1fr}.suggestions button{width:100%;justify-content:space-between}
+}
