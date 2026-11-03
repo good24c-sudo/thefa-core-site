@@ -1,0 +1,14 @@
+html,body{margin:0;min-height:100%;background:#171614;color:#f4f2ed}
+.about-topbar{position:sticky;top:0;z-index:35;display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:72px;padding:12px clamp(18px,5vw,52px);background:rgba(15,15,16,.96);border-bottom:1px solid #393531;backdrop-filter:blur(10px)}
+.about-brand{display:inline-flex;flex:0 1 auto;align-items:center;min-width:0}
+.about-brand img{width:min(156px,32vw);height:auto;max-height:40px;object-fit:contain}
+.about-page-subtitle{color:#c9bba7;font-size:13px;font-weight:600;letter-spacing:.02em}
+.about-return{display:inline-flex;align-items:center;justify-content:center;border:1px solid #6d5940;padding:10px 15px;border-radius:999px;font-size:13px;font-weight:650;color:#edd4aa;text-decoration:none;white-space:nowrap}
+.about-return:hover{background:#302920}
+.about-skip{position:absolute;left:8px;top:-80px;background:#f5d6a6;color:#181715;padding:9px;z-index:100}
+.about-skip:focus{top:8px}
+#service-introduction{scroll-margin-top:86px;overflow:clip;max-width:100%;}
+#service-introduction .service-home-content>section{scroll-margin-top:86px}
+#service-introduction .service-intro-heading{padding-top:36px}
+@media(max-width:600px){.about-topbar{padding:10px 16px;min-height:62px;gap:8px}.about-page-subtitle{display:none}.about-return{padding:8px 10px;font-size:12px}#service-introduction .service-intro-heading{padding-top:28px}}
+@media(prefers-reduced-motion:reduce){html,body{scroll-behavior:auto}}

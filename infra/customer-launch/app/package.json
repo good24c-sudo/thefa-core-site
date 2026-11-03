@@ -1,0 +1,15 @@
+{
+  "name": "thefa-core-isolated-auth",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "node --test --test-timeout=10000 tests/*.test.mjs"
+  },
+  "dependencies": {
+    "better-auth": "1.7.13",
+    "pg": "8.23.1"
+  }
+}

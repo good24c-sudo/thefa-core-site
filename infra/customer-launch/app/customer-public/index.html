@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ko" data-final-service-host="thefacore.com" data-layout="customer-workspace-only" data-live-service="deepseek">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="THE FA Core — 나만의 프로젝트, 대화, AVA, 로컬 AI를 하나로.">
+<title>THE FA Core · AI 작업공간</title>
+<link rel="icon" href="/assets/THEFA_Core_Primary_Dark_web.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/guest-live.css">
+<script defer src="/guest-live.js"></script>
+
+
+
+
+
+
+</head>
+<body>
+<a class="skip" href="#chat-main">본문으로 바로 가기</a>
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar" aria-label="대화 및 프로젝트">
+    <div class="brand-row">
+      <a class="brand" href="/" aria-label="THE FA Core 새 대화"><img src="/assets/THEFA_Core_Primary_Dark_web.svg" alt="THE FA Core" width="145" height="41"></a>
+      <button class="icon-button close-sidebar" id="close-sidebar" type="button" aria-label="메뉴 닫기">✕</button>
+    </div>
+    <div class="sidebar-actions"><div class="guest-label">THE FA CORE · 나의 AI 작업공간</div>
+      <button id="new-chat" type="button" class="new-chat"><span aria-hidden="true">＋</span> 새 대화 <span class="shortcut">+</span></button>
+      <label class="search-field"><span aria-hidden="true">⌕</span><span class="sr-only">대화와 프로젝트 검색</span><input id="workspace-search" type="search" placeholder="대화 및 프로젝트 검색" autocomplete="off"></label>
+    </div>
+    <nav class="navigation" aria-label="작업공간 탐색">
+      <div class="nav-section">
+        <div class="section-label"><span>프로젝트</span><button type="button" class="icon-button add" id="new-project" aria-label="프로젝트 만들기">＋</button></div>
+        <div id="project-list" class="nav-items" aria-live="polite"></div>
+      </div>
+      <div class="nav-section recent">
+        <div class="section-label"><span>최근 대화</span><span id="chat-count" class="tiny"></span></div>
+        <div id="chat-list" class="nav-items" aria-live="polite"></div>
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <button type="button" class="bottom-action" data-section="ava"><span aria-hidden="true">A</span> 나의 AVA <span class="soft-pill">설정</span></button>
+      <button type="button" class="bottom-action" data-section="local"><span aria-hidden="true">▣</span> 로컬 AI · PC 연결</button>
+      <button type="button" class="bottom-action" data-section="settings"><span aria-hidden="true">⚙</span> AI 사용 설정</button>
+      <a class="bottom-action bottom-action-link" id="open-service-introduction" href="/about"><span aria-hidden="true">ⓘ</span> 서비스 소개</a>
+      <a class="bottom-action bottom-action-link" href="/plans"><span aria-hidden="true">◇</span> 요금제</a>
+      <div class="account-actions" id="account-actions"><a class="login-link" href="/login" id="account-login">로그인</a><a class="signup-link" href="/signup">회원가입</a><small>로그인 후 고객당 AI 답변 10회 · 기존 사용량 유지</small></div>
+      <div class="account-row" id="account-profile" hidden><div class="avatar" aria-hidden="true">F</div><div><strong id="account-name">나의 작업공간</strong><small id="account-status">연결 확인 중</small></div><span class="guest-pill" id="account-kind">계정</span></div>
+      <button id="account-logout" class="bottom-action" type="button" hidden>로그아웃</button>
+    </div>
+  </aside>
+  <button type="button" class="backdrop" id="sidebar-backdrop" aria-label="메뉴 닫기" hidden></button>
+  <div class="workspace">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button type="button" class="icon-button mobile-menu" id="open-sidebar" aria-label="대화 메뉴 열기">☰</button>
+        <span class="top-brand-mobile">THE FA Core</span>
+        <span class="breadcrumb" id="breadcrumb">새 대화</span>
+      </div>
+      <div class="topbar-right">
+        <span class="connection-badge" id="connection-badge"><span class="status-dot"></span><span id="connection-text">연결 확인 중</span></span>
+        <button type="button" class="icon-button" id="open-settings" aria-label="AI 사용 설정 열기">⚙</button>
+      </div>
+    </header>
+    <div class="notice-bar" id="readiness-notice" role="status">작업공간 연결을 확인하고 있습니다.</div>
+    <main id="chat-main" tabindex="-1" class="main">
+      <section class="panel chat-panel" id="chat-panel" aria-labelledby="chat-heading">
+        <div class="chat-flow">
+          <div class="welcome" id="chat-welcome">
+            <div class="welcome-mark"><img id="core-official-mark" src="/assets/THEFA_Core_Official_Mark_Dark_web.svg" alt="THE FA Core 정식 심볼" width="116" height="116" decoding="async"></div>
+            <p class="overline">ONE CORE · EVERY RESOURCE</p>
+            <h1 id="chat-heading">무엇을 도와드릴까요?</h1>
+            <p>생각을 정리하고, 프로젝트를 시작하고, 다음 작업을 이어가세요.</p>
+            <div class="suggestion-grid" aria-label="예시 작업">
+              <button type="button" data-suggest="이번 주 할 일을 우선순위별로 정리해줘">01 · 이번 주 업무 정리 <span>↗</span></button>
+              <button type="button" data-suggest="시장 조사 계획을 단계별로 세워줘">02 · 시장 조사 계획 <span>↗</span></button>
+              <button type="button" data-suggest="내 프로젝트를 위한 아이디어를 제안해줘">03 · 새로운 아이디어 <span>↗</span></button>
+            </div>
+          </div>
+          <div id="conversation-header" class="conversation-header" hidden>
+            <div><span class="overline" id="conversation-project">일반 대화</span><h1 id="conversation-title">새 대화</h1></div>
+            <div class="chat-header-actions"><button type="button" class="text-button" id="move-chat">프로젝트 이동</button><button type="button" class="text-button" id="rename-chat">이름 변경</button><button type="button" class="text-button" id="archive-chat">대화 보관</button></div>
+          </div>
+          <div class="messages" id="messages" role="log" aria-live="polite" aria-relevant="additions text"></div>
+        </div>
+        <div class="composer-region">
+          <form class="composer" id="chat-form">
+            <label class="sr-only" for="chat-input">메시지 입력</label>
+            <textarea id="chat-input" rows="2" maxlength="8000" placeholder="더파코어에 질문하거나 업무를 요청하세요..." required></textarea>
+            <div class="composer-toolbar">
+              <div class="composer-options">
+                <button type="button" class="round-action" id="attachment-info" title="첨부파일 상태" aria-label="파일 첨부 정보">＋</button>
+                <div class="mode-selector" id="mode-selector">
+                  <button type="button" class="mode-button" id="mode-picker" title="대화에서 AI 선택" aria-haspopup="dialog" aria-expanded="false" aria-controls="composer-mode-panel"><span aria-hidden="true">◎</span><span id="mode-label">자동 선택</span><span aria-hidden="true">⌄</span></button>
+                  <div class="composer-mode-panel" id="composer-mode-panel" role="dialog" aria-modal="false" aria-labelledby="composer-mode-title" hidden>
+                    <div class="mode-panel-heading"><h2 id="composer-mode-title">이번 대화의 AI 선택</h2><button type="button" class="icon-button" id="close-mode-panel" aria-label="AI 선택 닫기">✕</button></div>
+                    <p id="composer-mode-engine" class="muted">사용 가능한 AI를 확인합니다.</p>
+                    <label for="composer-route">자원 선택</label>
+                    <select id="composer-route"><option value="AUTO">자동 선택</option><option value="CLOUD_FIRST">클라우드 우선</option><option value="LOCAL_FIRST">로컬 우선</option><option value="LOCAL_ONLY">로컬 전용</option></select>
+                    <label for="composer-tier">답변 수준</label>
+                    <select id="composer-tier"><option value="AUTO">자동</option><option value="STANDARD">일반 답변</option><option value="EXPERT">전문 분석</option><option value="ULTRA">정밀 검토</option></select>
+                    <p class="mode-panel-status" id="composer-mode-status" role="status" aria-live="polite"></p>
+                    <button type="button" class="button primary" id="apply-composer-mode">선택 적용</button>
+                  </div>
+                </div>
+              </div>
+              <button class="send-button" type="submit" id="send-button" aria-label="메시지 기록" disabled>↑</button>
+            </div>
+            <p class="composer-helper" id="composer-helper">연결 상태를 확인한 뒤 대화를 시작하세요.</p>
+          </form>
+          <p class="disclaimer">로그인 후 고객당 AI 답변 10회 · 기존 사용량 유지 · 중요한 답변은 확인해 주세요.</p>
+        </div>
+      </section>
+
+      <section class="panel feature-panel" id="project-panel" hidden aria-labelledby="project-heading">
+        <div class="feature-heading"><p class="overline">PROJECT WORKSPACE</p><h1 id="project-heading">프로젝트</h1><p id="project-subtitle">대화·자료·업무 지침을 프로젝트 단위로 정리합니다.</p></div>
+        <div class="stack-cards"><div class="card">
+          <div class="card-header"><h2>프로젝트 지침</h2><span class="muted">해당 프로젝트의 대화에 적용할 문맥</span></div>
+          <label for="project-instructions" class="input-label">작업 목표와 배경</label>
+          <textarea id="project-instructions" rows="5" maxlength="2000" placeholder="예: 우리 회사의 신제품 전략을 중심으로 분석하고, 근거를 명확히 보여주세요."></textarea>
+          <div class="align-right"><button class="button" type="button" id="rename-project">프로젝트 이름 변경</button><button class="button" type="button" id="save-project">지침 저장</button></div>
+        </div><div class="card"><div class="card-header"><h2>프로젝트 대화</h2><button class="text-button" id="project-new-chat" type="button">＋ 새 대화</button></div><div id="project-chats" class="project-chats"></div></div></div>
+      </section>
+
+      <section class="panel feature-panel" id="ava-panel" hidden aria-labelledby="ava-heading">
+        <div class="feature-heading"><p class="overline">PERSONAL AI · AVA</p><h1 id="ava-heading">나의 AVA</h1><p>역할, 기억 범위, 승인 조건을 내가 직접 설정하는 개인 AI의 출발점입니다.</p></div>
+        <div class="feature-hero ava-hero"><span class="feature-mark">AVA</span><div><h2>나에게 맞는 AI 동료</h2><p>현재는 AVA 설정 초안입니다. 실제 기억 수집, 대리 실행, 권한 부여는 별도 동의와 실행 연결을 필요로 합니다.</p><span class="subtle-link">고급 AVA 설정은 계정 연결 후 제공됩니다.</span></div></div>
+        <form id="ava-form" class="card form-grid">
+          <label>AVA 역할 <select id="ava-role"><option value="기획">기획</option><option value="개발">개발</option><option value="디자인">디자인</option><option value="사업">사업</option><option value="검토">검토</option></select></label>
+          <label>기억 범위 <select id="ava-memory"><option value="선택한 프로젝트만">선택한 프로젝트만</option><option value="현재 대화만">현재 대화만</option><option value="사용자가 명시한 자료만">사용자가 명시한 자료만</option></select></label>
+          <label>기본 권한 <select id="ava-permissions"><option value="읽기·초안">읽기·초안</option><option value="읽기만">읽기만</option><option value="승인 후 외부 실행">승인 후 외부 실행</option></select></label>
+          <label>예산 정책 <select id="ava-budget"><option value="유료 실행 전 승인">유료 실행 전 승인</option><option value="외부 유료 AI 사용 안 함">외부 유료 AI 사용 안 함</option><option value="확인된 한도 안에서만">확인된 한도 안에서만</option></select></label>
+          <label class="wide">AVA에게 알려줄 선호·지침 <textarea id="ava-instructions" rows="4" maxlength="2000" placeholder="예: 어렵게 설명하지 않고, 근거를 먼저 확인해 주세요."></textarea></label>
+          <p class="muted wide">설정 저장은 AVA 실행을 뜻하지 않습니다. 고객 자료와 PC 권한은 자동 연결되지 않습니다.</p>
+          <div class="align-right wide"><button class="button primary" type="submit" id="save-ava">AVA 설정 초안 저장</button></div>
+        </form>
+      </section>
+
+      <section class="panel feature-panel" id="local-panel" hidden aria-labelledby="local-heading">
+        <div class="feature-heading"><p class="overline">LOCAL FIRST · SMART COST</p><h1 id="local-heading">로컬 AI · PC 연결</h1><p>내 PC 자원을 활용하고 꼭 필요할 때만 외부 AI를 사용하는 방향으로 준비합니다.</p></div>
+        <div class="feature-hero"><span class="feature-mark">▣</span><div><h2>내 PC는 그대로, 필요할 때만 연결</h2><p>로컬 AI·개발 도구를 사용하면 일부 작업의 외부 API 비용을 줄일 수 있습니다. PC 연결은 사용자 승인과 별도의 안전한 연결 절차가 필요합니다.</p></div></div>
+        <div class="three-cards">
+          <div class="card mini"><span class="muted">로컬 AI 연결</span><strong id="local-status">미연결</strong><small>이 브라우저는 PC에 자동 접근하지 않습니다.</small></div>
+          <div class="card mini"><span class="muted">외부 AI 비용</span><strong id="cost-status">측정 전</strong><small>실제 사용 기록 기준으로만 표시합니다.</small></div>
+          <div class="card mini"><span class="muted">검증된 비용 절약</span><strong id="savings-status">측정 전</strong><small>추정 절감액은 실제 절감액으로 표시하지 않습니다.</small></div>
+        </div>
+        <div class="card stack"><h2>고객용 로컬 설정 안내</h2><p>Windows 설정 도구와 로컬 AI 모델 준비는 선택 사항입니다. 이미 설치한 모델과 개발 파일을 제거하거나 바꾸지 않습니다.</p>
+          <div class="steps"><div><b>01</b><span>PC에서 설치 항목과 기존 자원 확인</span></div><div><b>02</b><span>필요한 로컬 AI 모델만 사용자 승인으로 선택</span></div><div><b>03</b><span>안전한 PC 연결·권한·비용 상한 확인</span></div><div><b>04</b><span>로컬 가능 작업 우선, 부족하면 승인을 받고 클라우드 사용</span></div></div>
+          <span class="button" aria-disabled="true">로컬 PC 설치·연결은 현재 비활성화 상태</span>
+          <p class="muted">실제 고객용 PC 자동 연결은 아직 제공하지 않습니다. 설치 파일 다운로드와 연결 성공은 별개입니다.</p>
+        </div>
+      </section>
+
+      <section class="panel feature-panel" id="settings-panel" hidden aria-labelledby="settings-heading">
+        <div class="feature-heading"><p class="overline">AI EXECUTION PREFERENCES</p><h1 id="settings-heading">AI 사용 설정</h1><p>응답 품질과 비용을 사용자가 선택합니다. 기본값은 자동입니다.</p></div>
+        <div class="card"><h2>나의 사용량</h2><div class="setting-line"><span>무료 AI 답변</span><strong id="free-usage">로그인 후 사용량 확인</strong></div><div class="setting-line"><span>스탠다드 사용량</span><strong id="standard-usage">로그인 후 확인</strong></div><div class="setting-line"><span>프로 사용량</span><strong id="pro-usage">로그인 후 확인</strong></div><p class="muted">각 요금제의 남은 사용량을 %로 표시합니다.</p><a class="text-button" href="/plans">요금제 보기 →</a></div>
+        <form class="stack-cards" id="settings-form"><div class="card">
+          <label class="input-label" for="routing-setting">자원 선택 방식</label>
+          <select id="routing-setting"><option value="AUTO">자동 선택 · 권장</option><option value="LOCAL_FIRST">로컬 우선 · 비용 최적화</option><option value="LOCAL_ONLY">로컬 AI만 사용</option><option value="CLOUD_FIRST">클라우드 우선 · 품질 중시</option></select>
+          <p class="muted">로컬 모델이 연결되지 않은 경우 자동으로 비용을 발생시키지 않고 사용자의 선택을 요청해야 합니다.</p>
+        </div><div class="card">
+          <label class="input-label" for="tier-setting">AI 답변 수준</label>
+          <select id="tier-setting"><option value="AUTO">자동 · 상황에 맞게</option><option value="STANDARD">일반 · 빠르게</option><option value="EXPERT">전문 분석</option><option value="ULTRA">정밀 분석 · 승인 필요</option></select>
+          <p class="muted">외부 제공자·가격·남은 할당량이 실제 확인된 경우에만 실행할 수 있습니다.</p>
+        </div><div class="card"><h2>실행 투명성</h2><div class="setting-line"><span>작업 시작·실패·완료</span><strong>실제 확인된 기록만 표시</strong></div><div class="setting-line"><span>QA 및 영수증</span><strong>결과 HEAD와 일치한 경우에만 완료</strong></div><div class="setting-line"><span>요금 절감</span><strong>측정값만 표시</strong></div></div>
+        <div class="align-right"><button type="submit" class="button primary">설정 저장</button></div></form>
+      </section>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  </div>
+</div>
+<dialog id="project-dialog" aria-labelledby="project-dialog-title"><form method="dialog" id="create-project-form" class="dialog-form"><div class="dialog-top"><h2 id="project-dialog-title">새 프로젝트</h2><button type="button" class="icon-button" id="close-project-dialog" aria-label="닫기">✕</button></div><p>대화와 자료를 하나의 프로젝트로 정리하세요.</p><label for="project-name">프로젝트 이름</label><input id="project-name" type="text" maxlength="80" placeholder="예: 신제품 출시" required><div class="dialog-actions"><button type="button" class="button" id="cancel-project">취소</button><button type="submit" class="button primary" value="create">만들기</button></div></form></dialog>
+<dialog id="start-guide" aria-labelledby="start-guide-title"><div class="dialog-form onboarding"><div class="dialog-top"><h2 id="start-guide-title">더파코어와 함께 시작하세요</h2><button class="icon-button" type="button" data-close-dialog="start-guide" aria-label="안내 닫기">✕</button></div><p>내 PC의 자원을 연결하려면 더파코어 로컬 프로그램을 설치해 주세요.</p><a class="guide-install" href="/install">로컬 프로그램 설치 안내 <span aria-hidden="true">↗</span></a><div class="free-intro"><strong>로그인 후 고객당 AI 답변 10회</strong><p>기존 사용량을 이어서 적용합니다.<br>무료 답변 소진 후에는 확인된 유료 이용 권한이 필요합니다. 현재 결제는 연결되지 않았습니다.</p></div><div class="dialog-actions"><a class="button" href="/login" data-keep-prompt>로그인</a><a class="button primary" href="/signup" data-keep-prompt>무료로 회원가입</a></div></div></dialog>
+<dialog id="free-limit-dialog" aria-labelledby="free-limit-title"><div class="dialog-form onboarding"><div class="dialog-top"><h2 id="free-limit-title">무료 답변 10회를 모두 사용했어요</h2><button class="icon-button" type="button" data-close-dialog="free-limit-dialog" aria-label="요금제 안내 닫기">✕</button></div><p>저장된 대화는 계속 확인할 수 있습니다.<br>대화를 더 이어가려면 확인된 유료 이용 권한이 필요합니다. 현재 결제·구독은 연결되지 않았습니다.</p><a class="button primary" href="/plans">요금제 보기</a></div></dialog>
+</body>
+</html>

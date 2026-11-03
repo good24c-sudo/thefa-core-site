@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ko" data-live-service="deepseek">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex,nofollow">
+  <title>로그인 | THE FA Core</title>
+  <link rel="icon" href="/assets/THEFA_Core_Official_Mark_Dark_web.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/customer-login.css">
+  <script src="/customer-login.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#login-main">본문으로 바로가기</a>
+  <header><a class="brand" href="/" aria-label="THE FA Core 작업공간"><img src="/assets/THEFA_Core_Primary_Dark_web.svg" alt="THE FA Core" width="150" height="40"></a><a class="back" href="/">작업공간으로 <span aria-hidden="true">↗</span></a></header>
+  <main id="login-main">
+    <section class="login-card" aria-labelledby="login-title">
+      <img class="mark" src="/assets/THEFA_Core_Official_Mark_Dark_web.svg" width="64" height="64" alt="">
+      <p class="eyebrow">YOUR CORE. YOUR CONTINUITY.</p>
+      <h1 id="login-title">생각의 다음을<br>계속 이어가세요.</h1>
+      <p class="intro">Google 또는 이메일 인증으로 시작하세요.<br>일반 고객 무료 AI 답변 10회 · 더파 임직원 무제한</p>
+      <div class="providers" id="login-providers" aria-label="간편 로그인" aria-busy="true">
+        <button class="social google" type="button" data-provider="google" disabled>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.39-.18-2.05H12v3.88h5.38a4.6 4.6 0 0 1-2 3.02v2.51h3.24c1.9-1.75 2.98-4.33 2.98-7.36Z"/><path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.41l-3.24-2.51c-.9.6-2.04.96-3.38.96-2.6 0-4.8-1.76-5.59-4.12H3.07v2.59A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.41 13.92a6 6 0 0 1 0-3.84V7.49H3.07a10 10 0 0 0 0 9.02l3.34-2.59Z"/><path fill="#EA4335" d="M12 5.96c1.47 0 2.79.5 3.83 1.5l2.87-2.87A9.6 9.6 0 0 0 12 2a10 10 0 0 0-8.93 5.49l3.34 2.59C7.2 7.72 9.4 5.96 12 5.96Z"/></svg>
+          <span>Google로 계속하기</span><small class="provider-note">확인 중</small>
+        </button>
+      </div>
+      <p class="status" id="login-status" role="status" aria-live="polite">로그인 방법을 확인하고 있습니다.</p>
+      <div class="divider"><span>이메일로 계속하기</span></div>
+      <form id="email-login-form" class="email-login" aria-label="이메일로 가입 또는 로그인">
+        <label for="email-address">이메일 주소</label>
+        <input id="email-address" name="email" type="email" autocomplete="email" maxlength="254" placeholder="name@example.com" required disabled>
+        <button id="email-send-code" class="guest email-action" type="button" disabled>인증번호 받기</button>
+        <div id="email-code-row" hidden>
+          <label for="email-code">이메일로 받은 인증번호</label>
+          <input id="email-code" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" placeholder="6자리 인증번호" disabled>
+          <button id="email-verify-code" class="guest email-action" type="submit" disabled>인증하고 계속하기</button>
+        </div>
+        <p id="email-status" class="status" role="status" aria-live="polite">이메일 로그인 연결을 확인하고 있습니다.</p>
+        <p class="guest-note">비밀번호 없이 인증번호로 가입·로그인합니다.<br>확인된 @thefa.kr 회사 계정은 무료 횟수 제한 없이 이용합니다.</p>
+      </form>
+
+      <a class="guest" id="continue-guest" href="/">작업공간 화면 보기 <span aria-hidden="true">→</span></a>
+      <p class="guest-note">일반 고객 무료 AI 답변은 총 10회이며 재로그인해도 다시 충전되지 않습니다.<br>소진 후에는 확인된 유료 이용 권한이 필요합니다. 현재 결제는 연결되지 않았습니다.</p>
+      <p class="privacy-note">계정 정보는 로그인 확인과 대화 관리에 사용됩니다.<br>사용량과 기록은 로그인한 계정을 기준으로 확인합니다.</p>
+    </section>
+  </main>
+  <footer><span>THE FA Core · a product by THE FA</span><a href="https://thefa.kr/privacy.html" target="_blank" rel="noopener noreferrer">개인정보 처리방침</a></footer>
+</body>
+</html>

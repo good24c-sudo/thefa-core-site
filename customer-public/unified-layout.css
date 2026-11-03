@@ -1,0 +1,41 @@
+
+/* R25: full-screen customer workspace + original THE FA Core introduction below. */
+html,body{height:auto!important;min-height:100%;overflow-x:clip!important;overflow-y:auto!important;scroll-behavior:smooth}
+#app.app{height:100dvh;min-height:520px;width:100%!important;overflow:hidden}
+#service-introduction{display:block;isolation:isolate;min-height:100vh;max-width:100%;overflow:clip;
+ background:#171614;color:#f4f2ed;font-family:Pretendard,system-ui,sans-serif;font-size:16px;
+ line-height:1.65;scroll-margin-top:14px}
+#service-introduction *{box-sizing:border-box}
+#service-introduction .service-intro-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;
+ padding:56px max(24px,calc((100vw - 1160px)/2)) 26px;border-bottom:1px solid #474139}
+#service-introduction .service-intro-heading h2{font-size:clamp(32px,5vw,52px);
+ margin:7px 0 12px;color:#f8f4ea;line-height:1.1}
+#service-introduction .service-intro-heading p{margin:0;color:#c7c0b4;font-size:15px}
+#service-introduction .service-intro-eyebrow{display:block;color:#e6c18d;font-size:12px;letter-spacing:.2em;font-weight:700}
+#service-introduction .service-intro-back{display:inline-block;flex-shrink:0;padding:11px 16px;
+ border:1px solid #73634a;border-radius:999px;color:#f2d0a0;text-decoration:none;font-size:13px}
+#service-introduction .service-intro-back:hover{background:#383126}
+#service-introduction .service-intro-links{display:flex;gap:10px;overflow-x:auto;
+ padding:14px max(24px,calc((100vw - 1160px)/2));border-bottom:1px solid #37332c;scrollbar-width:thin}
+#service-introduction .service-intro-links a{display:inline-block;flex-shrink:0;border:1px solid #51493b;
+ border-radius:999px;font-size:12px;color:#e7ddcd;padding:8px 13px;text-decoration:none}
+#service-introduction .service-intro-links a:hover{background:#302b24}
+#service-introduction .service-home-content{width:100%;max-width:100%;overflow:hidden}
+#service-introduction .service-home-content>section{scroll-margin-top:28px}
+#service-introduction .service-intro-contact{max-width:1160px;margin:25px auto;padding:24px;
+ background:#29251f;border:1px solid #514738;border-radius:16px;display:flex;
+ align-items:center;justify-content:space-between;gap:22px}
+#service-introduction .service-intro-contact strong{font-size:21px}
+#service-introduction .service-intro-contact p{font-size:13px;color:#c9c0b2;margin:8px 0 0}
+#service-introduction .service-intro-contact>a{flex-shrink:0;color:#201910;background:#dbc097;border-radius:11px;
+ padding:11px 16px;text-decoration:none;font-weight:700}
+#service-introduction .footer{margin-top:0}
+#service-introduction button:focus-visible,#service-introduction a:focus-visible,
+#service-introduction input:focus-visible{outline:2px solid #e6be85;outline-offset:3px}
+@media(max-width:700px){
+ #service-introduction .service-intro-heading{align-items:flex-start;flex-direction:column;padding:34px 20px 22px}
+ #service-introduction .service-intro-links{padding:12px 20px}
+ #service-introduction .service-intro-contact{margin:18px 16px;padding:18px;flex-direction:column;align-items:flex-start}
+ #service-introduction .service-intro-contact>a{width:100%;text-align:center}
+}
+@media(prefers-reduced-motion:reduce){html,body{scroll-behavior:auto}}

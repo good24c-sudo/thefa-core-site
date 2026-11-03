@@ -1,0 +1,8 @@
+node_modules/
+private-data/
+deployment-candidate*/private-data/
+deployment-candidate-test-*/
+.env*
+*.pem
+*.key
+*.bin

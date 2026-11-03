@@ -1,0 +1,110 @@
+{
+  "contract": "R40_CODEX_R39_FROZEN_RUNTIME_PLUS_AVA_R05",
+  "files": [
+    {
+      "path": "cloud-allowance.mjs",
+      "sha256": "21f8a4e096697829dc1cfe9c2e225a0c67e5b5f81aa7b010aed09d75b9ada6d4"
+    },
+    {
+      "path": "customer-account-lifecycle.mjs",
+      "sha256": "c50635e1a2523a2547a54e8817fce6c79856eb4dac5c6cf39f73ea1514b90f91"
+    },
+    {
+      "path": "customer-account-persistence.mjs",
+      "sha256": "c5236a7c15b407a6c2513aef83c494c8c1c964f36e81aeadc16f55065c639320"
+    },
+    {
+      "path": "customer-api-gateway.mjs",
+      "sha256": "6922cd80c549747c8581497fe00e6396662484935b59494fd20dc101f10b50bc"
+    },
+    {
+      "path": "customer-application.mjs",
+      "sha256": "ce0dd5455ba42a8585b333f719c20ac5508a842af66495b2f8e0fdc4c61f5617"
+    },
+    {
+      "path": "customer-auth-routes.mjs",
+      "sha256": "aeca8662efb088d04f6eb74b3fe6f204fd3596b92b089324ba8670c60fe7aec2"
+    },
+    {
+      "path": "customer-chat-api.mjs",
+      "sha256": "69695680eb603f5342d35e26322a0260d236f7d31e0fc0a840277d50df0f79d0"
+    },
+    {
+      "path": "customer-chat-domain.mjs",
+      "sha256": "ff3d0551fb03296bd0113b7eb27ad451a5592939750e293b8cd6dd44b8fa0257"
+    },
+    {
+      "path": "customer-chat-turn.mjs",
+      "sha256": "c0ae27389f3d35c22959f4142998dea627ddccf755f60846521d4a0c8fb02a28"
+    },
+    {
+      "path": "customer-deepseek-provider.mjs",
+      "sha256": "99a24aae73cf4f7e9494fc44c11d6a4c8150fe085b0d5f6fba8df3c993aba44d"
+    },
+    {
+      "path": "customer-http-adapter.mjs",
+      "sha256": "f09860a137e01653cb54605cd82f8c292e059a4f9b569a9a1edd020096a37b31"
+    },
+    {
+      "path": "customer-migration-receipts.mjs",
+      "sha256": "450bd2b6b048ec154ab1c8e1c95468280f186bd42c725006762533a166859a5c"
+    },
+    {
+      "path": "customer-node-adapter.mjs",
+      "sha256": "761802b62b0633a9fcad14468dc5bf62fbceb621c3e5a51e49038c9685cdbc4b"
+    },
+    {
+      "path": "customer-origin-policy.mjs",
+      "sha256": "a930aee5c73e0c02436b71c6a3c3e08d690146853f674c2690411a96f840c5e3"
+    },
+    {
+      "path": "customer-runtime-composition.mjs",
+      "sha256": "d2f198c261bd8fe089e678189aa4d4c145e8d36e1a85c130a1af6def4b84057e"
+    },
+    {
+      "path": "customer-session-verifier.mjs",
+      "sha256": "794f6f446a30feaa6674cdaaa1237e588a72cd98d9695c8c5ce48fb25ec32cb5"
+    },
+    {
+      "path": "customer-tenant-storage.mjs",
+      "sha256": "aab296eb9b3af4750a304bd21b110733c4a7e1e3b81769748a6a54bdbb2be203"
+    },
+    {
+      "path": "daily-ai-budget.mjs",
+      "sha256": "ec40483401521540b5a50a5cc91304716cc3ec70eebcd9fbff245e4e1c69371c"
+    },
+    {
+      "path": "free10-budget-admission.mjs",
+      "sha256": "1642761fda54d7a871c3cda1b55c5f73ed8d7bafef77415a90173342ac8b74bc"
+    },
+    {
+      "path": "server/auth/configuration.mjs",
+      "sha256": "2b190ab61b46eaf92a23149e49ac92d94ec90c0ebc14369fe6ac42d9c6ba135d"
+    },
+    {
+      "path": "server/auth/database-ca.mjs",
+      "sha256": "72e40c3c37d44e500f753fee7b48b1fa13e65c2e8fc3ecb904faa089f75d961c"
+    },
+    {
+      "path": "server/auth/database.mjs",
+      "sha256": "66bb3c1376a3bfe684dab90bc277f33de71f4bcd69b6628a840acd08be1892ad"
+    },
+    {
+      "path": "server/auth/identity-backend.mjs",
+      "sha256": "92be640e95bd85342d8b818d7e7c6748e07e7fe536efc4d7cb189c2a153eff16"
+    },
+    {
+      "path": "server/auth/service.mjs",
+      "sha256": "0aecafaa6b5fb59d4764fd42a5e67b2e90ba5b0616a40dd47269bf960e144e2e"
+    },
+    {
+      "path": "server/customer-public-composition.mjs",
+      "sha256": "c85e42c50c761cda54f206e384630b57649d90698574e08a59d57845d7019276"
+    },
+    {
+      "path": "store.mjs",
+      "sha256": "aadf1c124183c05c1fd4f2601587b2ebc5975ce7a98165adcef38ad215ea825b"
+    }
+  ],
+  "count": 26
+}

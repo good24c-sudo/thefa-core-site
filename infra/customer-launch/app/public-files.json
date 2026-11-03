@@ -1,0 +1,106 @@
+[
+  {
+    "path": "index.html",
+    "sha256": "c634cb9c0632d94c24f3fd4d9815ea49bece3d3bf946963d5903af49a68ffd45"
+  },
+  {
+    "path": "about.html",
+    "sha256": "1fc0e10d75380eafd458ba453784d7864f9f91400ddcd989549dad9c9e940de2"
+  },
+  {
+    "path": "login.html",
+    "sha256": "c29437124bbe9cdfd27d603b5da7b43a87ed14c3144d4dc5bb01fa98ea55f4c0"
+  },
+  {
+    "path": "signup.html",
+    "sha256": "c29437124bbe9cdfd27d603b5da7b43a87ed14c3144d4dc5bb01fa98ea55f4c0"
+  },
+  {
+    "path": "plans.html",
+    "sha256": "059370eff38347144c786fbde5c4d7f08d49d09d9b932bbdf5398e8fc96e2741"
+  },
+  {
+    "path": "install.html",
+    "sha256": "11507662f4551899a4a6e981b4ee3501653d11763092ca735f4f87768d3edbe3"
+  },
+  {
+    "path": "guest-live.js",
+    "sha256": "8e615f37b22294d526f6b033b15f82326f59393c2af7d655c15fecf4de6ff3a1"
+  },
+  {
+    "path": "customer-login.js",
+    "sha256": "796e2f9cb9b182f34bd723522e0a6bffb246dbabf6cff5c2d0e4b8f43c7f6c7d"
+  },
+  {
+    "path": "customer-plans.js",
+    "sha256": "784a3f67bd90f9e3de69134ebd28d969c47f74f5381a40ca0b41558c23706fe6"
+  },
+  {
+    "path": "service-cases.js",
+    "sha256": "c5ddc05d48ba206db668c7ce162f66c270c6274a4234311dee90f5c0f54fdc21"
+  },
+  {
+    "path": "service-site.js",
+    "sha256": "bef7e8fe45ec782669dd2ae0db4ec75d44b457d62ce287bddfc2dcbc98aca8da"
+  },
+  {
+    "path": "guest-live.css",
+    "sha256": "29517e96712fbd6f61546581863f3ecd6e69fddac95e005e0c3d59752717e4a0"
+  },
+  {
+    "path": "customer-login.css",
+    "sha256": "48ae1dfb68df75da8efb205481b7ec3704149f9f39f213d5a65acc47e4f35323"
+  },
+  {
+    "path": "service-introduction.css",
+    "sha256": "03f8a7340c76657fed5288347bf6ab08cd51ea131686e12062f6d933d2d05e10"
+  },
+  {
+    "path": "unified-layout.css",
+    "sha256": "d50e55e3805b01f1e0e28b5d120a88520faae6c92035e4ab4fcc0ec3b16b9451"
+  },
+  {
+    "path": "about-page.css",
+    "sha256": "4fe95464e339b5df18a97457919ad9e6fe5b5bfa46e7d25dbb8e785d48336074"
+  },
+  {
+    "path": "assets/THEFA_Core_Primary_Dark_web.svg",
+    "sha256": "9fc1baf0b80881f3ccfc0171fddb801c694848f353b623706722574c8ce14eb7"
+  },
+  {
+    "path": "assets/THEFA_Core_Official_Mark_Dark_web.svg",
+    "sha256": "8580f69a9580e40ddf7c28fafb3fb4f77ae724c82ba86fe887ac72c95d330a0b"
+  },
+  {
+    "path": "service-assets/fonts/PretendardVariable-subset.woff2",
+    "sha256": "0dbfc0ec6d576c63d92b33b35c3625bf094340e4dc681818f9b85dad6891bc50"
+  },
+  {
+    "path": "service-assets/img/apple-touch-icon.png",
+    "sha256": "3d08247607b2efb13679a378923b65d336d7912b375a87ee41412a6925b9eba6"
+  },
+  {
+    "path": "service-assets/brand/core/THEFA_Core_Primary_Dark_web.svg",
+    "sha256": "9fc1baf0b80881f3ccfc0171fddb801c694848f353b623706722574c8ce14eb7"
+  },
+  {
+    "path": "service-assets/mascots/business-320.webp",
+    "sha256": "d80642f3a8495b0ea1834b3ccd46aa6d10783eef9b79d3a9c04ac9406e9c9751"
+  },
+  {
+    "path": "service-assets/mascots/develop-320.webp",
+    "sha256": "3d82414be1a522d4743ba595b01098c3e275bead69f2dedd8d829f90c52b91aa"
+  },
+  {
+    "path": "service-assets/mascots/guard-320.webp",
+    "sha256": "3538f960d6fb32390a18ad5015265d62a1daee00f3506258e516fbe17491fb15"
+  },
+  {
+    "path": "service-assets/mascots/talk-320.webp",
+    "sha256": "f17bb902ac7acb6a6f846c11f10c62027a5bae234e4fc2998ae19705a8fb20e4"
+  },
+  {
+    "path": "assets/PretendardVariable-subset.woff2",
+    "sha256": "0dbfc0ec6d576c63d92b33b35c3625bf094340e4dc681818f9b85dad6891bc50"
+  }
+]

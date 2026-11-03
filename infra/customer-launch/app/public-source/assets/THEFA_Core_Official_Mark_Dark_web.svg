@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="382" height="382" viewBox="20 56 382 382" version="1.1" role="img" aria-label="THE FA Core 공식 심볼"><defs id="defs13">
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#262626" id="stop1" />
+      <stop offset=".55" stop-color="#111111" id="stop2" />
+      <stop offset="1" stop-color="#050505" id="stop3" />
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FFE699" id="stop4" />
+      <stop offset=".3" stop-color="#FFD14E" id="stop5" />
+      <stop offset=".62" stop-color="#F4B223" id="stop6" />
+      <stop offset="1" stop-color="#D78B00" id="stop7" />
+    </linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#999999" id="stop8" />
+      <stop offset=".4" stop-color="#2C2C2C" id="stop9" />
+      <stop offset="1" stop-color="#9E6B14" id="stop10" />
+    </linearGradient>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#1C1710" id="stop11" />
+      <stop offset=".5" stop-color="#111111" id="stop12" />
+      <stop offset="1" stop-color="#070707" id="stop13" />
+    </linearGradient>
+  </defs>
+  <g transform="translate(40,72) scale(0.34)" id="g19">
+    <rect x="15" y="15" width="970" height="970" rx="135" fill="url(#tile)" stroke="url(#edge)" stroke-width="9" id="rect13" />
+    <path d="M180 198 L288 302 L180 406 M362 405 H465" fill="none" stroke="#FFFFFF" stroke-width="49" stroke-linecap="round" stroke-linejoin="round" id="path13" />
+    <path d="M204 716 H390 Q405 716 405 731 V913 Q405 932 387 932 H204 Q185 932 185 913 V735 Q185 716 204 716 Z" fill="url(#gold)" stroke="#FFF8DB" stroke-width="19" stroke-linejoin="round" id="path14" />
+    <path d="M444 716 H630 Q649 716 649 735 V913 Q649 932 630 932 H444 Q425 932 425 913 V735 Q425 716 444 716 Z" fill="url(#gold)" stroke="#FFF8DB" stroke-width="19" stroke-linejoin="round" id="path15" />
+    <path d="M689 716 H875 Q894 716 894 735 V913 Q894 932 875 932 H689 Q670 932 670 913 V735 Q670 716 689 716 Z" fill="url(#gold)" stroke="#FFF8DB" stroke-width="19" stroke-linejoin="round" id="path16" />
+    <path d="M440 581 L624 471 Q649 455 649 484 V678 Q649 696 630 696 H444 Q425 696 425 678 V607 Q425 590 440 581 Z" fill="url(#gold)" stroke="#FFF8DB" stroke-width="19" stroke-linejoin="round" id="path17" />
+    <path d="M689 476 H875 Q894 476 894 495 V678 Q894 696 875 696 H689 Q670 696 670 678 V495 Q670 476 689 476 Z" fill="url(#gold)" stroke="#FFF8DB" stroke-width="19" stroke-linejoin="round" id="path18" />
+    <path d="M685 340 L869 230 Q894 214 894 243 V438 Q894 456 875 456 H689 Q670 456 670 438 V366 Q670 349 685 340 Z" fill="url(#gold)" stroke="#FFF8DB" stroke-width="19" stroke-linejoin="round" id="path19" />
+  </g>
+  </svg>

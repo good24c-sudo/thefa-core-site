@@ -1,0 +1,12 @@
+/*
+!api/
+!server/
+!customer-public/
+!private-data/
+!package.json
+!package-lock.json
+!vercel.json
+**/.env*
+**/*.pem
+**/*.key
+**/*.bin

@@ -1,0 +1,8 @@
+{
+ "imports":{
+  "better-auth":"npm:better-auth@1.7.13",
+  "better-auth/plugins":"npm:better-auth@1.7.13/plugins",
+  "better-auth/api":"npm:better-auth@1.7.13/api",
+  "pg":"npm:pg@8.23.1"
+ }
+}
