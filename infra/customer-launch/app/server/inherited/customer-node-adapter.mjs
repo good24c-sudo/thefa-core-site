@@ -1,8 +1,28 @@
+import {isIP} from 'node:net';
 import {validateCustomerOrigin} from './customer-origin-policy.mjs';
 
 const failure=(status,code)=>Object.assign(new Error(code),{status,code});
 const json=(status,code)=>Response.json({code},{status,headers:{'cache-control':'no-store','x-content-type-options':'nosniff'}});
 const headerName=/^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/;
+// Treat Forwarded as untrusted consistency data, never as an origin or identity.
+// Consume exactly one matching hop before the strict shared auth boundary.
+export function normalizeCustomerForwardedHeader(headers,host){
+ if(!headers.has('forwarded'))return;
+ const fail=()=>{throw failure(403,'CUSTOMER_REQUEST_ORIGIN_INVALID')};
+ const value=headers.get('forwarded'),peer=headers.get('x-vercel-forwarded-for');
+ if(value.length>2048||/[\r\n,\\]/.test(value)||!isIP(peer??'')||headers.get('host')!==host||headers.get('x-forwarded-host')!==host||headers.get('x-forwarded-proto')!=='https')fail();
+ const fields=new Map();
+ for(const part of value.split(';')){
+  const match=/^\s*(for|host|proto|sig|exp)=([^;\s]+)\s*$/.exec(part);if(!match||fields.has(match[1]))fail();
+  let v=match[2];if(v.startsWith('"')&&v.endsWith('"'))v=v.slice(1,-1);else if(v.includes('"'))fail();
+  fields.set(match[1],v);
+ }
+ const forwardedPeer=fields.get('for'),ip=forwardedPeer?.startsWith('[')&&forwardedPeer.endsWith(']')?forwardedPeer.slice(1,-1):forwardedPeer;
+ if(fields.get('host')!==host||fields.get('proto')!=='https'||!isIP(ip??'')||ip!==peer||
+   (fields.has('sig')&&!/^[A-Za-z0-9_+\/=-]{1,1024}$/.test(fields.get('sig')))||
+   (fields.has('exp')&&!/^[0-9]{1,16}$/.test(fields.get('exp'))))fail();
+ headers.delete('forwarded');
+}
 function readHeaders(req){
  if(!Array.isArray(req.rawHeaders)||!req.rawHeaders.length||req.rawHeaders.length%2||req.rawHeaders.length>200)
   throw failure(400,'CUSTOMER_RAW_HEADERS_REQUIRED');
@@ -57,6 +77,7 @@ export function createCustomerNodeAdapter({application,customerOrigin,environmen
      raw.split('?')[0].includes('%')||/(?:^|\/)\.{1,2}(?:\/|$)/.test(raw.split('?')[0]))throw failure(400,'CUSTOMER_RAW_URL_INVALID');
    if(!['GET','POST'].includes(method))throw failure(405,'METHOD_NOT_ALLOWED');
    const headers=readHeaders(req);
+   normalizeCustomerForwardedHeader(headers,host);
    if(headers.get('host')!==host||headers.has('forwarded')||headers.has('x-original-url')||
      (headers.has('x-forwarded-host')&&headers.get('x-forwarded-host')!==host)||
      (headers.has('x-forwarded-proto')&&headers.get('x-forwarded-proto')!=='https')){

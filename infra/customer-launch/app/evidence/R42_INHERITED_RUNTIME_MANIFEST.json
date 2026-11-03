@@ -51,7 +51,7 @@
     },
     {
       "path": "customer-node-adapter.mjs",
-      "sha256": "78b029934999983d73fbea95ff3ba62f82e8506281f7328b5962583472ae80ac"
+      "sha256": "06b7cbe7783582338df64c79bd66ce3ccfc7427585cfaec1b0fe6cab328689c9"
     },
     {
       "path": "customer-origin-policy.mjs",

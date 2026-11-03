@@ -12,10 +12,11 @@ export function normalizeCallbackPlatformRequest(request:Request,canonical:URL){
  // transport authority to the server-configured issuer; never derive an issuer
  // from forwarding headers or permit arbitrary relay hosts.
  const incoming=new URL(request.url),h=new Headers(request.headers),hosts=new Set([canonical.host,'edge-runtime.supabase.com']);
+ const diagnostics={urlHttps:incoming.protocol==='https:',urlHttp:incoming.protocol==='http:',urlHostCanonical:incoming.host===canonical.host,urlHostInternal:incoming.host==='edge-runtime.supabase.com',urlHostLoopback:incoming.hostname==='127.0.0.1'||incoming.hostname==='localhost',headerHostCanonical:h.get('host')===canonical.host,headerHostInternal:h.get('host')==='edge-runtime.supabase.com',...callbackOriginDiagnostics(request,canonical.host)};
  if(incoming.protocol!=='https:'||!hosts.has(incoming.host)||
    (h.has('host')&&!hosts.has(h.get('host')!))||
    (h.has('x-forwarded-host')&&!hosts.has(h.get('x-forwarded-host')!))||
-   (h.has('x-forwarded-proto')&&h.get('x-forwarded-proto')!=='https')||h.has('forwarded')||h.has('x-original-url'))throw Error('CUSTOMER_AUTH_ORIGIN_INVALID');
+   (h.has('x-forwarded-proto')&&h.get('x-forwarded-proto')!=='https')||h.has('forwarded')||h.has('x-original-url')){console.error(JSON.stringify({code:'CORE_CUSTOMER_RELAY_REJECTED',...diagnostics}));throw Error('CUSTOMER_AUTH_ORIGIN_INVALID');}
  h.set('host',canonical.host);if(h.has('x-forwarded-host'))h.set('x-forwarded-host',canonical.host);
  return new Request(canonical,{headers:h});
 }
@@ -54,5 +55,5 @@ Deno.serve(async request=>{
   const response=await(await service()).fetch(normalizeCallbackPlatformRequest(request,canonical));
   if(response.status===403)console.error(JSON.stringify({code:'CORE_CUSTOMER_CALLBACK_HEADER_REJECTED',...callbackOriginDiagnostics(request,canonical.host)}));
   return response;
- }catch{return fail(503,'CORE_CUSTOMER_AUTH_UNAVAILABLE')}
+ }catch(error){console.error(JSON.stringify({code:'CORE_CUSTOMER_EDGE_FAILED',originRejected:error instanceof Error&&error.message==='CUSTOMER_AUTH_ORIGIN_INVALID'}));return fail(503,'CORE_CUSTOMER_AUTH_UNAVAILABLE')}
 });
