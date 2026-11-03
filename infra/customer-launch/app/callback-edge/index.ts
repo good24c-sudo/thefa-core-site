@@ -3,6 +3,10 @@ import {createConfiguredCoreAuthPool} from '../server/inherited/server/auth/data
 import {configuredAuthBinding} from '../server/inherited/server/auth/configuration.mjs';
 
 let starting:Promise<Awaited<ReturnType<typeof createGoogleOnlyCustomerAuthService>>>|undefined;
+export function callbackOriginDiagnostics(request:Request,host:string){
+ const h=request.headers;
+ return {hostMissing:!h.has('host'),hostMatches:h.get('host')===host,forwardedHostMissing:!h.has('x-forwarded-host'),forwardedHostMatches:h.get('x-forwarded-host')===host,forwardedProtoMissing:!h.has('x-forwarded-proto'),forwardedProtoHttps:h.get('x-forwarded-proto')==='https',forwardedPresent:h.has('forwarded'),originalUrlPresent:h.has('x-original-url')};
+}
 function binding(){
  const environment=Deno.env.get('CUSTOMER_ENVIRONMENT'),customerOrigin=Deno.env.get('CUSTOMER_ORIGIN');
  const refs={staging:'furfjhymxqsbhvuyeqpx',production:'cgrppxfdurpzzfvkmfte'};
@@ -35,6 +39,8 @@ Deno.serve(async request=>{
   if(suffix==='/callback/kakao')return fail(503,'LOGIN_PROVIDER_NOT_READY');
   if(!suffix||incoming.href.length>8192||!/^\/(?:customer\/providers|callback\/google)$/.test(suffix))return fail(404,'NOT_FOUND');
   const canonical=new URL(config.issuer+suffix);canonical.search=incoming.search;
-  return await(await service()).fetch(new Request(canonical,{headers:request.headers}));
+  const response=await(await service()).fetch(new Request(canonical,{headers:request.headers}));
+  if(response.status===403)console.error(JSON.stringify({code:'CORE_CUSTOMER_CALLBACK_HEADER_REJECTED',...callbackOriginDiagnostics(request,canonical.host)}));
+  return response;
  }catch{return fail(503,'CORE_CUSTOMER_AUTH_UNAVAILABLE')}
 });
