@@ -7,6 +7,18 @@ export function callbackOriginDiagnostics(request:Request,host:string){
  const h=request.headers;
  return {hostMissing:!h.has('host'),hostMatches:h.get('host')===host,forwardedHostMissing:!h.has('x-forwarded-host'),forwardedHostMatches:h.get('x-forwarded-host')===host,forwardedProtoMissing:!h.has('x-forwarded-proto'),forwardedProtoHttps:h.get('x-forwarded-proto')==='https',forwardedPresent:h.has('forwarded'),originalUrlPresent:h.has('x-original-url')};
 }
+export function normalizeCallbackPlatformRequest(request:Request,canonical:URL){
+ // Supabase's documented relay supplies this internal Host. Map that single
+ // transport authority to the server-configured issuer; never derive an issuer
+ // from forwarding headers or permit arbitrary relay hosts.
+ const incoming=new URL(request.url),h=new Headers(request.headers),hosts=new Set([canonical.host,'edge-runtime.supabase.com']);
+ if(incoming.protocol!=='https:'||!hosts.has(incoming.host)||
+   (h.has('host')&&!hosts.has(h.get('host')!))||
+   (h.has('x-forwarded-host')&&!hosts.has(h.get('x-forwarded-host')!))||
+   (h.has('x-forwarded-proto')&&h.get('x-forwarded-proto')!=='https')||h.has('forwarded')||h.has('x-original-url'))throw Error('CUSTOMER_AUTH_ORIGIN_INVALID');
+ h.set('host',canonical.host);if(h.has('x-forwarded-host'))h.set('x-forwarded-host',canonical.host);
+ return new Request(canonical,{headers:h});
+}
 function binding(){
  const environment=Deno.env.get('CUSTOMER_ENVIRONMENT'),customerOrigin=Deno.env.get('CUSTOMER_ORIGIN');
  const refs={staging:'furfjhymxqsbhvuyeqpx',production:'cgrppxfdurpzzfvkmfte'};
@@ -39,7 +51,7 @@ Deno.serve(async request=>{
   if(suffix==='/callback/kakao')return fail(503,'LOGIN_PROVIDER_NOT_READY');
   if(!suffix||incoming.href.length>8192||!/^\/(?:customer\/providers|callback\/google)$/.test(suffix))return fail(404,'NOT_FOUND');
   const canonical=new URL(config.issuer+suffix);canonical.search=incoming.search;
-  const response=await(await service()).fetch(new Request(canonical,{headers:request.headers}));
+  const response=await(await service()).fetch(normalizeCallbackPlatformRequest(request,canonical));
   if(response.status===403)console.error(JSON.stringify({code:'CORE_CUSTOMER_CALLBACK_HEADER_REJECTED',...callbackOriginDiagnostics(request,canonical.host)}));
   return response;
  }catch{return fail(503,'CORE_CUSTOMER_AUTH_UNAVAILABLE')}

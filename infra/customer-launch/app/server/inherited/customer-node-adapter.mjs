@@ -59,7 +59,10 @@ export function createCustomerNodeAdapter({application,customerOrigin,environmen
    const headers=readHeaders(req);
    if(headers.get('host')!==host||headers.has('forwarded')||headers.has('x-original-url')||
      (headers.has('x-forwarded-host')&&headers.get('x-forwarded-host')!==host)||
-     (headers.has('x-forwarded-proto')&&headers.get('x-forwarded-proto')!=='https'))throw failure(403,'CUSTOMER_REQUEST_ORIGIN_INVALID');
+     (headers.has('x-forwarded-proto')&&headers.get('x-forwarded-proto')!=='https')){
+     console.error(JSON.stringify({code:'CUSTOMER_NODE_ORIGIN_REJECTED',hostMatches:headers.get('host')===host,forwardedHostMissing:!headers.has('x-forwarded-host'),forwardedHostMatches:headers.get('x-forwarded-host')===host,forwardedProtoMissing:!headers.has('x-forwarded-proto'),forwardedProtoHttps:headers.get('x-forwarded-proto')==='https',forwardedPresent:headers.has('forwarded'),originalUrlPresent:headers.has('x-original-url')}));
+     throw failure(403,'CUSTOMER_REQUEST_ORIGIN_INVALID');
+   }
    const declared=headers.get('content-length'),transfer=headers.get('transfer-encoding');
    if(declared!==null&&(!/^\d+$/.test(declared)||!Number.isSafeInteger(Number(declared))))throw failure(400,'CUSTOMER_CONTENT_LENGTH_INVALID');
    if(declared!==null&&Number(declared)>12000)throw failure(413,'CUSTOMER_BODY_TOO_LARGE');
