@@ -39,7 +39,7 @@
     },
     {
       "path": "customer-deepseek-provider.mjs",
-      "sha256": "99a24aae73cf4f7e9494fc44c11d6a4c8150fe085b0d5f6fba8df3c993aba44d"
+      "sha256": "35944931c1937fa021be6d4084e5354706a1d40dc90c3cff124d6b881f911d9b"
     },
     {
       "path": "customer-http-adapter.mjs",

@@ -22,6 +22,7 @@ export function createCustomerDeepSeekProvider({apiKey,model='deepseek-flash',
       bytes+=size(m.content);return {role:m.role,content:m.content};
     });
     if(bytes>24000||context.at(-1).role!=='user')throw failure(400,'MODEL_CONTEXT_LIMIT');
+    const started=Date.now();
     let response;
     try{response=await fetchImpl('https://api.deepseek.com/chat/completions',{
       method:'POST',headers:{authorization:'Bearer '+apiKey,'content-type':'application/json'},
@@ -43,6 +44,7 @@ export function createCustomerDeepSeekProvider({apiKey,model='deepseek-flash',
       choice?.message?.role!=='assistant'||typeof text!=='string'||!text.trim()||
       text.trim().length>15000)throw failure(502,'DEEPSEEK_RESPONSE_INVALID');
     const content=text.trim();
+    console.info(JSON.stringify({code:"CUSTOMER_MODEL_TIMING",provider:"DEEPSEEK_API",model,elapsedMs:Date.now()-started}));
     return {content,model,provider:'DEEPSEEK_API',
       sha256:createHash('sha256').update(content).digest('hex'),
       promptTokens:tokenCount(data.usage?.prompt_tokens),outputTokens:tokenCount(data.usage?.completion_tokens),

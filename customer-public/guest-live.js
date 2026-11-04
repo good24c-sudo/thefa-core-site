@@ -85,15 +85,16 @@
     id('composer-route').focus({preventScroll:true});
   }
   function setBlockedForCustomerProduction(error){
+    const signedOut=error?.message==='AUTH_REQUIRED';
     model.hostedBlocked=true;
     id('connection-badge').classList.remove('ready');
-    id('connection-text').textContent='대화 저장 연결 불가';
+    id('connection-text').textContent=signedOut?'로그인 후 이용':'대화 저장 연결 불가';
     id('account-status').textContent='로그인·연결 확인 중';
     id('free-usage').textContent='연결 후 사용량 확인';
-    id('readiness-notice').textContent='고객별 저장소 연결을 확인하지 못했습니다. 입력한 대화가 사라지지 않도록 새 대화와 저장을 차단했습니다. 다시 시도할 수 있습니다.';
-    const retry=document.createElement('button');
-    retry.type='button';retry.className='text-button';retry.textContent='연결 다시 시도';
-    retry.addEventListener('click',init);
+    id('readiness-notice').textContent=signedOut?'로그아웃 상태입니다. 로그인하면 기존 대화와 사용량을 이어갈 수 있습니다.':'고객별 저장소 연결을 확인하지 못했습니다. 입력한 대화가 사라지지 않도록 새 대화와 저장을 차단했습니다. 다시 시도할 수 있습니다.';
+    const retry=document.createElement(signedOut?'a':'button');
+    retry.className='text-button';retry.textContent=signedOut?'로그인하기':'연결 다시 시도';
+    if(signedOut)retry.href='/login';else{retry.type='button';retry.addEventListener('click',init);}
     id('readiness-notice').append(retry);
     for(const control of ['new-chat','new-project','chat-input','send-button','project-new-chat',
       'save-project','save-ava']){
@@ -163,6 +164,7 @@
     return value;
   }
   async function init(){
+    let startupError;
     if(durableService)await loadAccount();
     try{
       const workspace=await request('/api/customer/workspace');
@@ -173,11 +175,12 @@
       renderAccount();
     }catch(error){
       if(error.message==='AUTH_REQUIRED'&&!durableService)return;
-      model.workspace=blank();setConnected(false);
+      startupError=error;if(error.message==='AUTH_REQUIRED')model.account=null;
+      model.workspace=blank();setConnected(false);renderAccount();
       if(hostedCustomer||durableService)model.hostedBlocked=true;
     }
     syncMode();renderAll();switchView('chat');
-    if(model.hostedBlocked)setBlockedForCustomerProduction();
+    if(model.hostedBlocked)setBlockedForCustomerProduction(startupError);
     if(durableService&&model.serverConnected&&!accountRequired()&&model.workspace.conversations.length)
       await openChat(model.workspace.conversations[0].id);
     try{const pending=sessionStorage.getItem('thefa_core_pending_prompt');
@@ -346,7 +349,7 @@
     if(name==='ava.update'&&result.ava){w.settings.ava=result.ava;
       if(Number.isSafeInteger(result.ava.profileRevision))avaEditRevision=result.ava.profileRevision;}
   }
-  async function action(name,payload={}){
+  async function action(name,payload={},{refreshAfter=true}={}){
     if(model.hostedBlocked){notify('고객 저장소에 연결되지 않아 새 작업을 중단했습니다.');return null;}
     if(model.busy)return null;
     model.busy=true;
@@ -374,7 +377,7 @@
         return null;
       }
       applyConfirmedMutation(name,payload,result);
-      try{await refresh();}
+      try{if(refreshAfter)await refresh();}
       catch(error){
         id('connection-text').textContent='저장됨 · 목록 동기화 지연';
         id('readiness-notice').textContent='서버가 저장을 확인했지만 목록 갱신에 실패했습니다. 같은 작업을 다시 만들지 마시고 연결을 확인해 주세요.';
@@ -393,8 +396,8 @@
     renderSidebar();switchView('project');
     notify(model.preview?'프로젝트 미리보기 생성 · 저장 안됨':'프로젝트 생성 완료');
   }
-  async function createChat(projectId=model.projectId){
-    const r=await action('conversation.create',{projectId:projectId||null});
+  async function createChat(projectId=model.projectId,{refreshAfter=true}={}){
+    const r=await action('conversation.create',{projectId:projectId||null},{refreshAfter});
     if(!r)return;
     model.conversationId=r.conversation.id;model.projectId=r.conversation.projectId||null;
     model.conversation={...r.conversation,messages:[]};
@@ -466,6 +469,13 @@
     model.pendingRequestIds.delete(requestKey);
     input.value='';
     try{sessionStorage.removeItem('thefa_core_pending_prompt');}catch{}
+    // The POST acknowledges durable messages. Paint them before optional GETs.
+    const acknowledged=[...(conversation.messages||[])];
+    for(const msg of [result.userMessage,result.assistantMessage])
+      if(msg&&!acknowledged.some(x=>x.id===msg.id))acknowledged.push(msg);
+    if(model.conversationId===conversation.id)model.conversation={...conversation,messages:acknowledged};
+    id('connection-text').textContent='답변 저장됨 · 목록 갱신 중';
+    renderConversation();renderSidebar();
     let readbackFailed=false;
     try{
       const completed=(await request('/api/customer/conversations/'+encodeURIComponent(conversation.id))).conversation;
@@ -495,7 +505,8 @@
     if(accountRequired()&&model.workspace.allowance?.planRequired){id('free-limit-dialog').showModal();return;}
     let c=currentConversation();
     if(!c){
-      await createChat(model.projectId);
+      id('connection-text').textContent='대화를 준비하고 있습니다…';
+      await createChat(model.projectId,{refreshAfter:false});
       c=currentConversation();
       if(!c)return;
     }
