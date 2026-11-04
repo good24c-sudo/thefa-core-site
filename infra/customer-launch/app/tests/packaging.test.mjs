@@ -19,7 +19,8 @@ test('release assembly exposes exactly26 browser files and privately packages ac
  const config=JSON.parse(await readFile(path.join(outputDirectory,'vercel.json'),'utf8'));
  assert.equal(config.outputDirectory,'customer-public');assert.equal(config.public,false);
  assert.equal(config.rewrites.find(x=>x.source==='/about').destination,'/about.html');
- for(const source of ['/api/customer/:path*','/api/auth/:path*','/auth/:path*','/functions/v1/core-customer-auth/callback/:provider/oauth-proxy'])assert.equal(config.rewrites.find(x=>x.source===source).destination,'/api/dispatch?__customer_route='+source);
+ for(const source of ["/api/auth/providers", "/api/auth/session", "/auth/start", "/auth/logout", "/auth/complete", "/auth/email/send", "/auth/email/verify", "/api/customer/workspace", "/api/customer/action", "/api/customer/chat/send", "/api/customer/billing", "/api/customer/allowance", "/functions/v1/core-customer-auth/callback/google/oauth-proxy", "/functions/v1/core-customer-auth/callback/kakao/oauth-proxy"])assert.equal(config.rewrites.find(x=>x.source===source).destination,'/api/dispatch?__customer_route='+source);
+ assert.equal(config.rewrites.filter(x=>x.destination.startsWith('/api/dispatch')).some(x=>x.source.includes(':')),false);
  assert.equal(config.rewrites.find(x=>x.source==='/server/:path*').destination,'/api/source-denied');
  assert.equal(config.functions['api/dispatch.mjs'].includeFiles,'private-data/migration/**');
  const gitIgnore=await readFile(path.join(outputDirectory,'.gitignore'),'utf8'),vercelIgnore=await readFile(path.join(outputDirectory,'.vercelignore'),'utf8');assert.match(gitIgnore,/private-data\//);assert.match(vercelIgnore,/!private-data/);assert.match(vercelIgnore,/\*\*\/\*\.bin/);

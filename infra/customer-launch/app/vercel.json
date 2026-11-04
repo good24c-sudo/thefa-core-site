@@ -17,20 +17,60 @@
    "destination": "/api/source-denied"
   },
   {
-   "source": "/api/customer/:path*",
-   "destination": "/api/dispatch?__customer_route=/api/customer/:path*"
+   "source": "/api/auth/providers",
+   "destination": "/api/dispatch?__customer_route=/api/auth/providers"
   },
   {
-   "source": "/api/auth/:path*",
-   "destination": "/api/dispatch?__customer_route=/api/auth/:path*"
+   "source": "/api/auth/session",
+   "destination": "/api/dispatch?__customer_route=/api/auth/session"
   },
   {
-   "source": "/auth/:path*",
-   "destination": "/api/dispatch?__customer_route=/auth/:path*"
+   "source": "/auth/start",
+   "destination": "/api/dispatch?__customer_route=/auth/start"
   },
   {
-   "source": "/functions/v1/core-customer-auth/callback/:provider/oauth-proxy",
-   "destination": "/api/dispatch?__customer_route=/functions/v1/core-customer-auth/callback/:provider/oauth-proxy"
+   "source": "/auth/logout",
+   "destination": "/api/dispatch?__customer_route=/auth/logout"
+  },
+  {
+   "source": "/auth/complete",
+   "destination": "/api/dispatch?__customer_route=/auth/complete"
+  },
+  {
+   "source": "/auth/email/send",
+   "destination": "/api/dispatch?__customer_route=/auth/email/send"
+  },
+  {
+   "source": "/auth/email/verify",
+   "destination": "/api/dispatch?__customer_route=/auth/email/verify"
+  },
+  {
+   "source": "/api/customer/workspace",
+   "destination": "/api/dispatch?__customer_route=/api/customer/workspace"
+  },
+  {
+   "source": "/api/customer/action",
+   "destination": "/api/dispatch?__customer_route=/api/customer/action"
+  },
+  {
+   "source": "/api/customer/chat/send",
+   "destination": "/api/dispatch?__customer_route=/api/customer/chat/send"
+  },
+  {
+   "source": "/api/customer/billing",
+   "destination": "/api/dispatch?__customer_route=/api/customer/billing"
+  },
+  {
+   "source": "/api/customer/allowance",
+   "destination": "/api/dispatch?__customer_route=/api/customer/allowance"
+  },
+  {
+   "source": "/functions/v1/core-customer-auth/callback/google/oauth-proxy",
+   "destination": "/api/dispatch?__customer_route=/functions/v1/core-customer-auth/callback/google/oauth-proxy"
+  },
+  {
+   "source": "/functions/v1/core-customer-auth/callback/kakao/oauth-proxy",
+   "destination": "/api/dispatch?__customer_route=/functions/v1/core-customer-auth/callback/kakao/oauth-proxy"
   },
   {
    "source": "/about",

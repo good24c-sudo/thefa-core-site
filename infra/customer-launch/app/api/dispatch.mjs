@@ -16,5 +16,8 @@ export function resolveCustomerDispatchUrl(raw){
 const handler=createLazyCustomerNodeHandler();
 export default async function dispatch(req,res){
  try{req.url=resolveCustomerDispatchUrl(req.url)}catch{res.statusCode=400;res.setHeader('cache-control','no-store');res.setHeader('content-type','application/json');res.end('{"code":"CUSTOMER_DISPATCH_ROUTE_INVALID"}');return;}
+ const u=new URL(req.url,'https://dispatch.invalid');
+ const keys=[...u.searchParams.keys()].map(k=>['path','provider','__customer_route','code','state','error','error_description'].includes(k)?k:'other');
+ if(u.search||!allowed(u.pathname))console.error(JSON.stringify({code:'CUSTOMER_DISPATCH_ROUTE_SHAPE',pathAllowed:allowed(u.pathname),dispatchPath:u.pathname==='/api/dispatch',queryKeys:keys.slice(0,12)}));
  return handler(req,res);
 }
