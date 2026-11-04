@@ -9,3 +9,10 @@ test('unrecognized relay, forwarding authority or original-URL override stays de
  for(const h of [{host:'evil.example'},{host:'edge-runtime.supabase.com:80'},{host:'edge-runtime.supabase.com','x-forwarded-host':'evil.example'},{host:'edge-runtime.supabase.com','x-forwarded-proto':'http'},{host:'edge-runtime.supabase.com',forwarded:'host=evil.example'},{host:'edge-runtime.supabase.com','x-original-url':'https://evil.example'}])assert.throws(()=>edge.normalizeCallbackPlatformRequest(new Request(url,{headers:h}),new URL(url)),/CUSTOMER_AUTH_ORIGIN_INVALID/);
  assert.throws(()=>edge.normalizeCallbackPlatformRequest(new Request('https://evil.example/callback/google'),new URL(url)),/CUSTOMER_AUTH_ORIGIN_INVALID/);
 });
+
+test('observed HTTP transport is accepted only behind exact Supabase relay and HTTPS forwarding',()=>{
+ const canonical=new URL(url),internal=url.replace('https:','http:');
+ const r=new Request(internal,{headers:{host:'edge-runtime.supabase.com','x-forwarded-proto':'https'}});
+ assert.equal(edge.normalizeCallbackPlatformRequest(r,canonical).url,url);
+ for(const h of [{host:canonical.host,'x-forwarded-proto':'https'},{host:'edge-runtime.supabase.com'},{host:'edge-runtime.supabase.com','x-forwarded-proto':'http'}])assert.throws(()=>edge.normalizeCallbackPlatformRequest(new Request(internal,{headers:h}),canonical));
+});

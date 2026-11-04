@@ -13,7 +13,8 @@ export function normalizeCallbackPlatformRequest(request:Request,canonical:URL){
  // from forwarding headers or permit arbitrary relay hosts.
  const incoming=new URL(request.url),h=new Headers(request.headers),hosts=new Set([canonical.host,'edge-runtime.supabase.com']);
  const diagnostics={urlHttps:incoming.protocol==='https:',urlHttp:incoming.protocol==='http:',urlHostCanonical:incoming.host===canonical.host,urlHostInternal:incoming.host==='edge-runtime.supabase.com',urlHostLoopback:incoming.hostname==='127.0.0.1'||incoming.hostname==='localhost',headerHostCanonical:h.get('host')===canonical.host,headerHostInternal:h.get('host')==='edge-runtime.supabase.com',...callbackOriginDiagnostics(request,canonical.host)};
- if(incoming.protocol!=='https:'||!hosts.has(incoming.host)||
+ const transportHttps=incoming.protocol==='https:'||(incoming.protocol==='http:'&&incoming.host===canonical.host&&h.get('host')==='edge-runtime.supabase.com'&&h.get('x-forwarded-proto')==='https');
+ if(!transportHttps||!hosts.has(incoming.host)||
    (h.has('host')&&!hosts.has(h.get('host')!))||
    (h.has('x-forwarded-host')&&!hosts.has(h.get('x-forwarded-host')!))||
    (h.has('x-forwarded-proto')&&h.get('x-forwarded-proto')!=='https')||h.has('forwarded')||h.has('x-original-url')){console.error(JSON.stringify({code:'CORE_CUSTOMER_RELAY_REJECTED',...diagnostics}));throw Error('CUSTOMER_AUTH_ORIGIN_INVALID');}
