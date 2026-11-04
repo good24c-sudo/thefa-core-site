@@ -15,6 +15,7 @@ export function createConfiguredCoreAuthPool({connectionString,environment,proje
     [...url.searchParams.keys()].length!==1||url.searchParams.get('sslmode')!=='verify-full')invalid();
   url.search='';
   const pool=new pg.Pool({connectionString:url.href,ssl:{ca:DATABASE_CA,rejectUnauthorized:true,servername:AUTH_POOLER},
-    options:'-c search_path='+AUTH_SCHEMA,max:2,idleTimeoutMillis:10000,connectionTimeoutMillis:10000});
+    options:'-c search_path='+AUTH_SCHEMA,max:2,idleTimeoutMillis:5000,connectionTimeoutMillis:10000});
+  pool.on('error',()=>console.error(JSON.stringify({code:'CUSTOMER_AUTH_IDLE_CONNECTION_CLOSED'})));
   bindings.set(pool,Object.freeze({environment,projectRef,role:AUTH_ROLE,schema:AUTH_SCHEMA,poolerHost:AUTH_POOLER}));return pool;
 }

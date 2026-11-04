@@ -87,7 +87,7 @@
     },
     {
       "path": "server/auth/database.mjs",
-      "sha256": "66bb3c1376a3bfe684dab90bc277f33de71f4bcd69b6628a840acd08be1892ad"
+      "sha256": "428e2a465727d7b46d391024acb553350e9c0e543087296799db8a7e3118b68e"
     },
     {
       "path": "server/auth/identity-backend.mjs",

@@ -1,3 +1,5 @@
+import {attachDatabasePool} from '@vercel/functions';
+export function attachCustomerVercelPool(pool){attachDatabasePool(pool);}
 import {createPublicKey} from 'node:crypto';
 import {createCustomerEmailDelivery} from './email-delivery.mjs';
 import {isIP} from 'node:net';
@@ -57,6 +59,7 @@ export async function createCustomerServerFromEnvironment({env=process.env,fetch
  const [{createConfiguredCoreAuthPool},{createGoogleOnlyCustomerAuthService},{createReadOnlyMigrationReceiptStore},{createCustomerPublicCompositionV2},{verifySignedLegacyInventory}]=await Promise.all([
   import('./inherited/server/auth/database.mjs'),import('./google-only-auth.mjs'),import('./inherited/customer-migration-receipts.mjs'),import('./customer-public-composition-v2.mjs'),import('./migration-inventory.mjs')]);
  const database=createConfiguredCoreAuthPool({connectionString:settings.connectionString,environment:settings.config.environment,projectRef:settings.projectRef,poolerHost:'aws-0-ap-northeast-2.pooler.supabase.com'});
+ attachCustomerVercelPool(database);
  let diagnosticStage='AUTH_CONTEXT';
  try{
   const common={environment:settings.config.environment,customerOrigin:settings.config.customerOrigin,issuer:settings.issuer,secret:settings.secret,proxySecret:settings.proxySecret,database,google:settings.google,kakao:settings.kakao};

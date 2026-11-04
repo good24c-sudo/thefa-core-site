@@ -9,6 +9,7 @@
     "test": "node --test --test-timeout=10000 tests/*.test.mjs"
   },
   "dependencies": {
+    "@vercel/functions": "3.10.6",
     "better-auth": "1.7.13",
     "pg": "8.23.1"
   }
