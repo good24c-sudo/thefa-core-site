@@ -1,5 +1,6 @@
 import {betterAuth} from 'better-auth';
-import {oAuthProxy,emailOTP} from 'better-auth/plugins';
+import {oAuthProxy} from 'better-auth/plugins/oauth-proxy';
+import {emailOTP} from 'better-auth/plugins/email-otp';
 import {randomUUID,randomBytes,timingSafeEqual,createHash} from 'node:crypto';
 import {addOAuthServerContext,getOAuthState,createAuthMiddleware,APIError} from 'better-auth/api';
 import {Buffer} from 'node:buffer';

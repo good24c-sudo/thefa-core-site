@@ -757,8 +757,10 @@
   }));
   id('account-logout').addEventListener('click',async()=>{
     if(model.busy){notify('답변이 끝난 후 로그아웃해 주세요.');return;}
-    try{await request('/auth/logout',{method:'POST',body:'{}'});location.assign('/');}
-    catch{notify('로그아웃하지 못했습니다. 다시 시도해 주세요.');}
+    const button=id('account-logout');if(button.disabled)return;
+    button.disabled=true;button.textContent='로그아웃 중…';button.setAttribute('aria-busy','true');
+    try{await request('/auth/logout',{method:'POST',body:'{}'});location.assign('/login');}
+    catch{button.disabled=false;button.textContent='로그아웃';button.removeAttribute('aria-busy');notify('로그아웃하지 못했습니다. 다시 시도해 주세요.');}
   });
   document.addEventListener('keydown',event=>{if(event.key==='Escape'){
     if(!id('composer-mode-panel').hidden){event.preventDefault();closeModePanel(true);}closeNav();

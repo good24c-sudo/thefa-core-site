@@ -95,7 +95,7 @@
     },
     {
       "path": "server/auth/service.mjs",
-      "sha256": "0aecafaa6b5fb59d4764fd42a5e67b2e90ba5b0616a40dd47269bf960e144e2e"
+      "sha256": "d051ec19ef6d2157bb69aec3fa58e89a1963e834d310a4a5113d54dfbcff3af7"
     },
     {
       "path": "server/customer-public-composition.mjs",
