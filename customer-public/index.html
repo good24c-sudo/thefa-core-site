@@ -9,6 +9,7 @@
 <title>THE FA Core · AI 작업공간</title>
 <link rel="icon" href="/assets/THEFA_Core_Primary_Dark_web.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/guest-live.css">
+<link rel="stylesheet" href="/studio-entry.css">
 <script defer src="/guest-live.js"></script>
 
 
@@ -28,10 +29,24 @@
     <div class="sidebar-actions"><div class="guest-label">THE FA CORE · 나의 AI 작업공간</div>
       <button id="new-chat" type="button" class="new-chat"><span aria-hidden="true">＋</span> 새 대화 <span class="shortcut">+</span></button>
       <label class="search-field"><span aria-hidden="true">⌕</span><span class="sr-only">대화와 프로젝트 검색</span><input id="workspace-search" type="search" placeholder="대화 및 프로젝트 검색" autocomplete="off"></label>
+      <div class="sidebar-quick-tools" role="group" aria-label="더파코어 주요 도구">
+        <a class="sidebar-quick-link studio-nav-entry" href="/studio.html"><span aria-hidden="true">▤</span> 제작 스튜디오</a>
+      <details class="sidebar-tools" id="sidebar-tools">
+        <summary class="sidebar-tools-summary"><span aria-hidden="true">⚙</span> 도구 · 설정 <span aria-hidden="true">⌄</span></summary>
+        <div class="sidebar-tools-list">
+      <button id="account-logout" class="bottom-action" type="button" hidden>로그아웃</button>
+      <button type="button" class="bottom-action" data-section="ava"><span aria-hidden="true">A</span> 나의 AVA <span class="soft-pill">설정</span></button>
+      <button type="button" class="bottom-action" data-section="local"><span aria-hidden="true">▣</span> 로컬 AI · PC 연결</button>
+      <button type="button" class="bottom-action" data-section="settings"><span aria-hidden="true">⚙</span> AI 사용 설정</button>
+      <a class="bottom-action bottom-action-link" id="open-service-introduction" href="/about"><span aria-hidden="true">ⓘ</span> 서비스 소개</a>
+      <a class="bottom-action bottom-action-link" href="/plans"><span aria-hidden="true">◇</span> 요금제</a>
+        </div>
+      </details>
+      </div>
     </div>
     <nav class="navigation" aria-label="작업공간 탐색">
-      <div class="nav-section">
-        <div class="section-label"><span>프로젝트</span><button type="button" class="icon-button add" id="new-project" aria-label="프로젝트 만들기">＋</button></div>
+      <div class="nav-section project-section" id="project-section">
+        <div class="section-label"><button type="button" class="section-toggle" id="toggle-projects" aria-expanded="false" aria-controls="project-list">프로젝트 <span aria-hidden="true">⌄</span></button><button type="button" class="icon-button add" id="new-project" aria-label="프로젝트 만들기">＋</button></div>
         <div id="project-list" class="nav-items" aria-live="polite"></div>
       </div>
       <div class="nav-section recent">
@@ -40,14 +55,9 @@
       </div>
     </nav>
     <div class="sidebar-bottom">
-      <button type="button" class="bottom-action" data-section="ava"><span aria-hidden="true">A</span> 나의 AVA <span class="soft-pill">설정</span></button>
-      <button type="button" class="bottom-action" data-section="local"><span aria-hidden="true">▣</span> 로컬 AI · PC 연결</button>
-      <button type="button" class="bottom-action" data-section="settings"><span aria-hidden="true">⚙</span> AI 사용 설정</button>
-      <a class="bottom-action bottom-action-link" id="open-service-introduction" href="/about"><span aria-hidden="true">ⓘ</span> 서비스 소개</a>
-      <a class="bottom-action bottom-action-link" href="/plans"><span aria-hidden="true">◇</span> 요금제</a>
       <div class="account-actions" id="account-actions"><a class="login-link" href="/login" id="account-login">로그인</a><a class="signup-link" href="/signup">회원가입</a><small>로그인 후 고객당 AI 답변 10회 · 기존 사용량 유지</small></div>
       <div class="account-row" id="account-profile" hidden><div class="avatar" aria-hidden="true">F</div><div><strong id="account-name">나의 작업공간</strong><small id="account-status">연결 확인 중</small></div><span class="guest-pill" id="account-kind">계정</span></div>
-      <button id="account-logout" class="bottom-action" type="button" hidden>로그아웃</button>
+
     </div>
   </aside>
   <button type="button" class="backdrop" id="sidebar-backdrop" aria-label="메뉴 닫기" hidden></button>
@@ -77,6 +87,10 @@
               <button type="button" data-suggest="시장 조사 계획을 단계별로 세워줘">02 · 시장 조사 계획 <span>↗</span></button>
               <button type="button" data-suggest="내 프로젝트를 위한 아이디어를 제안해줘">03 · 새로운 아이디어 <span>↗</span></button>
             </div>
+          </div>
+          <div class="studio-launcher" aria-label="작업물 제작 바로가기">
+            <div><span class="studio-mini-eyebrow">CREATE WITH THE FA</span><strong>대화 다음은 실제 결과물로.</strong><small>검토한 내용으로 PPTX·PNG 제작 · 생성형 이미지 AI는 아직 연결 전</small></div>
+            <a href="/studio.html" class="studio-launcher-link">제작 스튜디오 열기 <span aria-hidden="true">↗</span></a>
           </div>
           <div id="conversation-header" class="conversation-header" hidden>
             <div><span class="overline" id="conversation-project">일반 대화</span><h1 id="conversation-title">새 대화</h1></div>

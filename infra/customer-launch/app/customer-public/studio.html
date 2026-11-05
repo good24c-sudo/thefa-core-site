@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="THE FA Core 직원 검토용 제작 스튜디오 — 대화 초안, PPTX와 이미지 파일 구성">
+<title>제작 스튜디오 | THE FA Core</title>
+<link rel="icon" href="/assets/THEFA_Core_Official_Mark_Dark_web.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/studio.css">
+<script defer src="/vendor/jszip.min.js"></script>
+<script defer src="/vendor/pptxgen.min.js"></script>
+<script defer src="/studio.js"></script>
+</head>
+<body>
+<a class="skip" href="#studio-main">본문으로 바로 가기</a>
+<div class="studio-root">
+  <header class="studio-header">
+    <a class="brand" href="/" aria-label="THE FA Core 대화 화면으로"><img src="/assets/THEFA_Core_Primary_Dark_web.svg" alt="THE FA Core" width="148" height="40"></a>
+    <nav class="header-nav" aria-label="주요 이동">
+      <a href="/">AI 대화</a><a class="is-active" aria-current="page" href="/studio.html">제작 스튜디오</a><a href="/about">서비스 소개</a>
+    </nav>
+    <a class="back-chat" href="/">대화로 돌아가기 <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="studio-main">
+    <div class="studio-notice" role="note"><span class="notice-dot"></span><strong>브라우저 제작 베타</strong> 실제 PPTX·PNG 파일은 현재 브라우저에서 생성합니다. 생성형 이미지 AI·서버 영구 저장은 아직 연결되지 않았습니다.</div>
+    <section class="studio-hero" aria-labelledby="studio-title">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-mark">✦</span> THE FA CORE / CREATIVE WORKSPACE</div>
+        <h1 id="studio-title">아이디어를<br><em>다운로드할 결과물로.</em></h1>
+        <p>대화에서 시작한 생각을 발표자료와 시각 자료로 정리해 보세요. 먼저 내용을 검토하고, 직접 편집한 뒤 파일로 받아볼 수 있습니다.</p>
+        <div class="hero-tags"><span>실제 PPTX 제작</span><span>이미지 PNG·SVG</span><span>검토 가능한 작업 흐름</span></div>
+      </div>
+      <div class="workflow-card" aria-label="제작 흐름 안내">
+        <div class="workflow-top"><span>YOUR WORKFLOW</span><strong>하나의 요청, 검증되는 결과</strong><small>요청부터 파일 제작까지 이어지는 단계</small></div>
+        <ol class="workflow-list">
+          <li><span>01</span><div><strong>작업 선택</strong><small>PPT · 이미지</small></div><i aria-hidden="true">◇</i></li>
+          <li><span>02</span><div><strong>내용 입력</strong><small>제목 · 핵심 메시지</small></div><i aria-hidden="true">✎</i></li>
+          <li><span>03</span><div><strong>미리보기</strong><small>레이아웃 · 표현 확인</small></div><i aria-hidden="true">◈</i></li>
+          <li><span>04</span><div><strong>파일 다운로드</strong><small>브라우저에서 직접 저장</small></div><i aria-hidden="true">↧</i></li>
+        </ol>
+        <p class="workflow-footer">AI 답변, 파일 생성, 저장 완료는 서로 다른 상태로 표시합니다.</p>
+      </div>
+    </section>
+    <section class="tools-section" aria-labelledby="tools-heading">
+      <div class="section-heading"><div><p class="eyebrow">MAKE SOMETHING REAL</p><h2 id="tools-heading">무엇을 만들까요?</h2></div><span class="hint">먼저 필요한 결과물을 선택해 주세요</span></div>
+      <div class="tool-grid" role="group" aria-label="제작물 종류">
+        <button class="tool-card selected" type="button" data-mode="ppt" aria-pressed="true"><span class="tool-icon icon-ppt" aria-hidden="true">▤</span><span class="tool-body"><strong>발표자료 PPT</strong><small>목차·핵심 내용을 슬라이드로 정리</small></span><span class="tool-state">PPTX 생성 가능</span></button>
+        <button class="tool-card" type="button" data-mode="image" aria-pressed="false"><span class="tool-icon icon-image" aria-hidden="true">◧</span><span class="tool-body"><strong>이미지·포스터</strong><small>입력한 문구로 브랜드 시각 자료 구성</small></span><span class="tool-state">PNG·SVG 생성 가능</span></button>
+        <div class="tool-card tool-disabled" aria-disabled="true"><span class="tool-icon icon-doc" aria-hidden="true">≡</span><span class="tool-body"><strong>보고서·문서</strong><small>PDF·DOCX는 별도 엔진 연결 대상</small></span><span class="tool-state muted">Cloud 연결 예정</span></div>
+      </div>
+    </section>
+    <section class="studio-workbench" id="workbench" aria-label="제작 작업대">
+      <div class="editor-panel">
+        <div class="panel-heading"><span class="panel-step">01 / INPUT</span><h2 id="editor-heading">발표자료 구성하기</h2><p id="editor-desc">정확한 내용을 입력하면 실제 편집 가능한 PPTX 파일을 만듭니다. 확인되지 않은 자료는 자동으로 생성하지 않습니다.</p></div>
+        <form id="studio-form" novalidate>
+          <label for="work-title">작업 제목 <span>필수</span></label>
+          <input id="work-title" type="text" maxlength="90" required value="THE FA Core — 다음 단계" placeholder="예: 신제품 소개 발표자료" autocomplete="off">
+          <label for="work-subtitle">한 줄 설명 <span>선택</span></label>
+          <input id="work-subtitle" type="text" maxlength="150" value="대화에서 실제 결과물까지 이어지는 업무 경험" placeholder="문서의 목적 또는 전달할 핵심 메시지" autocomplete="off">
+          <label for="work-lines">핵심 내용 <span id="line-count">4개 항목</span></label>
+          <textarea id="work-lines" rows="9" maxlength="2800" required placeholder="한 줄에 하나씩 주요 내용을 적어주세요.&#10;예: 사용자 경험 개선&#10;AI 대화와 결과물 제작 연결">사용자가 요청한 일을 이해합니다.
+확인된 근거와 요구사항을 정리합니다.
+PPT·이미지 결과물을 직접 내려받습니다.
+계정별 영구 저장은 공식 서비스 연결 후 지원합니다.</textarea>
+          <div class="field-help" id="field-help">한 줄이 슬라이드의 핵심 항목이 됩니다. 최대 20개, 한 항목 100자 이내.</div>
+          <div class="editor-bottom">
+            <div><label for="visual-style">디자인 톤</label><select id="visual-style"><option value="dark">시그니처 다크</option><option value="ivory">아이보리 에디션</option><option value="charcoal">차콜 · 골드</option></select></div>
+            <div><label for="slide-density">발표자료 구성</label><select id="slide-density"><option value="3">슬라이드당 3개 항목</option><option value="4" selected>슬라이드당 4개 항목</option><option value="5">슬라이드당 5개 항목</option></select></div>
+          </div>
+        </form>
+        <div class="editor-actions">
+          <button type="button" class="secondary-action" id="draft-in-chat">AI 대화에서 내용 다듬기 <span aria-hidden="true">↗</span></button>
+          <p class="action-explain">현재 작성 내용을 AI 대화 입력칸으로 옮깁니다. 자동 전송하거나 사용량을 차감하지 않습니다.</p>
+        </div>
+      </div>
+      <div class="preview-panel">
+        <div class="panel-heading preview-title"><span class="panel-step">02 / REVIEW &amp; EXPORT</span><div class="preview-heading-row"><h2>작업물 미리보기</h2><span id="preview-meta">3장 구성</span></div><p id="preview-desc">파일에 들어갈 내용을 미리 확인하세요.</p></div>
+        <div class="preview-canvas-frame">
+          <div class="ppt-preview" id="ppt-preview" aria-label="PPT 슬라이드 미리보기"><div class="slide-top"><span>THE FA CORE / 2026</span><span>01 / PRESENTATION</span></div><div class="slide-content"><p>THE FA CORE</p><h3 id="slide-preview-title">THE FA Core — 다음 단계</h3><p id="slide-preview-subtitle">대화에서 실제 결과물까지 이어지는 업무 경험</p></div><div class="slide-footer"><span>FROM IDEA TO OUTPUT</span><span>●</span></div></div>
+          <canvas id="image-preview" width="1600" height="900" aria-label="이미지 제작 미리보기" hidden></canvas>
+        </div>
+        <div class="preview-footnote" id="preview-footnote">16:9 와이드 PPTX · 미리보기는 표지 디자인 기준 · 각 슬라이드는 입력 내용으로 구성</div>
+        <div class="export-actions">
+          <button id="export-ppt" class="primary-action" type="button">PPTX 다운로드 <span aria-hidden="true">↓</span></button>
+          <button id="export-png" class="primary-action" type="button" hidden>PNG 다운로드 <span aria-hidden="true">↓</span></button>
+          <button id="export-svg" class="outline-action" type="button" hidden>SVG 원본 내려받기</button>
+        </div>
+        <div class="status-panel"><span class="status-bullet" aria-hidden="true">i</span><div><strong id="studio-status" role="status" aria-live="polite">입력 내용을 바꾸면 미리보기가 업데이트됩니다.</strong><p>실제 파일은 이 브라우저에서 생성되며 서버·대화 이력에는 자동 저장되지 않습니다.</p></div></div>
+      </div>
+    </section>
+    <section class="trust-row" aria-label="서비스 제작 기준">
+      <div><strong>원본 데이터 보존</strong><span>기존 계정과 AI 대화는 수정하지 않습니다.</span></div>
+      <div><strong>실제 파일 구분</strong><span>AI 답변이 곧 PPTX·이미지 완료는 아닙니다.</span></div>
+      <div><strong>고객별 저장 연동</strong><span>공식 인증·저장소 검증 후 제공할 예정입니다.</span></div>
+    </section>
+  </main>
+  <footer class="studio-footer"><span>THE FA CORE · BY THE FA · 2026</span><span>브라우저 파일 제작 베타 · 생성형 이미지 AI와 클라우드 저장은 아직 연결되지 않았습니다</span><a href="/">AI 작업공간으로 돌아가기</a></footer>
+</div>
+</body></html>

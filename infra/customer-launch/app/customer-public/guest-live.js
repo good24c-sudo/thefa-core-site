@@ -150,7 +150,11 @@
             await init();notify('저장된 대화와 프로젝트 기록을 지웠습니다.');}
           catch{notify('기록을 지우지 못했습니다. 잠시 후 다시 시도해 주세요.');}
         });
-        document.querySelector('.sidebar-bottom').insertBefore(clear,id('account-actions')||document.querySelector('.account-row'));
+        // Keep destructive history management under the collapsible tools menu,
+        // leaving the conversation list room to scroll on compact displays.
+        const toolsList=document.querySelector('.sidebar-tools-list');
+        if(toolsList)toolsList.append(clear);
+        else document.querySelector('.sidebar-bottom').insertBefore(clear,id('account-actions')||document.querySelector('.account-row'));
       }
     }
   }
@@ -237,25 +241,62 @@
     renderSidebar();syncMode();renderConversation();renderSettings();renderAva();renderLocal();
   }
   function renderSidebar(){
+    const nav=id('sidebar').querySelector('.navigation');
+    // Preserve where the user was reading when navigation is rerendered.
+    const savedScrollTop=nav.scrollTop;
+    const previousFocus=document.activeElement;
+    const previousChatId=previousFocus?.dataset?.openChat||null;
+    const previousProjectId=previousFocus?.dataset?.openProject||null;
     const q=model.search.trim().toLocaleLowerCase('ko-KR');
     const projectList=id('project-list');projectList.replaceChildren();
     const allProjects=model.workspace.projects.filter(p=>p.title.toLocaleLowerCase('ko-KR').includes(q));
+    if(q&&allProjects.length){id('project-section').classList.add('is-open');id('toggle-projects').setAttribute('aria-expanded','true');}
     if(!allProjects.length)projectList.append(empty(q?'검색된 프로젝트가 없습니다.':'＋ 버튼으로 프로젝트 만들기'));
     for(const p of allProjects){
       const btn=factory('button','project-item');btn.type='button';btn.dataset.openProject=p.id;
       if(p.id===model.projectId&&model.view==='project')btn.setAttribute('aria-current','page');
+      btn.title=p.title;
       btn.append(factory('span','item-icon','▦'),factory('span','truncate',p.title));projectList.append(btn);
     }
     const list=id('chat-list');list.replaceChildren();
     const items=model.workspace.conversations.filter(c=>
       !c.archivedAt&&[c.title,c.lastMessage||'',projectName(c.projectId)].join(' ').toLocaleLowerCase('ko-KR').includes(q));
     items.sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
-    id('chat-count').textContent=model.workspace.conversations.length?String(model.workspace.conversations.length):'';
+    const visibleCount=model.workspace.conversations.filter(c=>!c.archivedAt).length;
+    id('chat-count').textContent=visibleCount?String(visibleCount):'';
     if(!items.length)list.append(empty(q?'검색 결과가 없습니다.':'아직 대화가 없습니다.'));
+    // Date buckets improve scanning large conversation histories.
+    // Use the viewer's local calendar; invalid dates are marked unknown.
+    const now=new Date();
+    const todayLocal=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());
+    let sectionDate='';
     for(const c of items){
+      const at=new Date(c.updatedAt||'');
+      const dateMs=Number.isFinite(at.getTime())?Date.UTC(at.getFullYear(),at.getMonth(),at.getDate()):NaN;
+      const daysAgo=Number.isFinite(dateMs)?Math.round((todayLocal-dateMs)/86400000):NaN;
+      const bucket=Number.isFinite(daysAgo)?(
+        daysAgo===0?'오늘':daysAgo===1?'어제':daysAgo>=2&&daysAgo<=7?'지난 7일':
+        daysAgo>7&&daysAgo<=30?'지난 30일':daysAgo>30?'이전 대화':'날짜 확인 필요'):'날짜 확인 필요';
+      if(bucket!==sectionDate){
+        const heading=factory('div','conversation-time-group',bucket);
+        heading.setAttribute('role','heading');
+        heading.setAttribute('aria-level','3');
+        list.append(heading);
+        sectionDate=bucket;
+      }
       const btn=factory('button','nav-item');btn.type='button';btn.dataset.openChat=c.id;
       if(c.id===model.conversationId&&model.view==='chat')btn.setAttribute('aria-current','page');
+      btn.title=c.title;
       btn.append(factory('span','item-icon','▤'),factory('span','truncate',c.title));list.append(btn);
+    }
+    // Recreating rows must not reset the sidebar scroll or keyboard focus.
+    nav.scrollTop=Math.min(savedScrollTop,Math.max(0,nav.scrollHeight-nav.clientHeight));
+    if(previousChatId){
+      const row=[...list.querySelectorAll('[data-open-chat]')].find(el=>el.dataset.openChat===previousChatId);
+      row?.focus({preventScroll:true});
+    }else if(previousProjectId){
+      const row=[...projectList.querySelectorAll('[data-open-project]')].find(el=>el.dataset.openProject===previousProjectId);
+      row?.focus({preventScroll:true});
     }
   }
   function switchView(view){
@@ -416,6 +457,12 @@
   }
   function renderConversation(){
     const c=currentConversation();
+    const pane=$('.chat-flow');
+    const activeId=c?.id||'';
+    const priorTop=pane.scrollTop;
+    const sameChat=pane.dataset.renderedConversationId===activeId;
+    const gap=pane.scrollHeight-pane.clientHeight-priorTop;
+    const keepReadingPosition=sameChat&&gap>100;
     id('chat-welcome').hidden=!!c;id('conversation-header').hidden=!c;
     id('messages').replaceChildren();
     if(c){
@@ -435,7 +482,9 @@
         }[msg.state]||'저장됨'));
         row.append(body);id('messages').append(row);
       }
-      const pane=$('.chat-flow');pane.scrollTop=pane.scrollHeight;
+      pane.dataset.renderedConversationId=activeId;
+      if(keepReadingPosition)pane.scrollTop=Math.max(0,priorTop);
+      else pane.scrollTop=pane.scrollHeight;
     }
     id('breadcrumb').textContent=c?.title||'새 대화';
     const hasInput=id('chat-input').value.trim().length>0;
@@ -673,6 +722,11 @@
   }
 
   id('new-chat').addEventListener('click',()=>createChat(null));
+  id('toggle-projects').addEventListener('click',()=>{
+    const section=id('project-section');
+    const opened=section.classList.toggle('is-open');
+    id('toggle-projects').setAttribute('aria-expanded',String(opened));
+  });
   id('new-project').addEventListener('click',()=>{id('project-dialog').showModal();id('project-name').focus();});
   id('cancel-project').addEventListener('click',()=>id('project-dialog').close());
   id('close-project-dialog').addEventListener('click',()=>id('project-dialog').close());

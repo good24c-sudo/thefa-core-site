@@ -14,7 +14,7 @@ export async function assembleCustomerRelease({outputDirectory}={}){
  if(typeof outputDirectory!=='string'||!path.isAbsolute(outputDirectory)||!same(path.resolve(outputDirectory),outputDirectory)||!same(path.dirname(outputDirectory),root)||!/^deployment-candidate(?:-[a-z0-9-]+)?$/.test(path.basename(outputDirectory)))throw problem('CUSTOMER_RELEASE_OUTPUT_INVALID');
  try{await lstat(outputDirectory);throw problem('CUSTOMER_RELEASE_OUTPUT_EXISTS')}catch(e){if(e.code!=='ENOENT')throw e}
  const sourceManifest=JSON.parse(await checked('public-files.json'));
- if(sourceManifest.length!==26||new Set(sourceManifest.map(x=>x.path)).size!==26)throw problem('CUSTOMER_RELEASE_PUBLIC_MANIFEST_INVALID');
+ if(sourceManifest.length!==34||new Set(sourceManifest.map(x=>x.path)).size!==34)throw problem('CUSTOMER_RELEASE_PUBLIC_MANIFEST_INVALID');
  const inherited=JSON.parse(await checked('evidence/R42_INHERITED_RUNTIME_MANIFEST.json')),pending=[];
  for(const f of sourceManifest){if(/(?:^|\/)(?:server|api|private-data|node_modules)(?:\/|$)|\.(?:mjs|json|env|pem|key)$/.test(f.path))throw problem('CUSTOMER_RELEASE_PUBLIC_MANIFEST_INVALID');const bytes=await checked('public-source/'+f.path);if(sha(bytes)!==f.sha256)throw problem('CUSTOMER_RELEASE_SOURCE_HASH_MISMATCH');pending.push({path:'customer-public/'+f.path,bytes,kind:'public'});}
  for(const f of inherited.files){const rel='server/inherited/'+f.path,bytes=await checked(rel);if(sha(bytes)!==f.sha256)throw problem('CUSTOMER_RELEASE_SOURCE_HASH_MISMATCH');pending.push({path:rel,bytes,kind:'runtime'});}

@@ -1,7 +1,7 @@
 [
   {
     "path": "index.html",
-    "sha256": "c634cb9c0632d94c24f3fd4d9815ea49bece3d3bf946963d5903af49a68ffd45"
+    "sha256": "6b36dba8d96f5ae044e581e0ae3f5861be9d3deefecd279759b8cd11d29d73e6"
   },
   {
     "path": "about.html",
@@ -25,7 +25,7 @@
   },
   {
     "path": "guest-live.js",
-    "sha256": "dfc0815866dbbe477ccb1cbe2e282740464b6a2bbc163de2c13b527d394755cf"
+    "sha256": "27c8717dcabb2d5d5d8f7977f97c960536087a535d5d84e224b31102a27acdf3"
   },
   {
     "path": "customer-login.js",
@@ -45,7 +45,7 @@
   },
   {
     "path": "guest-live.css",
-    "sha256": "29517e96712fbd6f61546581863f3ecd6e69fddac95e005e0c3d59752717e4a0"
+    "sha256": "c02052103ed225851ea32c062da9f903acc9eda856eeb1e592b28e069aea5da2"
   },
   {
     "path": "customer-login.css",
@@ -102,5 +102,37 @@
   {
     "path": "assets/PretendardVariable-subset.woff2",
     "sha256": "0dbfc0ec6d576c63d92b33b35c3625bf094340e4dc681818f9b85dad6891bc50"
+  },
+  {
+    "path": "studio.html",
+    "sha256": "f1b31c463a7e6505821d388242a43256c7e50aee3bde11b57c39dbd42c5b0ee6"
+  },
+  {
+    "path": "studio.css",
+    "sha256": "312c269c56a8d258f82a936e4b4fbc2028aa48f4058e368d89ea4d26cbe04270"
+  },
+  {
+    "path": "studio-entry.css",
+    "sha256": "0431c0540183a5a3d9ec49e5981727a3fd02afdaf03fd4247df44a4b4a655d08"
+  },
+  {
+    "path": "studio.js",
+    "sha256": "e15a75848af426dc29452755a0a39770be08b585571c5c9ee601d85a7871656a"
+  },
+  {
+    "path": "vendor/pptxgen.min.js",
+    "sha256": "101f9ba0d1948e93854aea391dfe4370235604e63239f0055267bb5c8f02ba3b"
+  },
+  {
+    "path": "vendor/jszip.min.js",
+    "sha256": "7f839b2d4688b845c105ebf5d2f9803075f91ea0fe72bdaac176c3a04dd3d2c1"
+  },
+  {
+    "path": "vendor/PPTXGENJS-LICENSE.txt",
+    "sha256": "7a2bfe96150786ed1908b8e63f98ebab88875c1e79e28faff6649e0f11f77e52"
+  },
+  {
+    "path": "vendor/JSZIP-LICENSE.txt",
+    "sha256": "566c953c6090b1218ca6217dd7359d45dde46581968586dc607d59a78af6a9c4"
   }
 ]

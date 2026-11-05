@@ -147,3 +147,261 @@ padding:8px 10px;margin:0 0 10px;background:#242018;border:1px solid #59452c;bor
 .bottom-action-link{text-decoration:none}
 #account-logout[hidden],#account-login[hidden]{display:none}
 .account-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;border-top:1px solid var(--line);margin-top:12px;padding-top:14px}.account-actions small{grid-column:1/-1;font-size:10px;color:var(--muted);text-align:center;line-height:1.6}.signup-link{display:flex;align-items:center;justify-content:center;border-radius:9px;background:#dfc29d;color:#18140f;font-size:12px;font-weight:650;min-height:40px}.account-actions[hidden],#account-profile[hidden]{display:none}.onboarding{max-width:440px}.onboarding p{font-size:14px;line-height:1.8;color:var(--muted)}.onboarding .button{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;min-height:44px}.guide-install{display:flex;justify-content:space-between;gap:20px;padding:18px;border:1px solid #675137;border-radius:12px;color:#dfc29d;text-decoration:none}.free-intro{padding:18px;background:#28231c;border-radius:12px;margin-block:12px}.free-intro strong{font-size:16px;color:#dfc29d}.free-intro p{margin-bottom:0}
+
+
+/* P02 R58 / conversation readability and independent scrolling.
+   Familiar ChatGPT interaction patterns; THE FA original colors/assets preserved. */
+.sidebar{width:300px;min-width:300px;padding:15px 11px 12px}
+.sidebar-actions{flex:none;padding:0 6px}
+.navigation{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 6px 22px;
+  overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:#635446 transparent}
+.navigation::-webkit-scrollbar,.chat-flow::-webkit-scrollbar{width:6px}
+.navigation::-webkit-scrollbar-thumb,.chat-flow::-webkit-scrollbar-thumb{background:#645548;border-radius:10px}
+.navigation::-webkit-scrollbar-track,.chat-flow::-webkit-scrollbar-track{background:transparent}
+.nav-section{margin:8px 0 23px}
+.section-label{font-size:12px;line-height:1.45;letter-spacing:.01em;color:#aaa49b;font-weight:730;min-height:37px;padding:0 10px}
+.nav-items{display:grid;gap:3px;min-width:0}
+.nav-item,.project-item{font-size:15px;line-height:1.5;font-weight:550;min-height:46px;padding:10px 12px;gap:10px;
+  border-radius:9px;color:#e1dcd5;align-items:center;min-width:0}
+.nav-item .truncate,.project-item .truncate{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  white-space:normal;word-break:keep-all;overflow-wrap:anywhere;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.nav-item:hover,.project-item:hover{background:#262420}
+.nav-item[aria-current="page"],.project-item[aria-current="page"]{background:#30271e;color:#fff4e8;border-left:3px solid #dfc29d}
+.item-icon{font-size:16px;color:#dfc29d}
+.new-chat{min-height:47px;font-size:14px}
+.search-field{min-height:43px}.search-field input{font-size:14px}
+.sidebar-bottom{flex:none;min-height:0;padding:9px 5px 0;gap:3px}
+.sidebar-tools{min-width:0}
+.sidebar-tools-summary{min-height:43px;border:1px solid #302d2a;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;border-radius:10px;padding:10px 13px;cursor:pointer;color:#d5c9bc;font-size:13px;font-weight:650;list-style:none}
+.sidebar-tools-summary::-webkit-details-marker{display:none}
+.sidebar-tools-summary:hover,.sidebar-tools[open]>.sidebar-tools-summary{background:#25221f;border-color:#4c4030}
+.sidebar-tools-summary span{color:#b9a289;transition:transform .18s}
+.sidebar-tools[open]>.sidebar-tools-summary span{transform:rotate(180deg)}
+.sidebar-tools-list{display:grid;gap:2px;padding:6px 0 3px}
+.sidebar-tools-list>.bottom-action{min-height:39px;font-size:13px;padding:9px 12px}
+.sidebar-bottom>.account-actions{padding-top:9px;margin-top:2px}
+.sidebar-bottom>.account-row{margin-top:4px;padding-top:10px}
+.breadcrumb{font-size:15px;line-height:1.5;max-width:min(49vw,540px)}
+.conversation-header h1{font-size:26px;line-height:1.4;overflow-wrap:anywhere}
+.message-body p{font-size:15px;line-height:1.8}
+.chat-flow{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;
+ -webkit-overflow-scrolling:touch;touch-action:pan-y;scroll-behavior:auto}
+.composer-region{flex:none;min-width:0}
+#chat-list,#project-list{min-width:0}
+@media(max-width:1080px){.sidebar{width:278px;min-width:278px}}
+@media(max-width:780px){
+ .sidebar{position:fixed;inset:0 auto 0 0;width:min(328px,90vw);min-width:0;height:100dvh;
+  padding:13px 10px max(9px,env(safe-area-inset-bottom));z-index:60}
+ .nav-item,.project-item{font-size:15.5px;min-height:48px;padding:11px 12px;line-height:1.45}
+ .section-label{font-size:12px;min-height:40px}
+ .navigation{padding:9px 5px 21px}
+ .sidebar-tools-summary{font-size:13px;min-height:44px}
+ .chat-flow{padding:14px 14px 20px}
+ .message-body p{font-size:15px;line-height:1.75}
+ .breadcrumb{font-size:14px;max-width:min(37vw,210px)}
+ .conversation-header h1{font-size:23px}
+ .composer-region{padding:0 12px max(11px,env(safe-area-inset-bottom))}
+}
+@media(max-width:350px){
+ .sidebar{width:min(300px,92vw)}
+ .nav-item,.project-item{font-size:15px}
+ .breadcrumb{max-width:125px}
+ .chat-flow{padding-inline:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .sidebar-tools-summary span{transition:none}
+}
+
+/* Specificity correction for original ".nav-item span.truncate" nowrap rule. */
+.nav-item span.truncate,.project-item span.truncate{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  white-space:normal;
+  overflow:hidden;
+  overflow-wrap:anywhere;
+  word-break:keep-all;
+  text-overflow:ellipsis;
+  line-height:1.45;
+  min-width:0;
+  flex:1;
+}
+@media(min-width:781px){
+  .nav-item,.project-item{font-size:15.5px}
+}
+@media(max-width:780px){
+  .nav-item,.project-item{font-size:16px}
+}
+
+
+/* Collapsible project section: reserve sidebar height for recent chats. */
+.section-toggle{display:inline-flex;align-items:center;gap:8px;min-height:35px;border:0;background:transparent;
+ color:#aaa49b;font-size:12px;font-weight:730;padding:5px 9px;border-radius:8px;cursor:pointer}
+.section-toggle:hover{background:#24211e;color:#f3e7d8}
+.section-toggle span{font-size:13px;color:#cfb494}
+.project-section.is-open .section-toggle span{transform:rotate(180deg)}
+.project-section:not(.is-open) #project-list{display:none}
+.project-section{margin-bottom:6px}
+.project-section.is-open{margin-bottom:18px}
+@media(max-width:780px){.section-toggle{font-size:13px;min-height:39px}}
+
+/* R59: ChatGPT-style recency scanning, while retaining THE FA identity. */
+.conversation-time-group{padding:17px 11px 5px;color:#aaa397;font-size:11px;letter-spacing:.02em;font-weight:720;
+ line-height:1.4;min-height:30px;pointer-events:none}
+.conversation-time-group:first-child{padding-top:6px}
+.nav-item .truncate,.project-item .truncate{overflow-wrap:anywhere}
+@media(max-width:780px){.conversation-time-group{font-size:12px;padding-top:15px}}
+
+
+/* R61 THE FA Core conversation-first sidebar, desktop and mobile.
+   Keep persistent search and account controls, dedicate available height to scrolling chats. */
+.sidebar{height:100dvh;height:100vh;height:100dvh;box-sizing:border-box;overflow:hidden;
+ display:flex;flex-direction:column;--chatlist-scrollbar-thumb:#9d8064}
+.sidebar-actions{flex:0 0 auto;min-height:0;padding-bottom:8px}
+.navigation{flex:1 1 0%;height:auto;min-height:0;max-height:none;overflow-x:hidden;overflow-y:auto;
+ overscroll-behavior-y:contain;scrollbar-gutter:stable;-webkit-overflow-scrolling:touch;touch-action:pan-y;
+ padding:9px 4px 24px 6px;scrollbar-color:#947a60 #201d1a;scrollbar-width:auto}
+.navigation::-webkit-scrollbar{width:12px}
+.navigation::-webkit-scrollbar-track{background:#211e1b;border-left:1px solid #3b312b;border-radius:10px}
+.navigation::-webkit-scrollbar-thumb{background:#8d765d;border:2px solid #211e1b;
+ border-radius:999px;min-height:64px;background-clip:padding-box}
+.navigation::-webkit-scrollbar-thumb:hover{background:#b99873}
+.nav-section{margin-bottom:8px}
+.nav-section.project-section:not(.is-open){margin-bottom:4px}
+.nav-section.recent{margin-top:2px;margin-bottom:10px}
+.nav-section.recent>.section-label{position:sticky;top:0;z-index:3;min-height:42px;
+ display:flex;align-items:center;border-bottom:1px solid #2f2b27;
+ background:#111213;padding-inline:11px;font-size:12px}
+.nav-item,.project-item{font-size:15.5px;min-height:51px;padding:10px 11px;line-height:1.5;
+ align-items:center;border-radius:9px}
+.nav-item span.truncate,.project-item span.truncate{font-size:inherit;line-height:1.45;
+ display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;
+ overflow:hidden;text-overflow:ellipsis;word-break:keep-all;overflow-wrap:anywhere}
+.nav-item:focus-visible,.project-item:focus-visible{outline:2px solid #dfbd8b;outline-offset:1px}
+.sidebar-bottom{flex:0 0 auto;min-height:0;max-height:min(30dvh,200px);overflow-y:auto;
+ overflow-x:hidden;padding:7px 5px 0;scrollbar-color:#6f5d49 transparent;scrollbar-width:thin}
+.sidebar-tools-summary{min-height:41px}
+.sidebar-tools-list>.bottom-action{min-height:36px;padding:7px 10px}
+.sidebar-bottom>.account-actions{margin-top:4px;padding-top:9px}
+.sidebar-bottom>.account-row{margin-top:3px;padding-top:8px}
+@media(max-width:1080px) and (min-width:781px){
+ .sidebar{width:288px;min-width:288px}
+}
+@media(max-width:780px){
+ .sidebar{width:min(332px,92vw);max-width:92vw;padding:13px 9px max(8px,env(safe-area-inset-bottom))}
+ .navigation{padding:7px 4px 23px;scrollbar-width:auto;overscroll-behavior-y:contain}
+ .navigation::-webkit-scrollbar{width:11px}
+ .sidebar-bottom{max-height:min(27dvh,174px)}
+ .nav-item,.project-item{font-size:16px;min-height:51px;padding:11px 12px}
+ .nav-section.recent>.section-label{min-height:42px}
+ .sidebar-tools-summary{min-height:41px}
+ .section-toggle{min-height:38px}
+}
+@media(max-width:350px){
+ .sidebar{width:min(304px,93vw)}
+ .sidebar-bottom{max-height:min(26dvh,158px)}
+}
+
+/* R61 measured viewport adjustment: preserve at least half the screen for chat browsing. */
+.sidebar-bottom{max-height:min(22dvh,160px)}
+@media(max-width:780px){.sidebar-bottom{max-height:min(22dvh,145px)}}
+@media(max-width:350px){.sidebar-bottom{max-height:min(21dvh,128px)}}
+
+/* R61 measured second adjustment: compact footer, scrollable when expanded. */
+.sidebar-bottom{max-height:min(19dvh,122px)}
+@media(max-width:780px){.sidebar-bottom{max-height:min(18dvh,112px)}}
+@media(max-width:350px){.sidebar-bottom{max-height:min(18dvh,104px)}}
+
+
+/* R62 full-height conversation navigation with THE FA black and warm gold. */
+.sidebar{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.brand-row{flex:0 0 auto;padding:0 10px 8px}
+.sidebar-actions{display:grid;gap:7px;padding:0 6px 7px;flex:0 0 auto}
+.sidebar-actions .guest-label{font-size:10px;padding:5px 7px;margin:0;
+ background:#211d18;border:1px solid #483a2b;border-radius:7px}
+.sidebar-actions .new-chat{min-height:42px;padding:9px 12px}
+.sidebar-actions .search-field{min-height:40px;padding:7px 10px}
+.sidebar-quick-tools{display:grid;grid-template-columns:1fr 1fr;gap:7px;min-width:0;
+ position:relative;isolation:isolate}
+.sidebar-quick-link,.sidebar-quick-tools .sidebar-tools-summary{
+ display:flex;align-items:center;justify-content:center;gap:7px;
+ padding:8px 7px;min-height:39px;width:100%;border:1px solid #554631;
+ background:#211e19;color:#e8d8c6;border-radius:9px;
+ font-size:12px;font-weight:700;line-height:1.4;white-space:nowrap}
+.sidebar-quick-link:hover,.sidebar-quick-tools .sidebar-tools-summary:hover,
+.sidebar-tools[open]>.sidebar-tools-summary{
+ color:#ffefdc;border-color:#b9986e;background:#2c261f}
+.sidebar-quick-link span,.sidebar-quick-tools .sidebar-tools-summary>span:first-child{color:#dfc29d;font-size:16px}
+.sidebar-quick-link.studio-nav-entry{margin:0;box-shadow:none;min-width:0}
+.sidebar-quick-tools>.sidebar-tools{position:relative;min-width:0}
+.sidebar-quick-tools>.sidebar-tools .sidebar-tools-summary{list-style:none;cursor:pointer}
+.sidebar-quick-tools>.sidebar-tools .sidebar-tools-summary>span:last-child{
+ margin-left:3px;font-size:12px;transition:transform .16s ease}
+.sidebar-quick-tools>.sidebar-tools[open]>.sidebar-tools-summary>span:last-child{transform:rotate(180deg)}
+.sidebar-tools-list{display:grid;gap:3px}
+.sidebar-quick-tools .sidebar-tools-list{position:absolute;top:calc(100% + 7px);
+ right:0;width:min(286px,calc(100vw - 42px));max-height:min(67dvh,470px);
+ overflow-y:auto;overscroll-behavior-y:contain;scrollbar-width:thin;
+ z-index:150;background:#1b1a18;border:1px solid #68553d;border-radius:12px;
+ box-shadow:0 18px 55px #000c;padding:9px}
+.sidebar-quick-tools .sidebar-tools-list>.bottom-action{
+ display:flex;width:100%;padding:10px;min-height:42px;
+ border:1px solid transparent;border-radius:8px;background:transparent;
+ color:#e0d5ca;text-align:left;font-size:12.5px}
+.sidebar-quick-tools .sidebar-tools-list>.bottom-action:hover{
+ background:#2f291f;color:#fff0da;border-color:#5f4d39}
+.sidebar-quick-tools .sidebar-tools-list>.bottom-action .soft-pill{
+ margin-left:auto;background:#433324;color:#f0d1a3}
+.sidebar-quick-tools .sidebar-tools-list>.bottom-action:focus-visible{
+ outline:2px solid #dfc29d;outline-offset:1px}
+.navigation{flex:1 1 0%;min-height:0;max-height:unset!important;overflow-y:auto;
+ overflow-x:hidden;padding:4px 5px 26px;scrollbar-width:auto;
+ scrollbar-gutter:stable;scrollbar-color:#8e765d #1b1a18;
+ overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.navigation::-webkit-scrollbar{width:11px}
+.navigation::-webkit-scrollbar-track{background:#1b1a18;border-radius:9px}
+.navigation::-webkit-scrollbar-thumb{background:#8c7458;border:2px solid #1b1a18;
+ border-radius:999px;min-height:70px;background-clip:padding-box}
+.navigation::-webkit-scrollbar-thumb:hover{background:#bd9e75}
+.nav-section.project-section:not(.is-open){margin-bottom:1px}
+.nav-section.recent{margin-top:0}
+.nav-section.recent>.section-label{top:0;z-index:2;background:#121315}
+.nav-item,.project-item{min-height:49px;font-size:15.5px;padding:9px 11px}
+.nav-item span.truncate,.project-item span.truncate{white-space:normal;
+ display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+ overflow:hidden;line-height:1.48}
+.sidebar-bottom{flex:0 0 auto;min-height:0;max-height:105px!important;overflow-x:hidden;
+ overflow-y:auto;padding:3px 5px 0;gap:0;border-top:1px solid #332c25;
+ scrollbar-width:thin;scrollbar-color:#725a43 transparent}
+.sidebar-bottom .account-actions{margin:0;padding:5px 1px 1px;border:0;gap:5px}
+.sidebar-bottom .account-actions small{font-size:10px;line-height:1.25}
+.sidebar-bottom .account-actions .login-link,
+.sidebar-bottom .account-actions .signup-link{min-height:34px;padding:7px;font-size:12px}
+.sidebar-bottom .account-row{margin:0;padding:7px 5px 4px;border:0;min-height:48px}
+.sidebar-tools-summary::-webkit-details-marker{display:none}
+@media(max-width:780px){
+ .sidebar{width:min(332px,92vw);max-width:92vw;
+ padding:11px 9px max(8px,env(safe-area-inset-bottom))}
+ .brand-row{padding:0 9px 8px}
+ .sidebar-actions{gap:6px;padding:0 5px 5px}
+ .sidebar-actions .new-chat{min-height:41px}
+ .sidebar-actions .search-field{min-height:40px}
+ .sidebar-quick-link,.sidebar-quick-tools .sidebar-tools-summary{min-height:42px;font-size:12px}
+ .navigation{padding:4px 3px 22px;scrollbar-width:auto}
+ .navigation::-webkit-scrollbar{width:10px}
+ .nav-item,.project-item{font-size:16px;min-height:48px}
+ .sidebar-bottom{max-height:90px!important}
+}
+@media(max-width:350px){
+ .sidebar{width:min(304px,93vw)}
+ .sidebar-quick-link,.sidebar-quick-tools .sidebar-tools-summary{font-size:11px;gap:5px;padding-inline:4px}
+ .sidebar-bottom{max-height:86px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .sidebar-quick-tools .sidebar-tools-summary>span:last-child{transition:none}
+}
+
+/* R62 refine: logo already identifies the workspace; remove redundant caption and give height to chats. */
+.sidebar-actions .guest-label{display:none}
+.sidebar-quick-tools{z-index:35}
