@@ -12,6 +12,10 @@ Every manifest operation must reference existing, hash-pinned artifacts. Future 
 
 Consumed receipts retain `write_allowed:false`: they are admission evidence to bind into the existing official Work Unit, not proof of dispatch, execution, publication or terminal completion. The executor must separately recheck Fresh GitHub HEAD, artifact bytes, current writer/fence, approved target and protected-job state at the side-effect boundary.
 
+`customer-workunit.mjs` is a read-only integration candidate. Its `prepareBinding` method obtains dedicated-role database evidence, checks current authority and artifact bytes twice, and commits the exact manifest, target, receipt and writer identity into a request hash. Its `inspect` method can compare an existing Broker action with terminal provider evidence. It has no `run`, Broker `prepare` or `execute` method. It cannot accept a Work Unit, grant write rights or perform a provider mutation. Supplying a caller's `verified:true` flag is not evidence.
+
+Construct the candidate only in trusted host code with authenticated database/Core/Broker read adapters. A fixture adapter is not live authentication. The installed Work Unit producer, conditional production fields in its existing request hashes, fixed-target provider executor and Broker authority/verifier services remain separate integration work. Missing adapters fail closed. Do not execute the returned request directly to bypass the official Work Unit gate.
+
 Validation:
 
 ```
