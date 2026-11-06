@@ -8,10 +8,22 @@ $names=@('THE_FA_ACTION_AUTHORITY_ENDPOINT','THE_FA_ACTION_AUTHORITY_BEARER',
  'THE_FA_SUPABASE_ACTION_PROVIDER_ENDPOINT','THE_FA_SUPABASE_ACTION_READBACK_ENDPOINT',
  'THE_FA_PROVIDER_INTERNAL_BEARER','THE_FA_PROVIDER_RECEIPT_VERIFIER_ENDPOINT',
  'THE_FA_PROVIDER_RECEIPT_VERIFIER_BEARER','THE_FA_ACTION_BROKER_BEARER')
+function Invoke-SupabasePrivate {
+ param([string[]]$CliArguments)
+ $previous=$ErrorActionPreference
+ try {
+  # Windows PowerShell treats even an update notice on native stderr as an
+  # error with preference Stop. The actual native exit code remains decisive.
+  $ErrorActionPreference='Continue'
+  $output=& (Get-Command supabase -ErrorAction Stop).Source @CliArguments 2>$null
+  $code=$LASTEXITCODE
+  return @{ExitCode=$code;Output=($output -join "`n")}
+ } finally {$ErrorActionPreference=$previous}
+}
 if (!$Apply) { @{decision='REVIEW_ONLY';project=$project;names=$names;host_local_dpapi_root=$root} | ConvertTo-Json -Depth 3; exit }
-$existingRaw=& (Get-Command supabase).Source secrets list --project-ref $project --output json 2>$null
-if ($LASTEXITCODE -ne 0) { throw 'SETTINGS_NAME_READBACK_FAILED' }
-$existing=$existingRaw | ConvertFrom-Json
+$listed=Invoke-SupabasePrivate -CliArguments @('secrets','list','--project-ref',$project,'--output','json')
+if ($listed.ExitCode -ne 0) { throw 'SETTINGS_NAME_READBACK_FAILED' }
+$existing=$listed.Output | ConvertFrom-Json
 if (@($existing | Where-Object { $_.name -in $names }).Count -ne 0) {
  throw 'EXISTING_SETTINGS_RECONCILE_ONLY'
 }
@@ -61,11 +73,11 @@ try {
  [IO.File]::WriteAllText($plain,(($values.Keys | ForEach-Object {$_+'='+$values[$_]}) -join "`n"),(New-Object Text.UTF8Encoding($false)))
  # Only the private filename is a process argument. Existing CLI credentials
  # remain on4060; new internal credentials are installed in this Core project.
- $setOutput=& (Get-Command supabase).Source secrets set --project-ref $project --env-file $plain 2>&1
- if ($LASTEXITCODE -ne 0) { throw 'SETTINGS_WRITE_UNCERTAIN_READBACK_REQUIRED' }
- $actualRaw=& (Get-Command supabase).Source secrets list --project-ref $project --output json 2>$null
- if ($LASTEXITCODE -ne 0) { throw 'SETTINGS_POST_WRITE_READBACK_REQUIRED' }
- $actual=$actualRaw | ConvertFrom-Json
+ $setOutput=Invoke-SupabasePrivate -CliArguments @('secrets','set','--project-ref',$project,'--env-file',$plain)
+ if ($setOutput.ExitCode -ne 0) { throw 'SETTINGS_WRITE_UNCERTAIN_READBACK_REQUIRED' }
+ $listed=Invoke-SupabasePrivate -CliArguments @('secrets','list','--project-ref',$project,'--output','json')
+ if ($listed.ExitCode -ne 0) { throw 'SETTINGS_POST_WRITE_READBACK_REQUIRED' }
+ $actual=$listed.Output | ConvertFrom-Json
  foreach($key in $names) {
   $row=@($actual | Where-Object {$_.name -ceq $key})
   if ($row.Count -ne 1 -or $row[0].digest.ToLowerInvariant() -cne $digests[$key]) { throw 'SETTINGS_DIGEST_MISMATCH' }
