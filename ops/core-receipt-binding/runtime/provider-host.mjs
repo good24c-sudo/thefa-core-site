@@ -14,6 +14,11 @@ const uuid=s=>typeof s==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[8
 const same=(a,b)=>canonicalJson(a)===canonicalJson(b);
 const q=s=>"'"+s.replaceAll("'","''")+"'";
 const failure=code=>{throw Error(code);};
+export function windowsPowerShellEnvironment(source=process.env){
+ const env=Object.fromEntries(Object.entries(source).filter(([key])=>key.toLowerCase()!=='psmodulepath'));
+ env.PSModulePath=path.win32.join(source.SystemRoot??source.SYSTEMROOT??'C:\\Windows','System32','WindowsPowerShell','v1.0','Modules');
+ return env;
+}
 export function buildSchemaSql(root){
  const role=readFileSync(path.join(root,'create-customer-runtime-role.sql'),'utf8').replace(/^\uFEFF/,'').replaceAll('\r\n','\n');
  let migration=readFileSync(path.join(root,'supabase/migrations/20261106060123_customer_auth_production_preserved.sql'),'utf8')
@@ -98,7 +103,7 @@ export async function executeProviderOnce({actionId,packet,artifactRoot,evidence
 function readBearer(file){
  const script='$s=Get-Content -Raw -LiteralPath '+q(file)+' | ConvertTo-SecureString; '+
   '$p=[Runtime.InteropServices.Marshal]::SecureStringToBSTR($s); try { [Runtime.InteropServices.Marshal]::PtrToStringBSTR($p) } finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($p) }';
- const value=execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',script],{encoding:'utf8',windowsHide:true}).trim();
+ const value=execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',script],{encoding:'utf8',windowsHide:true,env:windowsPowerShellEnvironment()}).trim();
  if(!/^[a-f0-9]{64}$/.test(value))failure('PROTECTED_PROVIDER_CREDENTIAL_INVALID');
  return value;
 }
@@ -118,7 +123,7 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
    const command='& (Get-Command supabase -ErrorAction Stop).Source db query --linked --project-ref '+q(TARGET)+' --file '+q(file)+' --output json; exit $LASTEXITCODE';
    try{
     const raw=execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',command],{
-     encoding:'utf8',windowsHide:true,timeout:150000,maxBuffer:1024*1024,stdio:['ignore','pipe','pipe']});
+     encoding:'utf8',windowsHide:true,env:windowsPowerShellEnvironment(),timeout:150000,maxBuffer:1024*1024,stdio:['ignore','pipe','pipe']});
     return kind==='readback'?JSON.parse(raw):null;
    }catch{failure('PROVIDER_QUERY_OUTCOME_REQUIRES_READBACK');}
   };

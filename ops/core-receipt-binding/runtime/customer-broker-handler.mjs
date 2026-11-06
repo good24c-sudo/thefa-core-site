@@ -1,8 +1,9 @@
 import {timingSafeEqual,createHash} from 'node:crypto';
+import {Buffer} from 'node:buffer';
 
 const CORE='https://furfjhymxqsbhvuyeqpx.supabase.co';
 const REPO='good24c-sudo/thefa-core-site';
-const PREFIX='/functions/v1/thefa-customer-broker-authority';
+const PREFIXES=['/functions/v1/thefa-customer-broker-authority','/thefa-customer-broker-authority'];
 const MODES={
  '/': ['THE_FA_ACTION_BROKER_BEARER',['ADMIT_WORK_UNIT_V1','GET_PROVIDER_WORK_UNIT_V1']],
  '/authority':['THE_FA_ACTION_AUTHORITY_BEARER',['PREPARE_CONTEXT_V1','EXECUTE_AUTHORITY_V1']],
@@ -64,8 +65,9 @@ export function createCustomerBrokerHandler({env,fetcher=fetch,now=()=>new Date(
  }
  return async request=>{
   if(request.method!=='POST')return response(405,{error:'POST_REQUIRED'});
-  const url=new URL(request.url),suffix=url.pathname===PREFIX?'/' : url.pathname.slice(PREFIX.length);
-  const route=url.pathname.startsWith(PREFIX)?MODES[suffix]:null;
+  const url=new URL(request.url),prefix=PREFIXES.find(p=>url.pathname===p||url.pathname.startsWith(p+'/'));
+  const suffix=prefix?(url.pathname===prefix?'/' : url.pathname.slice(prefix.length)):null;
+  const route=prefix?MODES[suffix]:null;
   if(!route)return response(404,{error:'ROUTE_NOT_FOUND'});
   if(!authenticated(request.headers.get('authorization'),env(route[0])))return response(403,{error:'INTERNAL_AUTHENTICATION_REQUIRED'});
   let body;

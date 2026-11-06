@@ -80,7 +80,10 @@ try {
  $actual=$listed.Output | ConvertFrom-Json
  foreach($key in $names) {
   $row=@($actual | Where-Object {$_.name -ceq $key})
-  if ($row.Count -ne 1 -or $row[0].digest.ToLowerInvariant() -cne $digests[$key]) { throw 'SETTINGS_DIGEST_MISMATCH' }
+  if ($row.Count -ne 1) { throw 'SETTINGS_NAME_MISMATCH' }
+  # CLI v2.117 JSON calls the displayed DIGEST column "value".
+  $digest=if($row[0].PSObject.Properties['digest']){$row[0].digest}else{$row[0].value}
+  if ($digest -isnot [string] -or $digest -notmatch '^[a-fA-F0-9]{64}$' -or $digest.ToLowerInvariant() -cne $digests[$key]) { throw 'SETTINGS_DIGEST_MISMATCH' }
  }
  $receipt=@{decision='BROKER_SETTINGS_INSTALLED_AND_DIGEST_VERIFIED';project=$project;setting_count=8;
   host=$env:COMPUTERNAME;at=(Get-Date -Format o);credential_values_logged=$false;existing_credentials_copied=$false}

@@ -63,6 +63,14 @@ test('HTTP method and unknown route fail before any adapter',async()=>{
  const f=fixture();assert.equal((await f.send('',{},null,'GET')).status,405);
  assert.equal((await f.send('/not-a-route',{})).status,404);assert.equal(f.calls.length,0);
 });
+test('gateway-stripped path preserves route authentication and exact boundaries',async()=>{
+ const f=fixture(),base=BASE+'/thefa-customer-broker-authority';
+ for(const [suffix,status] of [['',200],['/worker',403],['-other',404],['/not-a-route',404]]){
+  const r=await f.handler(new Request(base+suffix,{method:'POST',headers:{authorization:'Bearer '+envs.THE_FA_ACTION_BROKER_BEARER},body:JSON.stringify({mode:'GET_PROVIDER_WORK_UNIT_V1'})}));
+  assert.equal(r.status,status);
+ }
+ assert.equal(f.calls.length,1);
+});
 for(const [suffix,mode,correct] of [['','GET_PROVIDER_WORK_UNIT_V1','1'],['/authority','EXECUTE_AUTHORITY_V1','2'],
  ['/provider','PROVIDER_ACCEPT','3'],['/readback','READBACK_ACTION_V1','3'],['/verify','VERIFY_PROVIDER_RECEIPT_V1','4'],['/worker','WORKER_CLAIM','3']]){
  test('caller key is scoped to '+suffix+' '+mode,async()=>{
