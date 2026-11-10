@@ -96,6 +96,9 @@
       if(capability?.configured!==true)return;
       unified.hidden=false;
       unified.disabled=false;
+      status.classList.remove('error');
+      status.textContent='THE FA 통합 계정으로 로그인하세요. 단골리턴과 같은 계정입니다.';
+      if(emailForm&&!emailEnabled)emailStatus.textContent='이메일 가입·로그인은 THE FA 통합 계정을 이용해 주세요.';
       unified.addEventListener('click',()=>{
         if(busy||emailBusy||unified.disabled)return;
         unified.disabled=true;

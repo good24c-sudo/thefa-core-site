@@ -90,12 +90,19 @@ function session(req,cfg,now){
     ticket.issued>now+30||ticket.expires<=now||ticket.expires-now>1800)return null;
  return ticket;
 }
+/** A signed, short-lived identity assertion, NOT a customer authorization grant. */
+export function readCoreOidcIdentity(cookieHeader,{env=process.env,clock=Date.now}={}){
+ const cfg=config(env);
+ if(!cfg||cfg.issuer!==STAGE||env.VERCEL_ENV!=='preview'||typeof cookieHeader!=='string')return null;
+ const s=session({headers:{cookie:cookieHeader}},cfg,Math.floor(clock()/1000));
+ return s?Object.freeze({issuer:s.issuer,subject:s.sub,audience:s.audience,expires:s.expires}):null;
+}
 const jwks=new Map();
 const tokenKeys=issuer=>{
  if(!jwks.has(issuer))jwks.set(issuer,createRemoteJWKSet(new URL(issuer+'/.well-known/jwks.json'),{timeoutDuration:6000,cacheMaxAge:300000}));
  return jwks.get(issuer);
 };
-export function createThefaCoreOidcHandler({env=process.env,clock=Date.now,fetchImpl=globalThis.fetch,verifyJwt}={}){
+export function createThefaCoreOidcHandler({env=process.env,clock=Date.now,fetchImpl=globalThis.fetch,verifyJwt,onVerifiedIdentity=null,onSessionLookup=null}={}){
  return async function handle(req,res,operation){
   const cfg=config(env);
   if(!cfg)return http(res,503,{code:'THEFA_CORE_OIDC_NOT_CONFIGURED'});
@@ -110,7 +117,12 @@ export function createThefaCoreOidcHandler({env=process.env,clock=Date.now,fetch
   if(operation==='session'){
    if(req.method!=='GET'||url.search)return http(res,405,{code:'METHOD_OR_QUERY_INVALID'});
    const s=session(req,cfg,now);
-   return http(res,200,{authenticated:!!s,accountLinked:false,canUseAi:false,expiresInSeconds:s?s.expires-now:0});
+   let linked=false;
+   if(s&&onSessionLookup){
+    try{linked=Boolean(await onSessionLookup(req.headers.cookie||''));}
+    catch{return http(res,503,{code:'THEFA_CORE_ACCOUNT_READBACK_UNAVAILABLE'})}
+   }
+   return http(res,200,{authenticated:!!s,accountLinked:linked,canUseAi:false,expiresInSeconds:s?s.expires-now:0});
   }
   if(operation==='logout'){
    if(req.method!=='POST'||url.search||req.headers.origin!==cfg.origin||
@@ -155,8 +167,15 @@ export function createThefaCoreOidcHandler({env=process.env,clock=Date.now,fetch
      payload.azp!=null&&payload.azp!==cfg.clientId||!Number.isSafeInteger(payload.exp)||
      payload.exp<=now||payload.exp>now+3600)
       return http(res,403,{code:'THEFA_CORE_OIDC_ID_TOKEN_INVALID'},clear);
-   // Only the shared identity is asserted. Existing customer allowance/account
-   // admission is intentionally NOT bypassed by an ID token.
+   // A verified ID token is not an account entitlement. Admission is independently
+   // proven using a dedicated, fenced staging registry BEFORE a Core cookie exists.
+   if(onVerifiedIdentity){
+    try{
+     const admission=await onVerifiedIdentity({issuer:cfg.issuer,audience:cfg.clientId,subject:payload.sub});
+     if(admission?.sessionVerified!==true||admission?.subject!==payload.sub)
+      return http(res,503,{code:'THEFA_CORE_ACCOUNT_ADMISSION_UNVERIFIED'},clear);
+    }catch{return http(res,503,{code:'THEFA_CORE_ACCOUNT_ADMISSION_UNAVAILABLE'},clear)}
+   }
    const expires=Math.min(payload.exp,now+1800);
    const ticket=seal({issuer:cfg.issuer,audience:cfg.clientId,origin:cfg.origin,sub:payload.sub,issued:now,expires},cfg.key);
    return location(res,cfg.origin+'/login?oidc=verified',[...clear,cookie(SESSION,ticket,Math.min(1800,expires-now))]);
