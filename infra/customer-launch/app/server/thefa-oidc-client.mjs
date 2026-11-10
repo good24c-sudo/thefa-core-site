@@ -74,17 +74,13 @@ function validRequest(req,cfg){
  if(typeof req?.url!=='string'||req.url.length>8192)return null;
  const host=new URL(cfg.origin).host;
  const h=req.headers||{};
- const conditions={
-  hostMatches:h.host===host,
-  forwardedHostMatches:!h['x-forwarded-host']||h['x-forwarded-host']===host,
-  protoAllowed:!h['x-forwarded-proto']||h['x-forwarded-proto']==='https',
-  noOriginalUrl:!h['x-original-url'],
-  noForwarded:!h.forwarded,
- };
- if(Object.values(conditions).some(x=>!x)){
-  if(process.env.VERCEL_ENV==='preview')console.warn(JSON.stringify({code:'THEFA_CORE_PREVIEW_ORIGIN_DIAGNOSTIC',checks:conditions,keys:Object.keys(h).filter(x=>['host','x-forwarded-host','x-forwarded-proto','x-vercel-forwarded-for','forwarded','x-original-url'].includes(x))}));
-  return null;
- }
+ // Vercel sends an RFC 7239 Forwarded header on legitimate requests.
+ // It is untrusted input and NEVER used for origin, authority, or identity.
+ // Only the canonical Host and matching HTTPS proxy headers are considered.
+ if(h.host!==host||
+   (h['x-forwarded-host']&&h['x-forwarded-host']!==host)||
+   (h['x-forwarded-proto']&&h['x-forwarded-proto']!=='https')||
+   h['x-original-url'])return null;
  try{const url=new URL(req.url,cfg.origin);return url.origin===cfg.origin&&!url.hash?url:null;}catch{return null;}
 }
 function session(req,cfg,now){

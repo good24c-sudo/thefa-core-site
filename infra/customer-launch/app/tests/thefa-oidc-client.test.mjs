@@ -73,3 +73,20 @@ test('verified local logout clears only Core cookies',async()=>{
  assert.equal(res.statusCode,200);assert.equal(json(res).scope,'CORE_LOCAL_ONLY');assert.equal(res.headers['set-cookie'].length,2);
  for(const c of res.headers['set-cookie'])assert.match(c,/Max-Age=0/);
 });
+
+test('Vercel Forwarded presence is ignored while canonical Host is verified',async()=>{
+ const h={host:new URL(origin).host,'x-forwarded-host':new URL(origin).host,
+   'x-forwarded-proto':'https',forwarded:'for=192.0.2.1;host=attacker.test;proto=http'};
+ const res=reply();
+ await createThefaCoreOidcHandler({env})(request('/api/oidc/status','GET',h),res,'status');
+ assert.equal(res.statusCode,200);
+ assert.equal(json(res).configured,true);
+ assert.equal(json(res).canUseAi,false);
+});
+test('mismatched canonical Vercel forwarded host still blocked',async()=>{
+ const h={host:new URL(origin).host,'x-forwarded-host':'evil.example',
+   'x-forwarded-proto':'https',forwarded:'for=192.0.2.1'};
+ const res=reply();
+ await createThefaCoreOidcHandler({env})(request('/api/oidc/status','GET',h),res,'status');
+ assert.equal(res.statusCode,403);
+});
