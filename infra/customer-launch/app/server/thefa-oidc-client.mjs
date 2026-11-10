@@ -73,10 +73,18 @@ function location(res,url,cookies=[]){
 function validRequest(req,cfg){
  if(typeof req?.url!=='string'||req.url.length>8192)return null;
  const host=new URL(cfg.origin).host;
- if(req.headers?.host!==host||
-   (req.headers['x-forwarded-host']&&req.headers['x-forwarded-host']!==host)||
-   (req.headers['x-forwarded-proto']&&req.headers['x-forwarded-proto']!=='https')||
-   req.headers['x-original-url']||req.headers.forwarded)return null;
+ const h=req.headers||{};
+ const conditions={
+  hostMatches:h.host===host,
+  forwardedHostMatches:!h['x-forwarded-host']||h['x-forwarded-host']===host,
+  protoAllowed:!h['x-forwarded-proto']||h['x-forwarded-proto']==='https',
+  noOriginalUrl:!h['x-original-url'],
+  noForwarded:!h.forwarded,
+ };
+ if(Object.values(conditions).some(x=>!x)){
+  if(process.env.VERCEL_ENV==='preview')console.warn(JSON.stringify({code:'THEFA_CORE_PREVIEW_ORIGIN_DIAGNOSTIC',checks:conditions,keys:Object.keys(h).filter(x=>['host','x-forwarded-host','x-forwarded-proto','x-vercel-forwarded-for','forwarded','x-original-url'].includes(x))}));
+  return null;
+ }
  try{const url=new URL(req.url,cfg.origin);return url.origin===cfg.origin&&!url.hash?url:null;}catch{return null;}
 }
 function session(req,cfg,now){

@@ -49,7 +49,15 @@ test('release assembly exposes exactly34 reviewed browser files and privately pa
  assert.deepEqual(dynamic,[{source:'/api/customer/conversations/:conversationId(chat_[0-9a-f-]{36})',destination:'/api/dispatch?__customer_route=/api/customer/conversations/:conversationId'}]);
  assert.equal(config.rewrites.find(x=>x.source==='/server/:path*').destination,'/api/source-denied');
  assert.equal(config.functions['api/dispatch.mjs'].includeFiles,'private-data/migration/**');
- const gitIgnore=await readFile(path.join(outputDirectory,'.gitignore'),'utf8'),vercelIgnore=await readFile(path.join(outputDirectory,'.vercelignore'),'utf8');assert.match(gitIgnore,/private-data\//);assert.match(vercelIgnore,/!private-data/);assert.match(vercelIgnore,/\*\*\/\*\.bin/);
+ const gitIgnore=await readFile(path.join(outputDirectory,'.gitignore'),'utf8'),vercelIgnore=await readFile(path.join(outputDirectory,'.vercelignore'),'utf8');
+ assert.match(gitIgnore,/private-data\//);
+ // The restrictive root ignore formerly removed the complete API server from Vercel uploads.
+ // The deployment manifest must now include API, server, and private inventory files,
+ // while excluding only secrets, test fixtures, and dependencies.
+ assert.doesNotMatch(vercelIgnore,/^\/\*\s*$/m);
+ assert.doesNotMatch(vercelIgnore,/^\/?(api|server|customer-public|private-data)\/\s*$/m);
+ assert.match(vercelIgnore,/^node_modules\/$/m);
+ assert.match(vercelIgnore,/^\*\*\/\*\.bin$/m);
  await assert.rejects(()=>api.assembleCustomerRelease({outputDirectory}),/CUSTOMER_RELEASE_OUTPUT_EXISTS/);
  await assert.rejects(()=>api.assembleCustomerRelease({outputDirectory:path.join(root,'../outside')}),/CUSTOMER_RELEASE_OUTPUT_INVALID/);
 });
