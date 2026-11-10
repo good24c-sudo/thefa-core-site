@@ -20,3 +20,10 @@ Base HEAD: 1dfcb4c45c2dacd3aaa586cda964b15649b7d465. 기존 BetterAuth, 사용�
 대표님은 테스트 고객 삭제 후 새 가입을 승인했습니다. 하지만 FA_스테이징 auth.users 8명과 운영 3명은 모두 persons와 연결, CEO WebAuthn/RD 직원 및 서비스 관리 권한에 연쇄 영향을 주는 UUID가 있습니다. 안전한 대상별 백업/복원 검증 전에는 auth.users 일괄 삭제 금지.
 
 QA: Node customer tests 142/142 PASS, 신규 OIDC 8/8 포함. 이것은 격리 QA이지 실사용 Google SSO, 가입, Core AI/저장, Production 배포 완료가 아닙니다.
+## 2026-11-10 추가 실검증
+- 스테이징 Supabase OAuth 클라이언트 `6b70d657-b1fa-4174-a3f2-29d475f4e3c0` 생성 및 동일 콜백 readback PASS.
+- Core 프리뷰의 `/api/oidc/status`는 `configured:true`로 HTTP 200, `/api/oidc/start`는 올바른 등록 client/PKCE/state/nonce/콜백으로 303 반환 PASS.
+- 기존 FA OAuth 카나리는 `authorization_id`를 가진 신규 Core 인증 요청을 받아 로그인 화면 HTTP 200 반환 PASS. 기존 37개 클라이언트를 보호하기 위해 카나리 전역 alias/Site URL은 변경하지 않음.
+- Core login/signup 두 화면에 `THE FA 통합 계정으로 계속` 추가; OIDC status 200일 때만 활성, 성공 후 기존 고객 연결 미완료를 정확히 안내.
+- Core 전체 테스트 148/148 PASS, HTML+JS+CSS source/published SHA256 manifest 동기화 확인.
+- 실제 사용자 Google/이메일 승인·ID 토큰 전달의 완전한 실계정 E2E와 Core 계정 등록·무료사용량 연결은 아직 남음. 완료 또는 운영 출시로 오인 금지.
