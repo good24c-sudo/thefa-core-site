@@ -78,11 +78,11 @@ test('Different Supabase project or absent publishable Auth key fails closed',as
  assert.equal((await createStageCustomerAuthProbe({env:{},fetcher:f.invoke,now})(req())).status,503);
  assert.equal(f.calls(),0);
 });
-test('Reject POST and unexpected paths or cross-origin before Auth service call',async()=>{
+test('Reject POST and unexpected function paths before Auth service call',async()=>{
  const f=fakeFetch(),h=createStageCustomerAuthProbe({env,fetcher:f.invoke,now});
  assert.equal((await h(req(token(),url,'POST'))).status,405);
  assert.equal((await h(req(token(),IDP_URL+'/functions/v1/other'))).status,404);
- assert.equal((await h(req(token(),'https://evil.example/functions/v1/thefa-core-customer-sso-stage'))).status,404);
+ assert.equal((await h(req(token(),'https://evil.example/functions/v1/unknown-function'))).status,404);
  assert.equal((await h(req(token(),url,'GET',{origin:'https://evil.example'}))).status,403);
  assert.equal(f.calls(),0);
 });
@@ -98,4 +98,12 @@ test('Edge source contains neither service_role usage nor DB write endpoints',as
  assert.doesNotMatch(body,/SUPABASE_SERVICE_ROLE_KEY|sb_secret_|\/rest\/v1|\/rpc\/|POST\s*\(/);
  assert.match(entry,/Deno\.serve\(createStageCustomerAuthProbe/);
  assert.match(entry,/verify_jwt=true/);
+});
+
+test('Supabase Edge rewritten internal origin and exact function path are accepted',async()=>{
+ const f=fakeFetch(),h=createStageCustomerAuthProbe({env,fetcher:f.invoke,now});
+ const result=await h(req(token(),'http://edge.internal/thefa-core-customer-sso-stage'));
+ assert.equal(result.status,200);
+ assert.equal((await result.json()).canUseAi,false);
+ assert.equal(f.calls(),1);
 });

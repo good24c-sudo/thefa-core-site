@@ -10,7 +10,7 @@ const JWT=/^[A-Za-z0-9_-]{2,1200}\.[A-Za-z0-9_-]{20,2600}\.[A-Za-z0-9_-]{20,1600
 const publicAuthKey=(value)=>typeof value==='string'&&(
  /^sb_publishable_[A-Za-z0-9_-]{24,}$/.test(value)||
  /^eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(value));
-const ALLOWED_PATHS=new Set(['/','/thefa-core-customer-sso-stage','/functions/v1/thefa-core-customer-sso-stage']);
+const ALLOWED_PATHS=new Set(['/thefa-core-customer-sso-stage','/functions/v1/thefa-core-customer-sso-stage']);
 const HEADERS={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0',
  'x-content-type-options':'nosniff','referrer-policy':'no-referrer','vary':'Authorization'};
 const reply=(status,body)=>new Response(JSON.stringify(body),{status,headers:HEADERS});
@@ -42,7 +42,9 @@ export function createStageCustomerAuthProbe({env,fetcher=fetch,now=Date.now}={}
   }
   let url;
   try{url=new URL(request.url)}catch{return reply(400,{code:'REQUEST_INVALID'})}
-  if(url.origin!==IDP_URL||!ALLOWED_PATHS.has(url.pathname)||url.search||url.hash){
+  // Supabase Edge executes behind an internal host; the gateway fixes the function,
+  // while the exact path and verified user JWT/client_id remain mandatory.
+  if(!ALLOWED_PATHS.has(url.pathname)||url.search||url.hash){
    // Observability only: never log the raw URL, query, header or bearer token.
    console.warn(JSON.stringify({event:'THEFA_CORE_STAGE_EDGE_ROUTE_GAP',
     originMatchesPublicIdp:url.origin===IDP_URL,
