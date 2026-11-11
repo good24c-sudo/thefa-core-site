@@ -128,3 +128,11 @@ test('Core callback refuses to issue any SSO session when Stage Edge rejects tok
  assert.equal(json(res).code,'THEFA_CORE_ACCOUNT_ADMISSION_UNAVAILABLE');
  assert.ok(!res.headers['set-cookie']?.some(x=>x.startsWith('__Host-thefa_core_oidc_session=')));
 });
+
+test('Staging Edge readiness is visible only for explicitly enabled preview deployment',async()=>{
+ const on=reply();await createThefaCoreOidcHandler({env:{...env,VERCEL_ENV:'preview',THEFA_CORE_STAGE_EDGE_AUTH_READY:'true'}})(request('/api/oidc/status'),on,'status');
+ assert.equal(on.statusCode,200);assert.equal(json(on).stageEdgeAuthReady,true);
+ assert.equal(json(on).canUseAi,false);
+ const off=reply();await createThefaCoreOidcHandler({env:{...env,VERCEL_ENV:'production',THEFA_CORE_STAGE_EDGE_AUTH_READY:'true'}})(request('/api/oidc/status'),off,'status');
+ assert.equal(off.statusCode,200);assert.equal(json(off).stageEdgeAuthReady,false);
+});

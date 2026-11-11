@@ -112,7 +112,8 @@ export function createThefaCoreOidcHandler({env=process.env,clock=Date.now,fetch
   if(operation==='status'){
    if(req.method!=='GET'||url.search)return http(res,405,{code:'METHOD_OR_QUERY_INVALID'});
    const s=session(req,cfg,now);
-   return http(res,200,{configured:true,authenticated:!!s,accountLinked:false,canUseAi:false,issuer:cfg.issuer});
+   return http(res,200,{configured:true,authenticated:!!s,accountLinked:false,canUseAi:false,
+    issuer:cfg.issuer,stageEdgeAuthReady:env.VERCEL_ENV==='preview'&&env.THEFA_CORE_STAGE_EDGE_AUTH_READY==='true'});
   }
   if(operation==='session'){
    if(req.method!=='GET'||url.search)return http(res,405,{code:'METHOD_OR_QUERY_INVALID'});
