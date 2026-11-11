@@ -42,8 +42,15 @@ export function createStageCustomerAuthProbe({env,fetcher=fetch,now=Date.now}={}
   }
   let url;
   try{url=new URL(request.url)}catch{return reply(400,{code:'REQUEST_INVALID'})}
-  if(url.origin!==IDP_URL||!ALLOWED_PATHS.has(url.pathname)||url.search||url.hash)
+  if(url.origin!==IDP_URL||!ALLOWED_PATHS.has(url.pathname)||url.search||url.hash){
+   // Observability only: never log the raw URL, query, header or bearer token.
+   console.warn(JSON.stringify({event:'THEFA_CORE_STAGE_EDGE_ROUTE_GAP',
+    originMatchesPublicIdp:url.origin===IDP_URL,
+    pathIsRoot:url.pathname==='/',pathIsSlug:url.pathname==='/thefa-core-customer-sso-stage',
+    pathIsCanonical:url.pathname==='/functions/v1/thefa-core-customer-sso-stage',
+    queryPresent:Boolean(url.search),hashPresent:Boolean(url.hash)}));
    return reply(404,{code:'THEFA_STAGE_SSO_ROUTE_NOT_FOUND'});
+  }
   if(request.method!=='GET')return reply(405,{code:'METHOD_NOT_ALLOWED'});
   if(request.headers.has('origin'))return reply(403,{code:'BROWSER_DIRECT_ACCESS_DENIED'});
   const header=request.headers.get('authorization')||'';
