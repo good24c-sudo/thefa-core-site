@@ -6,6 +6,10 @@ export const CLIENT_ID='6b70d657-b1fa-4174-a3f2-29d475f4e3c0';
 export const ISSUER=IDP_URL+'/auth/v1';
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const JWT=/^[A-Za-z0-9_-]{2,1200}\.[A-Za-z0-9_-]{20,2600}\.[A-Za-z0-9_-]{20,1600}$/;
+// Supabase now supplies either a public sb_publishable_ key or a legacy anon JWT.
+const publicAuthKey=(value)=>typeof value==='string'&&(
+ /^sb_publishable_[A-Za-z0-9_-]{24,}$/.test(value)||
+ /^eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(value));
 const ALLOWED_PATHS=new Set(['/','/thefa-core-customer-sso-stage','/functions/v1/thefa-core-customer-sso-stage']);
 const HEADERS={'content-type':'application/json; charset=utf-8','cache-control':'private, no-store, max-age=0',
  'x-content-type-options':'nosniff','referrer-policy':'no-referrer','vary':'Authorization'};
@@ -28,11 +32,11 @@ function safeClaims(p,now){
 export function createStageCustomerAuthProbe({env,fetcher=fetch,now=Date.now}={}){
  return async function handle(request){
   const projectUrl=env?.SUPABASE_URL,publicKey=env?.SUPABASE_ANON_KEY;
-  if(projectUrl!==IDP_URL||typeof publicKey!=='string'||publicKey.length<60||typeof fetcher!=='function'){
+  if(projectUrl!==IDP_URL||!publicAuthKey(publicKey)||typeof fetcher!=='function'){
    // Emit only non-sensitive booleans. Never log the key or incoming JWT.
    console.warn(JSON.stringify({event:'THEFA_CORE_STAGE_PUBLIC_IDP_CONFIG_GAP',
     idpUrlMatches:projectUrl===IDP_URL,publicKeyPresent:typeof publicKey==='string',
-    publicKeyLengthOk:typeof publicKey==='string'&&publicKey.length>=60,
+    publicKeyFormatAccepted:publicAuthKey(publicKey),
     fetchAvailable:typeof fetcher==='function'}));
    return reply(503,{code:'THEFA_STAGE_IDP_RUNTIME_MISMATCH'});
   }

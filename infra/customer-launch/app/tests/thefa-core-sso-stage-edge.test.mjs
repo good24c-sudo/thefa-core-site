@@ -6,7 +6,7 @@ import path from 'node:path';
 import {createStageCustomerAuthProbe,CLIENT_ID,IDP_URL,ISSUER} from '../../edge/thefa-core-customer-sso-stage/runtime.mjs';
 const epoch=1760000500,sub='11111111-1111-4111-8111-111111111111';
 const sessionId='77777777-7777-4777-8777-777777777777';
-const env={SUPABASE_URL:IDP_URL,SUPABASE_ANON_KEY:'anon_'+('x'.repeat(150))};
+const env={SUPABASE_URL:IDP_URL,SUPABASE_ANON_KEY:'sb_publishable_'+('x'.repeat(31))};
 const defaults={sub,role:'authenticated',aud:'authenticated',client_id:CLIENT_ID,
  session_id:sessionId,iss:ISSUER,iat:epoch-60,exp:epoch+1200};
 const token=(overrides={})=>{
