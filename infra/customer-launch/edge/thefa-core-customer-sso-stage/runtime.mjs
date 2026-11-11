@@ -28,8 +28,14 @@ function safeClaims(p,now){
 export function createStageCustomerAuthProbe({env,fetcher=fetch,now=Date.now}={}){
  return async function handle(request){
   const projectUrl=env?.SUPABASE_URL,publicKey=env?.SUPABASE_ANON_KEY;
-  if(projectUrl!==IDP_URL||typeof publicKey!=='string'||publicKey.length<60||typeof fetcher!=='function')
+  if(projectUrl!==IDP_URL||typeof publicKey!=='string'||publicKey.length<60||typeof fetcher!=='function'){
+   // Emit only non-sensitive booleans. Never log the key or incoming JWT.
+   console.warn(JSON.stringify({event:'THEFA_CORE_STAGE_PUBLIC_IDP_CONFIG_GAP',
+    idpUrlMatches:projectUrl===IDP_URL,publicKeyPresent:typeof publicKey==='string',
+    publicKeyLengthOk:typeof publicKey==='string'&&publicKey.length>=60,
+    fetchAvailable:typeof fetcher==='function'}));
    return reply(503,{code:'THEFA_STAGE_IDP_RUNTIME_MISMATCH'});
+  }
   let url;
   try{url=new URL(request.url)}catch{return reply(400,{code:'REQUEST_INVALID'})}
   if(url.origin!==IDP_URL||!ALLOWED_PATHS.has(url.pathname)||url.search||url.hash)
