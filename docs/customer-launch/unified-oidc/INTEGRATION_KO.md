@@ -27,3 +27,11 @@ QA: Node customer tests 142/142 PASS, 신규 OIDC 8/8 포함. 이것은 격리 Q
 - Core login/signup 두 화면에 `THE FA 통합 계정으로 계속` 추가; OIDC status 200일 때만 활성, 성공 후 기존 고객 연결 미완료를 정확히 안내.
 - Core 전체 테스트 148/148 PASS, HTML+JS+CSS source/published SHA256 manifest 동기화 확인.
 - 실제 사용자 Google/이메일 승인·ID 토큰 전달의 완전한 실계정 E2E와 Core 계정 등록·무료사용량 연결은 아직 남음. 완료 또는 운영 출시로 오인 금지.
+
+## 2026-11-11 · Core OAuth 콜백의 독립 사용자 검증 연결
+
+- P04 기존 안전브랜치에서 staging-only Edge `thefa-core-customer-sso-stage`(FA_STAGING, version 1) ACTIVE. Supabase `verify_jwt=true` 원천 차단과 Auth `/auth/v1/user` 실시간 검증.
+- Edge는 정확한 Core OAuth client_id, issuer, subject, session_id, authenticated role/exp를 확인합니다. 잘못된 토큰·다른 AI OAuth 클라이언트·다른 사용자·익명계정 거부. Edge에서 DB 조회·쓰기·service_role·비밀값 복사는 없습니다.
+- Core 프리뷰 OAuth callback은 `THEFA_CORE_STAGE_EDGE_AUTH_READY=true`가 설치되었을 때만 받은 `access_token`을 이 Edge에 서버 간 전달해 재검증 후 기존 서명된 Core session을 발급합니다. 브라우저에 access_token 저장·출력 금지.
+- `THEFA_CORE_STAGE_BRIDGE_ENABLED`의 기존 고객 원장 등록·무료10·AI 기능은 **활성화하지 않았습니다**. 운영 DB·OAuth 전역 설정·CEO WebAuthn·main·원 Job을 보호합니다.
+- Core 앱 실제 통합 로그인 브라우저 승인(E2E) 및 고객 저장/AI 활성화는 별도 증거가 필요합니다. 개발 코드/프리뷰 준비를 제품 출시 완료와 혼동하지 않습니다.

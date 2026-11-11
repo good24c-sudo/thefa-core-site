@@ -90,3 +90,41 @@ test('mismatched canonical Vercel forwarded host still blocked',async()=>{
  await createThefaCoreOidcHandler({env})(request('/api/oidc/status','GET',h),res,'status');
  assert.equal(res.statusCode,403);
 });
+
+test('Core callback passes the actual OAuth access JWT to independently verified Stage Edge',async()=>{
+ const started=reply();await createThefaCoreOidcHandler({env})(request(),started,'start');
+ const tx=started.headers['set-cookie'][0].split(';')[0],start=new URL(started.headers.location);
+ const now=Math.floor(Date.now()/1000),sub='11111111-1111-4111-8111-111111111111';
+ const idToken=await new SignJWT({nonce:start.searchParams.get('nonce')})
+  .setProtectedHeader({alg:'ES256'}).setIssuer(issuer).setAudience(clientId).setSubject(sub).setIssuedAt(now).setExpirationTime(now+600).sign(privateKey);
+ const accessToken='eyJhbGciOiJFUzI1NiJ9.'+'A'.repeat(70)+'.'+'B'.repeat(64);
+ let called=0;
+ const handler=createThefaCoreOidcHandler({env,verifyJwt,
+  fetchImpl:async()=>({ok:true,json:async()=>({id_token:idToken,access_token:accessToken,token_type:'bearer'})}),
+  onVerifiedIdentity:async value=>{
+   called++;
+   assert.equal(value.issuer,issuer);assert.equal(value.audience,clientId);
+   assert.equal(value.subject,sub);assert.equal(value.accessToken,accessToken);
+   return {sessionVerified:true,subject:sub,canUseAi:false};
+  }});
+ const res=reply();
+ await handler(request('/api/oidc/callback?code=once&state='+start.searchParams.get('state'),'GET',{cookie:tx}),res,'callback');
+ assert.equal(called,1);assert.equal(res.statusCode,303);
+ assert.ok(res.headers['set-cookie'].some(x=>x.startsWith('__Host-thefa_core_oidc_session=')));
+ assert.equal(res.headers['set-cookie'].join('').includes(accessToken),false);
+});
+test('Core callback refuses to issue any SSO session when Stage Edge rejects token',async()=>{
+ const started=reply();await createThefaCoreOidcHandler({env})(request(),started,'start');
+ const tx=started.headers['set-cookie'][0].split(';')[0],start=new URL(started.headers.location);
+ const now=Math.floor(Date.now()/1000),sub='11111111-1111-4111-8111-111111111111';
+ const idToken=await new SignJWT({nonce:start.searchParams.get('nonce')})
+  .setProtectedHeader({alg:'ES256'}).setIssuer(issuer).setAudience(clientId).setSubject(sub).setIssuedAt(now).setExpirationTime(now+600).sign(privateKey);
+ const handler=createThefaCoreOidcHandler({env,verifyJwt,
+  fetchImpl:async()=>({ok:true,json:async()=>({id_token:idToken,access_token:'opaque',token_type:'bearer'})}),
+  onVerifiedIdentity:async()=>{throw Error('EDGE_UNAVAILABLE')}});
+ const res=reply();
+ await handler(request('/api/oidc/callback?code=once&state='+start.searchParams.get('state'),'GET',{cookie:tx}),res,'callback');
+ assert.equal(res.statusCode,503);
+ assert.equal(json(res).code,'THEFA_CORE_ACCOUNT_ADMISSION_UNAVAILABLE');
+ assert.ok(!res.headers['set-cookie']?.some(x=>x.startsWith('__Host-thefa_core_oidc_session=')));
+});

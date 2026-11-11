@@ -160,7 +160,8 @@ export function createThefaCoreOidcHandler({env=process.env,clock=Date.now,fetch
    if(!answer.ok)return http(res,403,{code:'THEFA_CORE_OIDC_CODE_EXCHANGE_FAILED'},clear);
    const token=await answer.json();
    if(typeof token?.id_token!=='string'||token.id_token.length>15000||typeof token?.access_token!=='string'||
-     token.token_type?.toLowerCase()!=='bearer')return http(res,403,{code:'THEFA_CORE_OIDC_TOKEN_INVALID'},clear);
+     token.access_token.length>4096||token.token_type?.toLowerCase()!=='bearer')
+     return http(res,403,{code:'THEFA_CORE_OIDC_TOKEN_INVALID'},clear);
    const {payload}=verifyJwt?await verifyJwt(token.id_token,{issuer:cfg.issuer,audience:cfg.clientId}):
      await jwtVerify(token.id_token,tokenKeys(cfg.issuer),{issuer:cfg.issuer,audience:cfg.clientId,algorithms:['ES256'],clockTolerance:'30s'});
    if(!UUID.test(payload.sub??'')||payload.nonce!==tx.oidcNonce||
@@ -171,7 +172,7 @@ export function createThefaCoreOidcHandler({env=process.env,clock=Date.now,fetch
    // proven using a dedicated, fenced staging registry BEFORE a Core cookie exists.
    if(onVerifiedIdentity){
     try{
-     const admission=await onVerifiedIdentity({issuer:cfg.issuer,audience:cfg.clientId,subject:payload.sub});
+     const admission=await onVerifiedIdentity({issuer:cfg.issuer,audience:cfg.clientId,subject:payload.sub,accessToken:token.access_token});
      if(admission?.sessionVerified!==true||admission?.subject!==payload.sub)
       return http(res,503,{code:'THEFA_CORE_ACCOUNT_ADMISSION_UNVERIFIED'},clear);
     }catch{return http(res,503,{code:'THEFA_CORE_ACCOUNT_ADMISSION_UNAVAILABLE'},clear)}
