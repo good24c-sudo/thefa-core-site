@@ -85,5 +85,45 @@
     try{await request('/auth/logout',{});location.assign('/');}
     catch{status.textContent='작업공간 화면으로 이동하지 못했습니다. 잠시 후 다시 시도해 주세요.';}
   });
-  init();
+  async function initUnifiedIdentity(){
+    const unified=document.getElementById('thefa-id-login');
+    if(!unified)return;
+    const returned=new URLSearchParams(location.search).get('oidc')==='verified';
+    try{
+      const reply=await fetch('/api/oidc/status',{credentials:'same-origin',cache:'no-store'});
+      if(!reply.ok)return;
+      const capability=await reply.json();
+      if(capability?.configured!==true)return;
+      unified.hidden=false;
+      unified.disabled=false;
+      status.classList.remove('error');
+      status.textContent='THE FA 통합 계정으로 로그인하세요. 단골리턴과 같은 계정입니다.';
+      if(emailForm&&!emailEnabled)emailStatus.textContent='이메일 가입·로그인은 THE FA 통합 계정을 이용해 주세요.';
+      unified.addEventListener('click',()=>{
+        if(busy||emailBusy||unified.disabled)return;
+        unified.disabled=true;
+        status.classList.remove('error');
+        status.textContent='THE FA 통합 로그인으로 이동합니다…';
+        location.assign('/api/oidc/start');
+      });
+      if(returned){
+        const proof=await request('/api/oidc/session');
+        if(proof?.authenticated===true){
+          status.classList.remove('error');
+          status.textContent=proof.accountLinked===true
+            ?'THE FA 통합 계정으로 로그인했습니다.'
+            :'THE FA 통합 계정 인증을 완료했습니다. Core 고객 계정 연결은 준비 중입니다.';
+        }else{
+          status.classList.add('error');
+          status.textContent='통합 계정 인증 결과를 확인하지 못했습니다. 다시 로그인해 주세요.';
+        }
+      }
+    }catch{
+      if(returned){
+        status.classList.add('error');
+        status.textContent='통합 로그인 상태를 확인할 수 없습니다. 연결 상태를 확인해 주세요.';
+      }
+    }
+  }
+  void (async()=>{await init();await initUnifiedIdentity();})();
 })();

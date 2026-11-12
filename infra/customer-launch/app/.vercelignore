@@ -1,12 +1,19 @@
-/*
-!api/
-!server/
-!customer-public/
-!private-data/
-!package.json
-!package-lock.json
-!vercel.json
+# THE FA Core customer preview: include runtime server, API, and public UI.
+# Exclude only local dependencies, secrets, and development-only evidence.
+.git/
+.vercel/
+node_modules/
+node_modules/**
+**/node_modules/
+**/node_modules/**
+.env*
 **/.env*
 **/*.pem
 **/*.key
 **/*.bin
+tests/
+evidence/
+qa/
+*.log
+*.tmp
+*.test.mjs

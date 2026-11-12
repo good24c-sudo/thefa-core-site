@@ -6,3 +6,6 @@ deployment-candidate-test-*/
 *.pem
 *.key
 *.bin
+
+.vercel
+.env*
