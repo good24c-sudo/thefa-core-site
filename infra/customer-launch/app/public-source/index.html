@@ -32,12 +32,12 @@
       <div class="sidebar-quick-tools" role="group" aria-label="더파코어 주요 도구">
         <a class="sidebar-quick-link studio-nav-entry" href="/studio.html"><span aria-hidden="true">▤</span> 제작 스튜디오</a>
       <details class="sidebar-tools" id="sidebar-tools">
-        <summary class="sidebar-tools-summary"><span aria-hidden="true">⚙</span> 도구 · 설정 <span aria-hidden="true">⌄</span></summary>
+        <summary class="sidebar-tools-summary"><span aria-hidden="true">⚙</span> 더 보기 <span aria-hidden="true">⌄</span></summary>
         <div class="sidebar-tools-list">
       <button id="account-logout" class="bottom-action" type="button" hidden>로그아웃</button>
       <button type="button" class="bottom-action" data-section="ava"><span aria-hidden="true">A</span> 나의 AVA <span class="soft-pill">설정</span></button>
       <button type="button" class="bottom-action" data-section="local"><span aria-hidden="true">▣</span> 로컬 AI · PC 연결</button>
-      <button type="button" class="bottom-action" data-section="settings"><span aria-hidden="true">⚙</span> AI 사용 설정</button>
+      <button type="button" class="bottom-action" data-section="settings"><span aria-hidden="true">⚙</span> 답변 설정</button>
       <a class="bottom-action bottom-action-link" id="open-service-introduction" href="/about"><span aria-hidden="true">ⓘ</span> 서비스 소개</a>
       <a class="bottom-action bottom-action-link" href="/plans"><span aria-hidden="true">◇</span> 요금제</a>
         </div>
@@ -70,7 +70,7 @@
       </div>
       <div class="topbar-right">
         <span class="connection-badge" id="connection-badge"><span class="status-dot"></span><span id="connection-text">연결 확인 중</span></span>
-        <button type="button" class="icon-button" id="open-settings" aria-label="AI 사용 설정 열기">⚙</button>
+        <button type="button" class="icon-button" id="open-settings" aria-label="답변 설정 열기">⚙</button>
       </div>
     </header>
     <div class="notice-bar" id="readiness-notice" role="status">작업공간 연결을 확인하고 있습니다.</div>
@@ -167,9 +167,9 @@
       </section>
 
       <section class="panel feature-panel" id="settings-panel" hidden aria-labelledby="settings-heading">
-        <div class="feature-heading"><p class="overline">AI EXECUTION PREFERENCES</p><h1 id="settings-heading">AI 사용 설정</h1><p>응답 품질과 비용을 사용자가 선택합니다. 기본값은 자동입니다.</p></div>
-        <div class="card"><h2>나의 사용량</h2><div class="setting-line"><span>무료 AI 답변</span><strong id="free-usage">로그인 후 사용량 확인</strong></div><div class="setting-line"><span>스탠다드 사용량</span><strong id="standard-usage">로그인 후 확인</strong></div><div class="setting-line"><span>프로 사용량</span><strong id="pro-usage">로그인 후 확인</strong></div><p class="muted">각 요금제의 남은 사용량을 %로 표시합니다.</p><a class="text-button" href="/plans">요금제 보기 →</a></div>
-        <form class="stack-cards" id="settings-form"><div class="card">
+        <div class="feature-heading"><p class="overline">RESPONSE SETTINGS</p><h1 id="settings-heading">답변 설정</h1><p>현재 연결된 답변 방식만 선택할 수 있습니다. 기본값은 자동입니다.</p></div>
+        <div class="card"><h2>나의 사용량</h2><div class="setting-line"><span>무료 AI 답변</span><strong id="free-usage">로그인 후 사용량 확인</strong></div><div class="setting-line"><span>스탠다드 이용권</span><strong id="standard-usage">실제 이용권 확인 전</strong></div><div class="setting-line"><span>프로 이용권</span><strong id="pro-usage">실제 이용권 확인 전</strong></div><p class="muted">무료 답변 횟수와 유료 이용권은 서버에서 확인된 경우에만 표시합니다. 연결되지 않은 유료 기능은 사용할 수 없습니다.</p><a class="text-button" href="/plans">요금제 보기 →</a></div>
+        <form class="stack-cards" id="settings-form"><p id="settings-availability" class="settings-availability" role="status" aria-live="polite">고객용 연결을 확인하고 있습니다.</p><div class="card">
           <label class="input-label" for="routing-setting">자원 선택 방식</label>
           <select id="routing-setting"><option value="AUTO">자동 선택 · 권장</option><option value="LOCAL_FIRST">로컬 우선 · 비용 최적화</option><option value="LOCAL_ONLY">로컬 AI만 사용</option><option value="CLOUD_FIRST">클라우드 우선 · 품질 중시</option></select>
           <p class="muted">로컬 모델이 연결되지 않은 경우 자동으로 비용을 발생시키지 않고 사용자의 선택을 요청해야 합니다.</p>

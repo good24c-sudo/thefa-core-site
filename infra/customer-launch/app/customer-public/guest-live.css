@@ -405,3 +405,5 @@ padding:8px 10px;margin:0 0 10px;background:#242018;border:1px solid #59452c;bor
 /* R62 refine: logo already identifies the workspace; remove redundant caption and give height to chats. */
 .sidebar-actions .guest-label{display:none}
 .sidebar-quick-tools{z-index:35}
+.settings-availability{border:1px solid #695034;border-radius:10px;background:#1b1916;color:#f0d3b1;padding:14px 16px;line-height:1.65;font-size:13px;margin:0 0 8px}
+#settings-form select:disabled,#settings-form button:disabled{cursor:not-allowed;opacity:.6}

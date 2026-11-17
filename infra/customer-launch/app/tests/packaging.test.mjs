@@ -11,6 +11,7 @@ test('release assembly exposes exactly34 reviewed browser files and privately pa
  const outputDirectory=path.join(root,'deployment-candidate-test-'+randomUUID());
  const manifest=await api.assembleCustomerRelease({outputDirectory});
  assert.equal(manifest.publicFiles.length,34);assert.equal(manifest.runtimeFiles.length>=27,true);
+ for(const rel of ['server/managed-email-auth.mjs','server/managed-email-composition.mjs'])assert.equal(manifest.runtimeFiles.some(x=>x.path===rel),true,'MANAGED_AUTH_MODULE_NOT_PACKAGED');
  assert.equal(manifest.validationFiles.some(x=>x.path==='tests/bootstrap.test.mjs'),true);
   assert.equal(manifest.validationFiles.some(x=>x.path==='tests/r42_google_only_ui.test.mjs'),true);assert.equal(manifest.validationFiles.some(x=>x.path==='tests/fake-lease-database.mjs'),true);assert.equal(manifest.validationFiles.some(x=>x.path==='public-files.json'),true);
  const walk=async dir=>(await Promise.all((await readdir(dir,{withFileTypes:true})).map(async x=>x.isDirectory()?walk(path.join(dir,x.name)):[path.relative(path.join(outputDirectory,'customer-public'),path.join(dir,x.name)).replaceAll('\\','/')]))).flat();

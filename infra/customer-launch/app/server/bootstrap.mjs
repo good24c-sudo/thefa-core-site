@@ -10,6 +10,18 @@ import {validateCustomerOrigin} from './inherited/customer-origin-policy.mjs';
 const invalid=()=>{throw Object.assign(new Error('CUSTOMER_SERVER_CONFIGURATION_INVALID'),{code:'CUSTOMER_SERVER_CONFIGURATION_INVALID'})};
 const projectRefs={staging:'furfjhymxqsbhvuyeqpx',production:'cgrppxfdurpzzfvkmfte'};
 const diagnosticStages=new Set(['SETTINGS','AUTH_CONTEXT','AUTH_SCHEMA','PRIVATE_INVENTORY','COMPOSITION']);
+
+const inventoryDiagnosticReasons=new Set(['INVENTORY_NOT_FOUND','INVENTORY_ACCESS_DENIED','INVENTORY_JSON_INVALID','INVENTORY_PATH_INVALID','INVENTORY_SIGNATURE_OR_BINDING_INVALID','INVENTORY_UNCLASSIFIED']);
+/** Bounded diagnostic codes only: never log filesystem paths, records, keys or raw messages. */
+export function privateInventoryDiagnostic(error){
+ if(error?.code==='ENOENT'||error?.code==='ENOTDIR')return 'INVENTORY_NOT_FOUND';
+ if(error?.code==='EACCES'||error?.code==='EPERM')return 'INVENTORY_ACCESS_DENIED';
+ if(error instanceof SyntaxError)return 'INVENTORY_JSON_INVALID';
+ if(error?.code==='SIGNED_LEGACY_INVENTORY_INVALID')return 'INVENTORY_SIGNATURE_OR_BINDING_INVALID';
+ if(error?.code==='CUSTOMER_INVENTORY_REQUIRED'||error?.message==='CUSTOMER_INVENTORY_REQUIRED')return 'INVENTORY_PATH_INVALID';
+ return 'INVENTORY_UNCLASSIFIED';
+}
+
 function text(env,key,min=1,max=8192){const value=env[key];if(typeof value!=='string'||value.length<min||value.length>max||value!==value.trim()||/[\x00-\x1f\x7f]/.test(value))invalid();return value}
 function stableKey(env,key){const value=text(env,key);if(!/^[A-Za-z0-9+/]{43}=$/.test(value))invalid();const bytes=Buffer.from(value,'base64');if(bytes.length!==32||bytes.toString('base64')!==value)invalid();return bytes}
 
@@ -25,6 +37,7 @@ export function readCustomerServerConfiguration(env=process.env){
   if(accountSecret.equals(allowanceSecret)||accountSecret.equals(budgetSecret)||allowanceSecret.equals(budgetSecret))invalid();
   if(env.CUSTOMER_REDIRECTS_READY!=='true')invalid();
   const accountMode=env.CUSTOMER_ACCOUNT_MODE??'legacy-preserved';if(!['legacy-preserved','fresh-launch'].includes(accountMode))invalid();
+  const authEngine=env.CUSTOMER_AUTH_ENGINE??'better-auth';if(!['better-auth','managed-email-v1'].includes(authEngine)||authEngine==='managed-email-v1'&&accountMode!=='fresh-launch')invalid();
   let receiptDirectory=null,verificationKey=null,usageEpoch=null,launchStartedAt=null;
   if(accountMode==='fresh-launch'){
    usageEpoch=text(env,'CUSTOMER_USAGE_EPOCH',8,64);launchStartedAt=text(env,'CUSTOMER_LAUNCH_STARTED_AT',24,24);
@@ -37,8 +50,9 @@ export function readCustomerServerConfiguration(env=process.env){
   }
   const config={accountMode,usageEpoch,launchStartedAt,environment,customerOrigin,supabaseUrl,serviceRoleKey:text(env,'CUSTOMER_SERVICE_ROLE_KEY',16),tenantKey:text(env,'CUSTOMER_TENANT_KEY',32),accountSecret,allowanceSecret,budgetSecret,deepseekApiKey:text(env,'CUSTOMER_DEEPSEEK_API_KEY',16),redirectReady:true};
   return Object.freeze({config:Object.freeze(config),projectRef,issuer:supabaseUrl+'/functions/v1/core-customer-auth',receiptDirectory,verificationKey,
-   connectionString:text(env,'CUSTOMER_AUTH_DATABASE_URL',32),secret:text(env,'CUSTOMER_AUTH_SECRET',32),proxySecret:text(env,'CUSTOMER_AUTH_PROXY_SECRET',32),
-   google:Object.freeze({clientId:text(env,'CUSTOMER_GOOGLE_CLIENT_ID'),clientSecret:text(env,'CUSTOMER_GOOGLE_CLIENT_SECRET')}),
+   authEngine,publishableKey:authEngine==='managed-email-v1'?text(env,'CUSTOMER_SUPABASE_PUBLISHABLE_KEY',32):null,
+   connectionString:authEngine==='managed-email-v1'?null:text(env,'CUSTOMER_AUTH_DATABASE_URL',32),secret:text(env,'CUSTOMER_AUTH_SECRET',32),proxySecret:authEngine==='managed-email-v1'?null:text(env,'CUSTOMER_AUTH_PROXY_SECRET',32),
+   google:authEngine==='managed-email-v1'?undefined:Object.freeze({clientId:text(env,'CUSTOMER_GOOGLE_CLIENT_ID'),clientSecret:text(env,'CUSTOMER_GOOGLE_CLIENT_SECRET')}),
    kakao:undefined});
  }catch{invalid()}
 }
@@ -56,6 +70,7 @@ export function createVercelLoginContext(env=process.env){
 
 export async function createCustomerServerFromEnvironment({env=process.env,fetchImpl=globalThis.fetch,clock=Date.now,sendVerificationOTP}={}){
  const settings=readCustomerServerConfiguration(env),resolveLoginContext=createVercelLoginContext(env);
+ if(settings.authEngine==='managed-email-v1'){const {createManagedEmailCustomerServer}=await import('./managed-email-composition.mjs');return createManagedEmailCustomerServer({settings,fetchImpl,clock});}
  const [{createConfiguredCoreAuthPool},{createGoogleOnlyCustomerAuthService},{createReadOnlyMigrationReceiptStore},{createCustomerPublicCompositionV2},{verifySignedLegacyInventory}]=await Promise.all([
   import('./inherited/server/auth/database.mjs'),import('./google-only-auth.mjs'),import('./inherited/customer-migration-receipts.mjs'),import('./customer-public-composition-v2.mjs'),import('./migration-inventory.mjs')]);
  const database=createConfiguredCoreAuthPool({connectionString:settings.connectionString,environment:settings.config.environment,projectRef:settings.projectRef,poolerHost:'aws-0-ap-northeast-2.pooler.supabase.com'});
@@ -86,7 +101,7 @@ export async function createCustomerServerFromEnvironment({env=process.env,fetch
   diagnosticStage='COMPOSITION';
   const composition=createCustomerPublicCompositionV2({config:settings.config,authService,providerService,database,inventory,readTrustedReceipt,resolveLoginContext,fetchImpl,clock});
   return Object.freeze({...composition,close:()=>database.end()});
- }catch{await database.end();throw Object.assign(new Error('CUSTOMER_SERVER_CONFIGURATION_INVALID'),{diagnosticStage})}
+ }catch(error){await database.end();throw Object.assign(new Error('CUSTOMER_SERVER_CONFIGURATION_INVALID'),{diagnosticStage,...(diagnosticStage==='PRIVATE_INVENTORY'?{diagnosticReason:privateInventoryDiagnostic(error)}:{})})}
 }
 
 export function createLazyCustomerNodeHandler({createServer=()=>createCustomerServerFromEnvironment()}={}){
@@ -94,6 +109,6 @@ export function createLazyCustomerNodeHandler({createServer=()=>createCustomerSe
  return async(req,res)=>{
   try{starting??=Promise.resolve().then(createServer);const server=await starting;
    if(typeof server?.nodeHandler!=='function')throw Error();await server.nodeHandler(req,res);
-  }catch(error){const stage=diagnosticStages.has(error?.diagnosticStage)?error.diagnosticStage:error?.code==='CUSTOMER_SERVER_CONFIGURATION_INVALID'?'SETTINGS':'UNCLASSIFIED';console.error(JSON.stringify({code:'CUSTOMER_SERVER_INIT_FAILED',stage}));if(res.writableEnded||res.destroyed)return;if(res.headersSent){res.destroy?.();return;}res.statusCode=503;res.setHeader('cache-control','no-store');res.setHeader('content-type','application/json');res.setHeader('x-content-type-options','nosniff');res.end('{"code":"CUSTOMER_SERVER_UNAVAILABLE"}');}
+  }catch(error){const stage=diagnosticStages.has(error?.diagnosticStage)?error.diagnosticStage:error?.code==='CUSTOMER_SERVER_CONFIGURATION_INVALID'?'SETTINGS':'UNCLASSIFIED';const diagnostic={code:'CUSTOMER_SERVER_INIT_FAILED',stage};if(stage==='PRIVATE_INVENTORY'&&inventoryDiagnosticReasons.has(error?.diagnosticReason))diagnostic.reason=error.diagnosticReason;console.error(JSON.stringify(diagnostic));if(res.writableEnded||res.destroyed)return;if(res.headersSent){res.destroy?.();return;}res.statusCode=503;res.setHeader('cache-control','no-store');res.setHeader('content-type','application/json');res.setHeader('x-content-type-options','nosniff');res.end('{"code":"CUSTOMER_SERVER_UNAVAILABLE"}');}
  };
 }

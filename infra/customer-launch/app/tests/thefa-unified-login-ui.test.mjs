@@ -35,7 +35,7 @@ test('unified login is gated by verified server status and exposes no AI entitle
  assert.match(t,/capability\?\.configured!==true/);
  assert.match(t,/location\.assign\('\/api\/oidc\/start'\)/);
  assert.match(t,/request\('\/api\/oidc\/session'\)/);
- assert.match(t,/Core 고객 계정 연결은 준비 중입니다/);
+ assert.match(t,/고객 서비스 계정 연결은 아직 확인되지 않았습니다/);
  assert.match(css,/\.providers \[hidden\]\{display:none!important\}/);
  assert.doesNotMatch(t,/canUseAi\s*=\s*true/);
 });

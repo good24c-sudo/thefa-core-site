@@ -18,7 +18,23 @@ export async function assembleCustomerRelease({outputDirectory}={}){
  const inherited=JSON.parse(await checked('evidence/R42_INHERITED_RUNTIME_MANIFEST.json')),pending=[];
  for(const f of sourceManifest){if(/(?:^|\/)(?:server|api|private-data|node_modules)(?:\/|$)|\.(?:mjs|json|env|pem|key)$/.test(f.path))throw problem('CUSTOMER_RELEASE_PUBLIC_MANIFEST_INVALID');const bytes=await checked('public-source/'+f.path);if(sha(bytes)!==f.sha256)throw problem('CUSTOMER_RELEASE_SOURCE_HASH_MISMATCH');pending.push({path:'customer-public/'+f.path,bytes,kind:'public'});}
  for(const f of inherited.files){const rel='server/inherited/'+f.path,bytes=await checked(rel);if(sha(bytes)!==f.sha256)throw problem('CUSTOMER_RELEASE_SOURCE_HASH_MISMATCH');pending.push({path:rel,bytes,kind:'runtime'});}
- for(const rel of ['server/bootstrap.mjs','server/fresh-launch-accounts.mjs','server/email-delivery.mjs','server/employee-entitlement.mjs','server/google-only-auth.mjs','server/migration-inventory.mjs','server/signup-classifier.mjs','server/customer-account-lifecycle-v2.mjs','server/customer-session-verifier-v2.mjs','server/customer-public-composition-v2.mjs','api/dispatch.mjs','api/source-denied.mjs','vercel.json','package.json','package-lock.json','.gitignore','.vercelignore'])pending.push({path:rel,bytes:await checked(rel),kind:rel.startsWith('server/')?'runtime':'configuration'});
+ for(const rel of ['server/bootstrap.mjs','server/managed-email-auth.mjs','server/managed-email-composition.mjs','server/fresh-launch-accounts.mjs','server/email-delivery.mjs','server/employee-entitlement.mjs','server/google-only-auth.mjs','server/migration-inventory.mjs','server/signup-classifier.mjs','server/customer-account-lifecycle-v2.mjs','server/customer-session-verifier-v2.mjs','server/customer-public-composition-v2.mjs','api/dispatch.mjs','api/source-denied.mjs','vercel.json','package.json','package-lock.json','.gitignore','.vercelignore'])pending.push({path:rel,bytes:await checked(rel),kind:rel.startsWith('server/')?'runtime':'configuration'});
+ // Preserve the currently deployed OIDC entrypoints and helper modules.
+ // These are already present in the exact production source commit; the old
+ // R39 release assembler omitted them and would silently degrade the release.
+ // No secrets, signed legacy inventory, customer data or migration receipts are
+ // generated or copied by this isolated improvement.
+ const oidcExistingRuntime=[
+  'api/oidc/callback.mjs','api/oidc/logout.mjs','api/oidc/session.mjs',
+  'api/oidc/start.mjs','api/oidc/status.mjs',
+  'server/thefa-oidc-client.mjs','server/oidc-preview-fallback.mjs',
+  'server/oidc-stage-account.mjs','server/oidc-stage-edge-auth.mjs',
+  'server/oidc-stage-node.mjs'
+ ];
+ for(const rel of oidcExistingRuntime){
+  if(pending.some(f=>f.path===rel))throw problem('CUSTOMER_RELEASE_DUPLICATE_OIDC_SOURCE');
+  pending.push({path:rel,bytes:await checked(rel),kind:rel.startsWith('server/')?'runtime':'configuration'});
+ }
  // Keep the official source package independently testable. The deployment's
  // .vercelignore excludes tests/build inputs from upload; output stays26 files.
  const validation=['assemble-release.mjs','public-files.json','evidence/R42_INHERITED_RUNTIME_MANIFEST.json','callback-edge/index.ts','deno.json','server/migration-package.mjs',...sourceManifest.map(f=>'public-source/'+f.path),...(await readdir(path.join(root,'tests'))).filter(name=>/^[a-z0-9_-]+(?:\.test)?\.mjs$/.test(name)).map(name=>'tests/'+name)];

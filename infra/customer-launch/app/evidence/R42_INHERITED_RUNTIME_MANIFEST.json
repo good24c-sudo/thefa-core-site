@@ -19,7 +19,7 @@
     },
     {
       "path": "customer-application.mjs",
-      "sha256": "ce0dd5455ba42a8585b333f719c20ac5508a842af66495b2f8e0fdc4c61f5617"
+      "sha256": "488a24dffba8c08f6ba3229dbe0f441567128ea45486f9f67827376ff939ebfc"
     },
     {
       "path": "customer-auth-routes.mjs",

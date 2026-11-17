@@ -107,6 +107,18 @@
   {
    "source": "/guest-live.html",
    "destination": "/index.html"
+  },
+  {
+   "source": "/auth/email/signup",
+   "destination": "/api/dispatch?__customer_route=/auth/email/signup"
+  },
+  {
+   "source": "/auth/email/login",
+   "destination": "/api/dispatch?__customer_route=/auth/email/login"
+  },
+  {
+   "source": "/auth/email/resend",
+   "destination": "/api/dispatch?__customer_route=/auth/email/resend"
   }
  ],
  "headers": [

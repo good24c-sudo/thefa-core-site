@@ -1,5 +1,5 @@
 import {createLazyCustomerNodeHandler} from '../server/bootstrap.mjs';
-const authPaths=new Set(['/api/auth/providers','/api/auth/session','/auth/start','/auth/logout','/auth/complete','/auth/email/send','/auth/email/verify']);
+const authPaths=new Set(['/api/auth/providers','/api/auth/session','/auth/start','/auth/logout','/auth/complete','/auth/email/send','/auth/email/verify','/auth/email/signup','/auth/email/login','/auth/email/resend']);
 const allowed=path=>authPaths.has(path)||/^\/api\/customer\/[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*$/.test(path)||/^\/functions\/v1\/core-customer-auth\/callback\/(google|kakao)\/oauth-proxy$/.test(path);
 export function resolveCustomerDispatchUrl(raw){
  const invalid=()=>{throw Error('CUSTOMER_DISPATCH_ROUTE_INVALID')};

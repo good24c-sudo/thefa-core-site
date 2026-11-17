@@ -670,6 +670,17 @@
   }
   function renderSettings(){
     configureModeSelects('routing-setting','tier-setting');
+    const blocked=model.hostedBlocked||!model.serverConnected;
+    const form=id('settings-form');
+    for(const control of form.querySelectorAll('select,button'))control.disabled=blocked;
+    id('settings-availability').textContent=blocked
+      ?'로그인·고객 저장소 연결이 확인되지 않아 설정 변경을 일시 중단했습니다. 기존 설정과 기록은 보존됩니다.'
+      :'사용 가능한 답변 설정만 선택할 수 있습니다. 저장 후 실제 실행 가능 여부는 서버에서 다시 확인합니다.';
+    const caps=model.workspace.capabilities||{};
+    if(caps.paidUsageVerified!==true){
+      id('standard-usage').textContent='실제 이용권 확인 전';
+      id('pro-usage').textContent='실제 이용권 확인 전';
+    }
   }
   function changeProjectDialog(){
     const chat=currentConversation();if(!chat)return;
