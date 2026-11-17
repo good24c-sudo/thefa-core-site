@@ -1,7 +1,9 @@
-import {createHmac,randomBytes,createCipheriv,createDecipheriv,hkdfSync} from 'node:crypto';
+import {createHash,createHmac,randomBytes,createCipheriv,createDecipheriv,hkdfSync} from 'node:crypto';
 import {validateCustomerOrigin} from './inherited/customer-origin-policy.mjs';
 import {normalizeLaunchEmail} from './fresh-launch-accounts.mjs';
 const COOKIE='__Host-thefa_customer_email';
+const RECOVERY_REQUEST='__Host-thefa_customer_recovery_request',RECOVERY='__Host-thefa_customer_recovery';
+const recoveryCookie=(name,value,seconds)=>name+'='+value+'; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age='+seconds;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const PROJECTS={production:'https://cgrppxfdurpzzfvkmfte.supabase.co',staging:'https://furfjhymxqsbhvuyeqpx.supabase.co'};
 const plain=x=>x!==null&&typeof x==='object'&&!Array.isArray(x);
@@ -29,9 +31,20 @@ export function createManagedEmailAuth({config,publishableKey,cookieSecret,fetch
   const matches=header.split(';').map(s=>s.trim()).filter(s=>s.startsWith(COOKIE+'='));if(matches.length!==1)return null;
   const raw=matches[0].slice(COOKIE.length+1);if(!/^[A-Za-z0-9_-]{50,3700}$/.test(raw))return null;
   try{const b=Buffer.from(raw,'base64url');if(b.toString('base64url')!==raw)return null;const d=createDecipheriv('aes-256-gcm',key,b.subarray(0,12));d.setAuthTag(b.subarray(12,28));const t=JSON.parse(Buffer.concat([d.update(b.subarray(28)),d.final()]).toString('utf8'));const now=Math.floor(clock()/1000);
-   return t.origin===origin&&t.issuer===issuer&&UUID.test(t.uid||'')&&typeof t.access==='string'&&t.access.length<=2800&&Number.isSafeInteger(t.issued)&&Number.isSafeInteger(t.expires)&&t.issued<=now+30&&t.expires>now&&t.expires-t.issued<=3600?t:null;
+   return t.purpose===undefined&&t.origin===origin&&t.issuer===issuer&&UUID.test(t.uid||'')&&typeof t.access==='string'&&t.access.length<=2800&&Number.isSafeInteger(t.issued)&&Number.isSafeInteger(t.expires)&&t.issued<=now+30&&t.expires>now&&t.expires-t.issued<=3600?t:null;
   }catch{return null;}
  }
+ function recoveryTicket(header,name,purpose){
+  if(typeof header!=='string'||header.length>8192)return null;
+  const matches=header.split(';').map(s=>s.trim()).filter(s=>s.startsWith(name+'='));if(matches.length!==1)return null;
+  const raw=matches[0].slice(name.length+1);if(!/^[A-Za-z0-9_-]{50,3700}$/.test(raw))return null;
+  try{const b=Buffer.from(raw,'base64url');if(b.toString('base64url')!==raw)return null;const d=createDecipheriv('aes-256-gcm',key,b.subarray(0,12));d.setAuthTag(b.subarray(12,28));const t=JSON.parse(Buffer.concat([d.update(b.subarray(28)),d.final()]).toString('utf8'));const now=Math.floor(clock()/1000),limit=purpose==='RECOVERY_PKCE'?1800:600;
+   if(t.purpose!==purpose||t.origin!==origin||t.issuer!==issuer||!Number.isSafeInteger(t.issued)||!Number.isSafeInteger(t.expires)||t.issued>now+30||t.expires<=now||t.expires<=t.issued||t.expires-t.issued>limit)return null;
+   if(purpose==='RECOVERY_PKCE')return /^[A-Za-z0-9_-]{43,128}$/.test(t.verifier||'')&&/^[a-f0-9]{64}$/.test(t.emailBinding||'')?t:null;
+   return UUID.test(t.uid||'')&&typeof t.access==='string'&&t.access.length>=16&&t.access.length<=2800?t:null;
+  }catch{return null;}
+ }
+ const recoveryEmailBinding=email=>createHmac('sha256',config.accountSecret).update('THEFA_RECOVERY_EMAIL_V1|'+email).digest('hex');
  async function upstream(route,{body,access,method=body===undefined?'GET':'POST'}={}){
   const h={'apikey':publishableKey,'accept':'application/json'};if(body!==undefined)h['content-type']='application/json';if(access)h.authorization='Bearer '+access;
   try{const r=await fetchImpl(issuer+route,{method,headers:h,...(body===undefined?{}:{body:JSON.stringify(body)}),redirect:'error',signal:AbortSignal.timeout(10000)});return {status:r.status,data:await boundedJson(r)};}
@@ -48,7 +61,7 @@ export function createManagedEmailAuth({config,publishableKey,cookieSecret,fetch
    if(u.origin!==origin||h.get('host')!==host||u.search||u.hash||h.has('forwarded')||h.has('x-original-url')||
     (h.has('x-forwarded-host')&&h.get('x-forwarded-host')!==host)||
     (h.has('x-forwarded-proto')&&h.get('x-forwarded-proto')!=='https'))return json({code:'AUTH_ORIGIN_INVALID'},403);
-   const methods={'/api/auth/providers':'GET','/api/auth/session':'GET','/auth/email/signup':'POST','/auth/email/login':'POST','/auth/email/resend':'POST','/auth/logout':'POST'};
+   const methods={'/api/auth/providers':'GET','/api/auth/session':'GET','/auth/email/signup':'POST','/auth/email/login':'POST','/auth/email/resend':'POST','/auth/email/recover':'POST','/auth/email/recovery/verify':'POST','/auth/email/reset':'POST','/auth/logout':'POST'};
    if(!methods[u.pathname])return json({code:'AUTH_METHOD_NOT_CONNECTED'},404);
    if(request.method!==methods[u.pathname])return json({code:'METHOD_NOT_ALLOWED'},405);
    if(request.method==='POST'&&(h.get('origin')!==origin||!/^application\/json(?:\s*;|$)/i.test(h.get('content-type')||'')||
@@ -56,6 +69,40 @@ export function createManagedEmailAuth({config,publishableKey,cookieSecret,fetch
    if(u.pathname==='/api/auth/providers')return json({issuer,email:{enabled:true,method:'password-confirmed'},providers:[{id:'google',label:'Google',enabled:false},{id:'kakao',label:'카카오',enabled:false}],accountMode:'fresh-launch'});
    if(u.pathname==='/api/auth/session'){const p=await sessionVerifier(h.get('cookie')||'');return json({authenticated:!!p,user:p?.user||null,method:'email',accountLinked:!!p});}
    let body;try{body=await boundedJson(request,2048);if(!plain(body))throw Error();}catch{return json({code:'AUTH_PAYLOAD_INVALID'},400);}
+   if(u.pathname==='/auth/email/recover'){
+    if(Object.keys(body).length!==1||!Object.hasOwn(body,'email'))return json({code:'AUTH_PAYLOAD_INVALID'},400);
+    let email;try{email=normalizeLaunchEmail(body.email)}catch{return json({code:'EMAIL_INVALID'},400)}
+    const verifier=randomBytes(48).toString('base64url'),challenge=createHash('sha256').update(verifier).digest('base64url');
+    const r=await upstream('/recover?redirect_to='+encodeURIComponent(origin+'/login'),{body:{email,code_challenge:challenge,code_challenge_method:'s256'}});
+    if(r.status===429)return json({code:'AUTH_RATE_LIMIT'},429);
+    if(r.status<200||r.status>=300)return json({code:'RECOVERY_DELIVERY_UNAVAILABLE'},503);
+    const now=Math.floor(clock()/1000),t={purpose:'RECOVERY_PKCE',origin,issuer,verifier,emailBinding:recoveryEmailBinding(email),issued:now,expires:now+1800};
+    return json({accepted:true,verificationRequired:true,authenticated:false},202,[recoveryCookie(RECOVERY_REQUEST,seal(t),1800)]);
+   }
+   if(u.pathname==='/auth/email/recovery/verify'){
+    if(Object.keys(body).length!==1||!UUID.test(body.code||''))return json({code:'AUTH_PAYLOAD_INVALID'},400);
+    const requestTicket=recoveryTicket(h.get('cookie')||'',RECOVERY_REQUEST,'RECOVERY_PKCE');
+    if(!requestTicket)return json({code:'RECOVERY_BROWSER_REQUIRED'},403);
+    const r=await upstream('/token?grant_type=pkce',{body:{auth_code:body.code,code_verifier:requestTicket.verifier}});
+    if(r.status!==200)return json({code:r.status===429?'AUTH_RATE_LIMIT':'RECOVERY_CODE_INVALID'},r.status===429?429:403);
+    const data=r.data;
+    if(typeof data.access_token!=='string'||data.access_token.length<16||data.access_token.length>2800||data.token_type?.toLowerCase()!=='bearer'||!Number.isFinite(data.expires_in)||data.expires_in<=0||!UUID.test(data.user?.id||''))return json({code:'AUTH_PROVIDER_RESPONSE_INVALID'},503);
+    const usr=await verified({uid:data.user.id,access:data.access_token});
+    if(!usr||recoveryEmailBinding(normalizeLaunchEmail(usr.email))!==requestTicket.emailBinding)return json({code:'RECOVERY_IDENTITY_MISMATCH'},403);
+    const now=Math.floor(clock()/1000),seconds=Math.min(600,Math.floor(data.expires_in)),t={purpose:'PASSWORD_RESET',origin,issuer,uid:usr.id,access:data.access_token,issued:now,expires:now+seconds};
+    const email=normalizeLaunchEmail(usr.email),at=email.lastIndexOf('@');
+    return json({verified:true,authenticated:false,maskedEmail:email.slice(0,Math.min(2,at))+'***'+email.slice(at)},200,[recoveryCookie(RECOVERY_REQUEST,'',0),recoveryCookie(RECOVERY,seal(t),seconds)]);
+   }
+   if(u.pathname==='/auth/email/reset'){
+    const t=recoveryTicket(h.get('cookie')||'',RECOVERY,'PASSWORD_RESET');if(!t)return json({code:'RECOVERY_VERIFICATION_REQUIRED'},403);
+    if(Object.keys(body).length!==1||typeof body.password!=='string'||body.password.length<12||body.password.length>128||/[\x00-\x1f\x7f]/.test(body.password))return json({code:'PASSWORD_REQUIREMENTS'},400);
+    const usr=await verified(t);if(!usr)return json({code:'RECOVERY_VERIFICATION_REQUIRED'},403);
+    const r=await upstream('/user',{access:t.access,method:'PUT',body:{password:body.password}});
+    if(r.status!==200){const reason=r.data?.error_code||r.data?.code;return json({code:reason==='same_password'?'PASSWORD_SAME':reason==='weak_password'?'PASSWORD_REQUIREMENTS':'PASSWORD_RESET_NOT_CONFIRMED'},r.status===429?429:r.status>=500?503:400);}
+    if(!confirmed(r.data)||r.data.id!==usr.id)return json({code:'PASSWORD_RESET_NOT_CONFIRMED'},503);
+    let revoked=false;try{const ended=await upstream('/logout?scope=local',{access:t.access,method:'POST'});revoked=[200,204,401,403].includes(ended.status)}catch{}
+    return json({success:true,requiresLogin:true,authenticated:false,serverSessionRevoked:revoked},200,[recoveryCookie(RECOVERY,'',0),recoveryCookie(RECOVERY_REQUEST,'',0),cookie('',0)]);
+   }
    if(u.pathname==='/auth/logout'){
     if(Object.keys(body).length)return json({code:'AUTH_PAYLOAD_INVALID'},400);
     const t=ticket(h.get('cookie')||'');let revoked=true;

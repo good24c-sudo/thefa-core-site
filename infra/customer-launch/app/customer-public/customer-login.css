@@ -21,3 +21,6 @@
 #managed-password-fields[hidden],#managed-password-confirm-row[hidden],#email-code[hidden],#email-send-code[hidden]{display:none!important}
 #managed-password-fields label{display:block;margin:14px 0 8px}
 #managed-password-fields input{box-sizing:border-box;width:100%;min-width:0}
+
+#password-reset-form[hidden],#email-recover[hidden]{display:none!important}
+#email-recover{margin-top:12px;font-weight:650}

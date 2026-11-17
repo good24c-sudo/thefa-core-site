@@ -1,7 +1,7 @@
 import {validateCustomerOrigin} from './customer-origin-policy.mjs';
 const failure=(status,code)=>Response.json({code},{status,headers:{
  'cache-control':'no-store','x-content-type-options':'nosniff','referrer-policy':'no-referrer'}});
-const authPaths=new Set(['/api/auth/providers','/api/auth/session','/auth/start','/auth/logout','/auth/complete','/auth/email/send','/auth/email/verify','/auth/email/signup','/auth/email/login','/auth/email/resend']);
+const authPaths=new Set(['/api/auth/providers','/api/auth/session','/auth/start','/auth/logout','/auth/complete','/auth/email/send','/auth/email/verify','/auth/email/signup','/auth/email/login','/auth/email/resend','/auth/email/recover','/auth/email/recovery/verify','/auth/email/reset']);
 const proxy=/^\/functions\/v1\/core-customer-auth\/callback\/(google|kakao)\/oauth-proxy$/;
 // Explicit composition only. Public serverless exports stay disabled until official admission.
 export function createCustomerApplication({runtime,authRoutes,originConfig={}}={}){

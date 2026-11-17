@@ -10,7 +10,10 @@
   }
   const group=document.getElementById('login-providers'),status=document.getElementById('login-status');
   const buttons=[...group.querySelectorAll('[data-provider]')];let busy=false,catalog=null;
-  let managedEmail=false;
+  let managedEmail=false,recoveryReady=false;
+  let recoveryCode=location.search?new URLSearchParams(location.search).get('code'):null;
+  if(recoveryCode)history.replaceState(null,'',location.pathname);
+
   function verifiedCatalog(data){
     if(data?.email?.method==='password-confirmed'){
       if(!['https://cgrppxfdurpzzfvkmfte.supabase.co/auth/v1','https://furfjhymxqsbhvuyeqpx.supabase.co/auth/v1'].includes(data.issuer)||data.accountMode!=='fresh-launch'||!Array.isArray(data.providers)||data.providers.length!==2||data.providers.some(p=>!['google','kakao'].includes(p.id)||p.enabled!==false))throw Error('INVALID_MANAGED_CATALOG');
@@ -45,16 +48,17 @@
     emailBusy=true;syncEmail(emailEnabled);emailStatus.textContent=signingUp?'확인 메일 발송을 요청하고 있습니다…':'이메일과 비밀번호를 확인하고 있습니다…';
     try{
       const result=await request(signingUp?'/auth/email/signup':'/auth/email/login',payload);
-      if(signingUp){if(result.accepted!==true||result.verificationRequired!==true||result.authenticated!==false)throw Error('SIGNUP_RESPONSE_INVALID');password.value='';confirmation.value='';emailStatus.textContent='확인 메일 발송을 요청했습니다. 받은 메일에서 이메일 확인을 누른 뒤 로그인해 주세요. 스팸함도 확인해 주세요.';}
+      if(signingUp){if(result.accepted!==true||result.verificationRequired!==true||result.authenticated!==false)throw Error('SIGNUP_RESPONSE_INVALID');password.value='';confirmation.value='';emailStatus.textContent='가입 요청을 접수했습니다. 신규 계정은 받은 메일에서 이메일을 확인한 뒤 로그인해 주세요. 이미 등록된 이메일의 비밀번호는 변경되지 않습니다. 기억나지 않으면 비밀번호 재설정을 이용해 주세요.';}
       else{if(result.authenticated!==true||result.redirect!=='/')throw Error('LOGIN_RESPONSE_INVALID');password.value='';location.assign('/');}
-    }catch(error){const messages={EMAIL_CONFIRMATION_REQUIRED:'먼저 받은 가입 메일에서 이메일 확인을 완료해 주세요.',LOGIN_REJECTED:'이메일 또는 비밀번호가 올바르지 않습니다.',AUTH_RATE_LIMIT:'요청이 많습니다. 잠시 후 다시 시도해 주세요.',PASSWORD_REQUIREMENTS:'비밀번호는 12자 이상으로 입력해 주세요.',SIGNUP_INPUT_REJECTED:'이메일 주소와 비밀번호 조건을 확인해 주세요.'};emailStatus.textContent=messages[error.message]||(signingUp?'가입 요청 결과를 확인하지 못했습니다. 받은 메일을 먼저 확인하고 잠시 후 다시 시도해 주세요.':'로그인 서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.');}
+    }catch(error){const messages={EMAIL_CONFIRMATION_REQUIRED:'먼저 받은 가입 메일에서 이메일 확인을 완료해 주세요.',LOGIN_REJECTED:'이메일 또는 비밀번호가 일치하지 않습니다. 기존 계정은 다시 가입해도 비밀번호가 바뀌지 않습니다. 비밀번호 재설정을 이용해 주세요.',AUTH_RATE_LIMIT:'요청이 많습니다. 잠시 후 다시 시도해 주세요.',PASSWORD_REQUIREMENTS:'비밀번호는 12자 이상으로 입력해 주세요.',SIGNUP_INPUT_REJECTED:'이메일 주소와 비밀번호 조건을 확인해 주세요.'};emailStatus.textContent=messages[error.message]||(signingUp?'가입 요청 결과를 확인하지 못했습니다. 받은 메일을 먼저 확인하고 잠시 후 다시 시도해 주세요.':'로그인 서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.');}
     finally{emailBusy=false;syncEmail(emailEnabled);}
   }
   function syncEmail(enabled){
     if(!emailForm)return;
-    emailEnabled=enabled;emailForm.hidden=!enabled;
+    emailEnabled=enabled;emailForm.hidden=!enabled||recoveryReady;
     const unavailable=document.getElementById('auth-email-availability');
     if(unavailable)unavailable.hidden=enabled;
+    const recoverButton=document.getElementById('email-recover');if(recoverButton){recoverButton.hidden=!managedEmail||recoveryReady;recoverButton.disabled=!enabled||emailBusy||busy;}
     emailInput.disabled=!enabled||emailBusy;sendCode.disabled=!enabled||emailBusy||busy;
     codeInput.disabled=!enabled||!sentEmail||emailBusy;verifyCode.disabled=!enabled||!sentEmail||emailBusy||busy;
     codeRow.hidden=!sentEmail;
@@ -121,6 +125,54 @@
     // This navigation must not call logout or discard an existing identity.
     location.assign('/');
   });
+  function recoveryMessage(code){
+    const messages={AUTH_RATE_LIMIT:'요청이 많습니다. 잠시 후 다시 시도해 주세요.',RECOVERY_BROWSER_REQUIRED:'재설정을 요청한 같은 브라우저에서 메일 링크를 열어 주세요. 요청한 적이 없다면 비밀번호 재설정을 먼저 눌러 주세요.',RECOVERY_CODE_INVALID:'확인 링크가 만료되었거나 이미 사용됐습니다. 비밀번호 재설정을 다시 요청해 주세요.',RECOVERY_IDENTITY_MISMATCH:'요청한 이메일과 확인된 계정이 다릅니다. 올바른 이메일로 다시 요청해 주세요.',RECOVERY_VERIFICATION_REQUIRED:'본인 확인이 만료됐습니다. 비밀번호 재설정 메일을 다시 요청해 주세요.',PASSWORD_REQUIREMENTS:'새 비밀번호는 12자 이상으로 입력해 주세요.',PASSWORD_SAME:'이전과 다른 새 비밀번호를 입력해 주세요.'};
+    return messages[code]||'요청 결과를 확인하지 못했습니다. 반복 요청하지 말고 잠시 후 상태를 확인해 주세요.';
+  }
+  const recoverButton=document.getElementById('email-recover'),resetForm=document.getElementById('password-reset-form');
+  if(recoverButton)recoverButton.addEventListener('click',async()=>{
+    if(!managedEmail||!emailEnabled||emailBusy||busy||!emailInput.reportValidity())return;
+    emailBusy=true;syncEmail(emailEnabled);emailStatus.textContent='비밀번호 재설정 메일을 요청하고 있습니다…';
+    try{
+      const r=await request('/auth/email/recover',{email:emailInput.value.trim().toLowerCase()});
+      if(r.accepted!==true||r.authenticated!==false)throw Error('RECOVERY_RESPONSE_INVALID');
+      emailStatus.textContent='등록된 이메일이라면 재설정 메일이 발송됩니다. 이 브라우저에서 메일 링크를 열고 새 비밀번호를 설정해 주세요. 스팸함도 확인해 주세요.';
+    }catch(e){emailStatus.textContent=recoveryMessage(e.message);}
+    finally{emailBusy=false;syncEmail(emailEnabled);}
+  });
+  if(resetForm)resetForm.addEventListener('submit',async event=>{
+    event.preventDefault();if(!recoveryReady||emailBusy||!resetForm.reportValidity())return;
+    const input=document.getElementById('reset-password'),confirm=document.getElementById('reset-password-confirm'),msg=document.getElementById('reset-password-status'),button=document.getElementById('reset-password-submit');
+    if(input.value!==confirm.value){msg.textContent='새 비밀번호 확인이 일치하지 않습니다.';confirm.focus();return;}
+    emailBusy=true;button.disabled=true;msg.textContent='새 비밀번호를 저장하고 있습니다…';
+    try{
+      const r=await request('/auth/email/reset',{password:input.value});
+      if(r.success!==true||r.requiresLogin!==true||r.authenticated!==false)throw Error('RESET_RESPONSE_INVALID');
+      input.value='';confirm.value='';password.value='';confirmation.value='';
+      recoveryReady=false;resetForm.hidden=true;syncEmail(emailEnabled);
+      document.getElementById('login-title').textContent='THE FA Core 로그인';document.querySelector('.intro').textContent='기존 이메일과 새 비밀번호로 로그인해 주세요.';
+      status.textContent='비밀번호를 변경했습니다. 새 비밀번호로 로그인해 주세요.';
+      emailStatus.textContent='기존 계정과 기록은 유지됩니다. 새 비밀번호로 로그인하세요.';
+      emailInput.focus();
+    }catch(e){msg.textContent=recoveryMessage(e.message);}
+    finally{emailBusy=false;button.disabled=false;syncEmail(emailEnabled);}
+  });
+  async function initRecovery(){
+    if(!recoveryCode)return;
+    const code=recoveryCode;recoveryCode=null;
+    if(!managedEmail||!resetForm){status.textContent='비밀번호 재설정 서비스를 확인하지 못했습니다.';return;}
+    emailBusy=true;syncEmail(emailEnabled);status.textContent='메일 본인 확인 결과를 검증하고 있습니다…';
+    try{
+      const r=await request('/auth/email/recovery/verify',{code});
+      if(r.verified!==true||r.authenticated!==false)throw Error('RECOVERY_RESPONSE_INVALID');
+      recoveryReady=true;resetForm.hidden=false;syncEmail(emailEnabled);
+      document.getElementById('recovery-target').textContent='본인 확인 완료: '+String(r.maskedEmail||'확인된 이메일');
+      document.getElementById('login-title').textContent='새 비밀번호를 설정하세요.';
+      document.querySelector('.intro').textContent='계정을 새로 만들지 않고 기존 계정의 비밀번호만 변경합니다.';
+      status.textContent='10분 안에 새 비밀번호를 입력해 주세요.';document.getElementById('reset-password').focus();
+    }catch(e){status.textContent=recoveryMessage(e.message);status.classList.add('error');}
+    finally{emailBusy=false;syncEmail(emailEnabled);}
+  }
   async function initUnifiedIdentity(){
     if(managedEmail)return;
     const unified=document.getElementById('thefa-id-login');
@@ -165,5 +217,5 @@
       }
     }
   }
-  void (async()=>{await init();await initUnifiedIdentity();})();
+  void (async()=>{await init();await initUnifiedIdentity();await initRecovery();})();
 })();

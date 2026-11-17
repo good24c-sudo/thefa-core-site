@@ -119,6 +119,18 @@
   {
    "source": "/auth/email/resend",
    "destination": "/api/dispatch?__customer_route=/auth/email/resend"
+  },
+  {
+   "source": "/auth/email/recover",
+   "destination": "/api/dispatch?__customer_route=/auth/email/recover"
+  },
+  {
+   "source": "/auth/email/recovery/verify",
+   "destination": "/api/dispatch?__customer_route=/auth/email/recovery/verify"
+  },
+  {
+   "source": "/auth/email/reset",
+   "destination": "/api/dispatch?__customer_route=/auth/email/reset"
   }
  ],
  "headers": [

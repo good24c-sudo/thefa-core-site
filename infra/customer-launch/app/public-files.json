@@ -9,11 +9,11 @@
   },
   {
     "path": "login.html",
-    "sha256": "819fd50b47da29ccdae638ccc6ec9e59d1424a369b3cd57b5af3e281abe59a71"
+    "sha256": "91e375fb129c7b5b1b33a5026249ae030cac4b0a3d20dc30d482a312814eb874"
   },
   {
     "path": "signup.html",
-    "sha256": "bb8feda8dc3bd9eb6a0c80715f6bb72c6a09728976aeb556d884ec4e2086e47c"
+    "sha256": "d07829380e4074390178eddf0a19f729075c6e5ba75eabaa18306ca7cc207bde"
   },
   {
     "path": "plans.html",
@@ -29,7 +29,7 @@
   },
   {
     "path": "customer-login.js",
-    "sha256": "1647fa68051b3614606c2e610bcf5b66f5bd7293a7ac591bc05a2d1ace4b13a1"
+    "sha256": "68ea4f0b1e7dc543754ef422bc8ff08d20960bdb0d7a58abec51bbfc563295d8"
   },
   {
     "path": "customer-plans.js",
@@ -49,7 +49,7 @@
   },
   {
     "path": "customer-login.css",
-    "sha256": "29b6906f6f70c5284ae4c600cca630533d58510b2c308c9e6255080750a2284c"
+    "sha256": "daec655c61ce12c6a5585e28b7902c217ac066645b1e777bfe855191030b6d6c"
   },
   {
     "path": "service-introduction.css",
