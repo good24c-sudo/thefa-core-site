@@ -1,5 +1,7 @@
 # 더파코어 관리자 대시보드 분리·정리
 
+상태: 운영 배포 완료. 대표의 기존 로그인 세션으로 기본 주소·6개 메뉴·실제 집계 조회를 확인했습니다.
+
 ## 대표 지시
 
 “아 이거 메뉴 정리가 안되어 있어서 했갈렸네 이거 대시 보드 랑 이전 로그인 후 더파코어 랑 혼합 되어 있어 대시 보드로 깔끔하게 만들자”
@@ -21,3 +23,7 @@ app.thefacore.com의 로그인 후 기본 화면과 /index.html, /admin, /admin/
 ## 배포·보호
 
 기준 소스 a3fd391d69a4ba829840a5dde0ec5d4c70ef71b9. safe branch candidate/p02-admin-dashboard-20261120. rollback은 dpl_4VdNoZeMPJeoGFiteUSTC3TjQua8. Core writer/fence/ACTIVE TASK/main은 변경하지 않는다. 기존 승인 경로와 Vercel 동일 SHA·목적 1회 빌드 규칙을 따른다.
+
+## 운영 결과
+
+운영 배포 dpl_9jhV3LT4bU4Kqet2Y4ND184aYT7C, 코드 HEAD cd750df2c8dd09d081703e8507bf6133ec1abda6. 운영 기본 주소에서 관리자 대시보드가 열리며, 6개 메뉴·실제 집계·기존 세션 유지·브라우저 오류 0건을 확인했습니다. 익명 루트303 및 관리자 집계/JS/CSS401을 확인했습니다. 요금제·결제는 기존처럼 결제 미연결 상태입니다. 대표의 운영 세션을 종료하지 않았으며 새 로그아웃 UI는 격리 미리보기와 기존 인증 시험으로 검증했습니다.

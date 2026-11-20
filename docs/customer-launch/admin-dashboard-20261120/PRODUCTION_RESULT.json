@@ -1,0 +1,60 @@
+{
+  "contract": "P02_ADMIN_DASHBOARD_PRODUCTION_RESULT_V1",
+  "status": "DEPLOYED_AUTHENTICATED_LIVE_UI_VERIFIED",
+  "project": "P02",
+  "branch": "candidate/p02-admin-dashboard-20261120",
+  "codeHead": "cd750df2c8dd09d081703e8507bf6133ec1abda6",
+  "domain": "https://app.thefacore.com",
+  "deployment": {
+    "id": "dpl_9jhV3LT4bU4Kqet2Y4ND184aYT7C",
+    "url": "thefa-core-console-lvi5iwe64-thefa.vercel.app",
+    "readyState": "READY",
+    "sha": "cd750df2c8dd09d081703e8507bf6133ec1abda6"
+  },
+  "sourceDigest": "b4a998d8a78609adf4d18ae350dafd74b1ffc5fbd66aeaa3cd25147a4ec6ce70",
+  "runtimeFiles": 34,
+  "qa": {
+    "localPassed": 38,
+    "localFailed": 0,
+    "authenticatedRootDashboard": true,
+    "liveMenuViews": 6,
+    "oneVisibleViewPerMenu": true,
+    "liveAggregateRead": true,
+    "liveBrowserErrors": 0,
+    "existingSessionPreserved": true,
+    "logoutUiSyntheticPreview": true,
+    "productionLogoutPerformed": false,
+    "mobileDomAndInteractionVerified": true,
+    "mobileScreenshot": "TOOL_TIMEOUT",
+    "productionScreenshot": "ADMIN_PRODUCTION.jpg"
+  },
+  "liveObserved": {
+    "confirmedMembers": 0,
+    "customerWorkspaces": 1,
+    "providerModels": 4,
+    "paymentConnected": false,
+    "defaultScenarioProfitKrw": 1382293,
+    "defaultScenarioNotActualRevenue": true
+  },
+  "anonymousHttp": {
+    "root": 303,
+    "rootLocation": "/login.html",
+    "login": 200,
+    "aggregate": 401,
+    "adminScript": 401,
+    "adminStyles": 401
+  },
+  "scope": {
+    "customerSiteChanged": false,
+    "dbChanged": false,
+    "dnsChanged": false,
+    "apiKeysChanged": false,
+    "aclChanged": false,
+    "coreWriterChanged": false,
+    "coreFenceChanged": false,
+    "mainMerged": false,
+    "retiredConsoleSourcePreserved": true
+  },
+  "rollbackDeployment": "dpl_4VdNoZeMPJeoGFiteUSTC3TjQua8",
+  "newBuilds": 1
+}

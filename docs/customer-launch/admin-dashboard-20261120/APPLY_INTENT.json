@@ -1,0 +1,22 @@
+{
+  "contract": "P02_ADMIN_DASHBOARD_APPLY_INTENT_V1",
+  "project": "P02",
+  "authorization": "Current representative instruction: separate and clean app.thefacore.com as the administrator dashboard",
+  "branch": "candidate/p02-admin-dashboard-20261120",
+  "codeHead": "cd750df2c8dd09d081703e8507bf6133ec1abda6",
+  "targetProject": "prj_D76yqyl7E0YXtpEfmQjW0WYA6gjA",
+  "domain": "app.thefacore.com",
+  "rollbackDeployment": "dpl_4VdNoZeMPJeoGFiteUSTC3TjQua8",
+  "runtimeFiles": 34,
+  "sourceDigest": "b4a998d8a78609adf4d18ae350dafd74b1ffc5fbd66aeaa3cd25147a4ec6ce70",
+  "coreRevision": 62,
+  "existingBuilds": 0,
+  "admission": "ALLOW_ONCE",
+  "newBuildsAllowed": 1,
+  "coreWriterChanged": false,
+  "customerSiteChanged": false,
+  "authenticationKeysChanged": false,
+  "dbChanged": false,
+  "aclChanged": false,
+  "dnsChanged": false
+}
