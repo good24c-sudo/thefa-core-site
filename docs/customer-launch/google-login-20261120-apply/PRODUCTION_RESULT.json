@@ -1,0 +1,139 @@
+{
+  "schema": "THEFA_SCOPED_PRODUCTION_LOGIN_OBSERVATION_V1",
+  "status": "PRODUCTION_APPLIED_REAL_LOGIN_LOGOUT_RELOGIN_VERIFIED",
+  "project_key": "P02",
+  "observed_at": "2026-11-20T06:21:17.843Z",
+  "observed_timezone": "Asia/Seoul",
+  "user_instruction": "그럼 로그인 적용 시키고 로그인 까지 진행 해보도록 하자",
+  "deployment": {
+    "id": "dpl_HmHyj1t82zoaPWWz29KktwdqXFck",
+    "target": "production",
+    "ready_state": "READY",
+    "url": "https://thefa-core-customer-6rzfp9hri-thefa.vercel.app",
+    "site": "https://thefacore.com",
+    "created_at": "2026-11-20T06:14:19.423Z",
+    "ready_at": "2026-11-20T06:14:31.879Z",
+    "alias_verified": true,
+    "new_builds": 1,
+    "prior_deployment": "dpl_EspEhBB2qc1a4MmJrM9F4AiswbrM",
+    "project_id": "prj_FEJ9dUhjDAYspZsfcDjKwp4euMFo",
+    "team_id": "team_ukptkCxVKSjdlRwBtymwPtSd"
+  },
+  "artifact": {
+    "candidate_code_head": "3d194fbf4f6a1a36a5abfb9462381a0ec4e3a873",
+    "source_composition": "Prior R7 production source with 9-file Google auth delta; not claimed as a standalone Git-tree deployment",
+    "source_files_matched": 165,
+    "source_file_differences": 0,
+    "reused_source_files": 156,
+    "changed_source_files": 9,
+    "request_body_sha256": "a30b70c73d700650bdece1940887c6c07ce545ebfff719eb5d12bcd9287357fb",
+    "git_push": false
+  },
+  "configuration": {
+    "supabase_redirect_added": "https://thefacore.com/auth/google/callback",
+    "redirect_entries_before": 6,
+    "redirect_entries_after": 7,
+    "redirect_save_and_reload_verified": true,
+    "shared_site_url_unchanged": true,
+    "provider": "custom:google",
+    "vercel_env_key": "CUSTOMER_GOOGLE_AUTH_PROVIDER",
+    "vercel_env_value": "custom:google",
+    "vercel_env_target": "production",
+    "vercel_env_id": "PRxYxzbiwgXoRedw",
+    "secret_values_read_or_copied": false,
+    "global_email_confirmation_disabled": false
+  },
+  "admission": {
+    "installed_policy": "THE_FA_VERCEL_DEPLOY_ADMISSION_V1",
+    "decision": "ALLOW_ONCE",
+    "max_new_builds": 1,
+    "production_approval_source": "Explicit current user instruction",
+    "core_revision": 62,
+    "core_writer_changed": false,
+    "core_fence_changed": false
+  },
+  "browser_verification": {
+    "site": "https://thefacore.com/",
+    "firstLogin": {
+      "authenticated": true,
+      "method": "google",
+      "accountLinked": true
+    },
+    "logoutVerified": true,
+    "secondLogin": {
+      "authenticated": true,
+      "method": "google",
+      "accountLinked": true,
+      "sameCustomer": true
+    },
+    "workspaceConnected": true,
+    "allowancePreserved": true,
+    "deliverable": true,
+    "observedAt": "2026-11-20T06:21:17.843Z"
+  },
+  "scope": {
+    "separate_thefa_email_verification_required": false,
+    "account_tested": "Existing signed-in owner Google account",
+    "tested_account_identifiers_persisted": false,
+    "new_external_google_account_tested": false,
+    "ai_request_sent": false,
+    "quota_before": 10,
+    "quota_after": 10,
+    "drive_github_supabase_vercel_customer_connectors_tested": false
+  },
+  "public_smoke": {
+    "passed_paths": [
+      "/",
+      "/login",
+      "/signup",
+      "/paid-demo",
+      "/studio",
+      "/world-original-v2",
+      "/broker-preview/"
+    ],
+    "expected_http_status": 200,
+    "unauthenticated_session_endpoint": {
+      "status": 200,
+      "authenticated": false
+    }
+  },
+  "prior_isolated_qa": {
+    "local": {
+      "passed": 262,
+      "failed": 0,
+      "skipped": 0
+    },
+    "pc_candidate": {
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0
+    },
+    "provider_calls": "mocked"
+  },
+  "diagnostics": {
+    "window": "15m at final read",
+    "error_level_log_groups": {
+      "/auth/google/callback": 2
+    },
+    "matching_dispatch_route_shape_count": 2,
+    "note": "Successful callbacks emit existing CUSTOMER_DISPATCH_ROUTE_SHAPE console.error for query-key shape only. Grouped log output is bounded and is not an exhaustive absence-of-errors proof.",
+    "direct_api_document_probe": {
+      "path": "/api/customer/workspace",
+      "result": "CUSTOMER_REQUEST_ORIGIN_INVALID",
+      "cause": "Exact rejected header condition unobserved; separate from normal same-origin UI fetch",
+      "guard_changed": false
+    },
+    "workspace_evidence": "Observed connected UI plus deployed source path: response.ok and contract THEFA_CUSTOMER_CHAT_V2 are required before setConnected(true). Raw Network response was not captured."
+  },
+  "limitations": [
+    "New independent Google account signup and external audience not verified",
+    "Google account chooser still displays Supabase project domain",
+    "Existing session TTL max 3600 seconds or shorter upstream expiry; no automatic refresh added",
+    "AI generation, conversation writes, and other service connectors not exercised"
+  ],
+  "evidence_semantics": "Scoped authenticated service deployment and actual browser observation record. Not a Core writer transfer or NativeHost terminal receipt.",
+  "persistence": {
+    "company_memory_sync": "NOT_PERFORMED",
+    "conversation_original": "Current apply instruction recorded; historical conversation not fully replayed"
+  }
+}

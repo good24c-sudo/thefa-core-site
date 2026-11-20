@@ -1,0 +1,29 @@
+{
+  "phase": "DISPATCH_READY",
+  "user_instruction": "그럼 로그인 적용 시키고 로그인 까지 진행 해보도록 하자",
+  "scope": "Google customer login configuration and one production deployment to thefacore.com",
+  "project": "prj_FEJ9dUhjDAYspZsfcDjKwp4euMFo",
+  "team": "team_ukptkCxVKSjdlRwBtymwPtSd",
+  "prior_deployment": "dpl_EspEhBB2qc1a4MmJrM9F4AiswbrM",
+  "candidate_code_head": "3d194fbf4f6a1a36a5abfb9462381a0ec4e3a873",
+  "request_body_sha256": "a30b70c73d700650bdece1940887c6c07ce545ebfff719eb5d12bcd9287357fb",
+  "idempotency_key": "P02_CORE_GOOGLE_LOGIN_3d194fb_PRODUCTION_20261120",
+  "installed_admission": "THE_FA_VERCEL_DEPLOY_ADMISSION_V1",
+  "admission_decision": "ALLOW_ONCE",
+  "max_new_builds": 1,
+  "core_revision": 62,
+  "core_writer_changed": false,
+  "git_push": false,
+  "oauth_redirect": "https://thefacore.com/auth/google/callback",
+  "environment_change": {
+    "key": "CUSTOMER_GOOGLE_AUTH_PROVIDER",
+    "value": "custom:google",
+    "target": "production",
+    "id": "PRxYxzbiwgXoRedw"
+  },
+  "qa": {
+    "local_pass": 262,
+    "pc_candidate_pass": 21
+  },
+  "evidence_semantics": "Scoped deployment audit only; not a forged Core/NativeHost grant"
+}
