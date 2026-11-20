@@ -2,6 +2,7 @@ import {SupabaseRest} from './store.mjs';
 import {createIsolatedCloudAllowance} from './cloud-allowance.mjs';
 import {createIsolatedDailyAiBudget} from './daily-ai-budget.mjs';
 import {createCustomerDeepSeekProvider} from './customer-deepseek-provider.mjs';
+import {createCustomerAiModes} from './customer-ai-modes.mjs';
 import {createCustomerHttpAdapter} from './customer-http-adapter.mjs';
 import {validateCustomerOrigin} from './customer-origin-policy.mjs';
 
@@ -57,7 +58,8 @@ export function createCustomerRuntime(options={}){
   const budget=createIsolatedDailyAiBudget({rest,secret:budgetSecret,clock});
   const provider=createCustomerDeepSeekProvider({apiKey:deepseekApiKey,fetchImpl,
    model:'deepseek-flash',maxTokens:1024});
-  const handler=createCustomerHttpAdapter({sessionVerifier,legacyMigrationVerifier,resolveEmployeeEntitlement,
+  const aiModes=createCustomerAiModes({env:config.aiProviderEnv??{CUSTOMER_DEEPSEEK_API_KEY:deepseekApiKey},budget,fetchImpl});
+  const handler=createCustomerHttpAdapter({aiModes,membershipTracking:true,sessionVerifier,legacyMigrationVerifier,resolveEmployeeEntitlement,
    rest,tenantKey,allowance,budget,provider},{customerOrigin:origin,environment});
   return Object.freeze({handler});
  }catch{

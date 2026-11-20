@@ -1,0 +1,176 @@
+{
+  "contract": "THEFA_CONSOLE_OPERATIONS_SOURCE_V1",
+  "sourceDigest": "1b2a7e75599ca310fc2d896e631b27c0be532caa3f9afed9af273b089165d8c6",
+  "files": [
+    {
+      "path": ".vercelignore",
+      "sha256": "3d43775c802a51a8af1865e79eb79711c3ed9f5717901d33b9156791e59b25cb",
+      "bytes": 51
+    },
+    {
+      "path": "admin/dashboard.css",
+      "sha256": "d110ac686171c94951247053136dad541bdff0b6b9a8899dd602561f881fbfe1",
+      "bytes": 17550
+    },
+    {
+      "path": "admin/dashboard.js",
+      "sha256": "0472b19627ec41917463013dfa164e573e9b2c6c61481e37f4132e4d77070433",
+      "bytes": 7168
+    },
+    {
+      "path": "admin/index.html",
+      "sha256": "eaab3a7369b56710ab5d63b991d076d5ba14e3abd4fb9bdb88c98e9d697b3776",
+      "bytes": 9488
+    },
+    {
+      "path": "api/console.mjs",
+      "sha256": "fa054502ec12dd4c1f9235bc0342d96d051fb5d4669583d0810d407be13aa17d",
+      "bytes": 95
+    },
+    {
+      "path": "cloud/assets/mascots/guard-320.webp",
+      "sha256": "3538f960d6fb32390a18ad5015265d62a1daee00f3506258e516fbe17491fb15",
+      "bytes": 24964
+    },
+    {
+      "path": "cloud/assets/mascots/guard-640.webp",
+      "sha256": "ba82c296b33f9b69eed8360528f594fc23f8c77e3f24bab76a7c6a1faeda8a5b",
+      "bytes": 60444
+    },
+    {
+      "path": "cloud/auth.mjs",
+      "sha256": "96843abdfa3bb4ebd11dfcc0c76b35be95dd2db012e0a8705ad587dde1ae45b4",
+      "bytes": 6957
+    },
+    {
+      "path": "cloud/core-ingress-adapter.mjs",
+      "sha256": "31fddb9eb5f618be5c0ca5245a697f7d27c0fc9270c084fff7e3d35ddff37f05",
+      "bytes": 14516
+    },
+    {
+      "path": "cloud/customer-operations.mjs",
+      "sha256": "d1c3b6211d5668694cd9bd47d04f530f62a47fe178c16656476174d002f60cca",
+      "bytes": 5275
+    },
+    {
+      "path": "cloud/engine-adapter.mjs",
+      "sha256": "675aeef917a393938294a8bfb6ec8e45329c86eea83e2d6338a87e622dc0975f",
+      "bytes": 3055
+    },
+    {
+      "path": "cloud/login.css",
+      "sha256": "115c3bc56e294efc1bd6db7d0f589563fd1254a4c7068e6b8ee965de1ac1b22c",
+      "bytes": 7285
+    },
+    {
+      "path": "cloud/login.html",
+      "sha256": "66505549f77228bee4c98547ea276944fecbd474bcd77d10ed44b96eac40b174",
+      "bytes": 5186
+    },
+    {
+      "path": "cloud/login.js",
+      "sha256": "1020b04be63374d06f41fdd20fabf109b7af60d057d3d3be3ec1674f8c5559aa",
+      "bytes": 8791
+    },
+    {
+      "path": "cloud/server.mjs",
+      "sha256": "fee8cb9bddf8e5c9e0dacf323d35514d8e5a5839361ed90846db55b1d278bed8",
+      "bytes": 10956
+    },
+    {
+      "path": "cloud/shared/customer-cost-meter.mjs",
+      "sha256": "58f6eb3de1fc3fad7d5153fad19c4988a486e3464da9b7fa7ade98a52b8ddd3d",
+      "bytes": 9159
+    },
+    {
+      "path": "cloud/shared/customer-cost-summary.mjs",
+      "sha256": "ccc9e45608fbb95e0a1dd0a05c8f2960e2b857db13d18cd374ee123d50d48ffd",
+      "bytes": 2633
+    },
+    {
+      "path": "cloud/shared/customer-model-costs.mjs",
+      "sha256": "2c5c9af2aa443685e6f60c32ec348ec5ae6f7b03c9bafcc6b36967d983c0486d",
+      "bytes": 7800
+    },
+    {
+      "path": "cloud/shared/customer-plans.mjs",
+      "sha256": "a56bf97041beb20ba7586e478be04de4362e93b4b9f1c22f6e27848fa9f5b4da",
+      "bytes": 1101
+    },
+    {
+      "path": "cloud/store.mjs",
+      "sha256": "ce18b00dac795646d80099b64683c9d035cb08cdb820d026b7a64d0c4a9147ec",
+      "bytes": 8668
+    },
+    {
+      "path": "cloud/vercel.json",
+      "sha256": "5c4b3eff107d9328b70ac411f70face1d11cbce274ab680e91624f97744b918b",
+      "bytes": 492
+    },
+    {
+      "path": "index.html",
+      "sha256": "40f647f51c00e357d667c54d23ed77cfd6b010074aff273c27634e7f25281b53",
+      "bytes": 38046
+    },
+    {
+      "path": "lab/package.json",
+      "sha256": "229168a73c3bacd6003918ea55059061565484dc5cea85e8e80ac218d900fad1",
+      "bytes": 276
+    },
+    {
+      "path": "lab/public/app.js",
+      "sha256": "76932092168be1f6cf09c4228bb17e5739ba37277c4eede750d0ac673bc9042a",
+      "bytes": 70519
+    },
+    {
+      "path": "lab/public/assets/PretendardVariable-subset.woff2",
+      "sha256": "0dbfc0ec6d576c63d92b33b35c3625bf094340e4dc681818f9b85dad6891bc50",
+      "bytes": 1193036
+    },
+    {
+      "path": "lab/public/assets/THEFA_Core_Primary_Dark_web.svg",
+      "sha256": "9fc1baf0b80881f3ccfc0171fddb801c694848f353b623706722574c8ce14eb7",
+      "bytes": 6715
+    },
+    {
+      "path": "lab/public/assets/THEFA_Core_Wordmark_Dark_web.svg",
+      "sha256": "61dc8ebcc46bebcc99e7f2465292ccbf13380138dc9b5dc40e17e2a671e3dd62",
+      "bytes": 4766
+    },
+    {
+      "path": "lab/public/index.html",
+      "sha256": "f16d7ca461639062fcbae3fa735a82bdd95bed72328222eccdf0403b25738c83",
+      "bytes": 16982
+    },
+    {
+      "path": "lab/public/styles.css",
+      "sha256": "828a52812dea7d06342d1795fcf2c9d4d56f8fb5495b16f9cf30b1ef4da3ab8e",
+      "bytes": 25094
+    },
+    {
+      "path": "lab/server.mjs",
+      "sha256": "4eb47cd147e3e4b69126d27a2dd434d1025daa89de186a2c11e0ce45e7aaa905",
+      "bytes": 41942
+    },
+    {
+      "path": "package.json",
+      "sha256": "5948a69b5a29dafeec4c33ad271cfc4bf5ecb4f2d750a0a0afbfa7ffe33ebe2b",
+      "bytes": 59
+    },
+    {
+      "path": "public/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "tools/Prepare-Cloud.ps1",
+      "sha256": "b4090e19e618d7049092b520083175a9b20023b536ff42e339a29b74c06bc5c2",
+      "bytes": 2389
+    },
+    {
+      "path": "vercel.json",
+      "sha256": "f74ef56441179e6908e63a85bde56383ac4ba467340256dd844410c4e055a1d5",
+      "bytes": 537
+    }
+  ]
+}

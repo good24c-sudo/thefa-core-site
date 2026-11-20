@@ -1,0 +1,30 @@
+
+:root{font-family:Pretendard,'Malgun Gothic',system-ui,sans-serif;color:#eee0c9;background:#101114;color-scheme:dark}
+*{box-sizing:border-box}html{overflow-x:hidden}section{min-width:0;max-width:100%;overflow-wrap:anywhere}body{margin:0;padding:23px;max-width:850px;margin-inline:auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #40382b;padding-bottom:16px}
+strong{color:#e6bc82;letter-spacing:.08em}h1{font-size:clamp(24px,5vw,38px);letter-spacing:-.05em;margin:29px 0 9px}
+p{font-size:13px;line-height:1.8;color:#b3a79a}
+section{border:1px solid #40372e;border-radius:12px;background:#1b1c20;padding:18px;margin-top:17px}
+h2{font-size:17px}label{display:block;font-size:12px;margin:11px 0 5px}
+button,input,textarea,select{font:inherit;color:inherit;border:1px solid #66513a;border-radius:8px;padding:10px 12px;background:#212124}
+button{cursor:pointer}button:disabled{opacity:.6;cursor:default}
+button.primary{background:#e0ba82;color:#201b13;font-weight:700}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #e5c38f;outline-offset:2px}
+input,textarea,select{width:100%;min-width:0;max-width:100%;resize:vertical}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.hint{font-size:11px;color:#ad9f8b}
+.status{overflow-wrap:anywhere;word-break:break-word;padding:11px 12px;background:#2c281e;border-radius:8px;color:#dfc9aa;white-space:pre-wrap;font-size:12px}
+#jobs>article{padding:14px 0;border-bottom:1px solid #484035;min-width:0;max-width:100%}#jobs>article a{display:block;max-width:100%;margin:10px 0;overflow-wrap:anywhere;word-break:break-word}#jobs small{display:block;color:#b6a88f;margin:8px 0;word-break:break-word}
+a{color:#e8bc7d}code{font-size:13px;color:#ffdda7;overflow-wrap:anywhere}
+@media(max-width:550px){body{padding:14px}.cols{grid-template-columns:1fr}}
+
+
+/* R7 minimal presentation delta: preserve original 0.3/broker logic and accessibility */
+#jobs .customer-task{padding:14px 0 17px}
+#jobs .customer-task.needs-review{border-left:3px solid #d3a774;padding-left:13px}
+#jobs .task-state{display:block;color:#e8d8bf;font-size:15px;line-height:1.55}
+#jobs .needs-review .task-state{color:#efc889}
+#jobs .task-detail{font-size:12px;line-height:1.75;color:#cfc2b1;margin:7px 0}
+#jobs .review-scope{font-size:12px;color:#e3c7a4;background:#29231d;border-radius:8px;padding:9px 11px;margin:12px 0;line-height:1.7}
+#jobs .result-file{border:1px solid #5a4935;border-radius:8px;padding:9px 12px;margin:9px 0;color:#f1ce98;display:block;min-height:42px}
+#jobs .result-file:hover{background:#332a22}
+#jobs .result-file:focus-visible{outline:2px solid #e5c38f;outline-offset:3px}
+@media(max-width:430px){#jobs .customer-task.needs-review{padding-left:10px}}

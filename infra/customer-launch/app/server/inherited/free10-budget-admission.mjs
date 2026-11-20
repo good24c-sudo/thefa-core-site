@@ -14,14 +14,15 @@ const ACCOUNT=/^[a-f0-9]{64}$/;
 const REQUEST=/^[A-Za-z0-9._:-]{8,160}$/;
 const stop=(status,code)=>Object.assign(new Error(code),{status,code});
 export function createProtectedFree10AiPipeline({
- allowance,budget,provider,persistAnswer,
+ allowance,budget,provider,persistAnswer,persistProviderOutcome=null,
  maxInputTokens=48000,maxOutputTokens=1024
 }={}){
  if(!allowance||typeof allowance.reserve!=='function'||typeof allowance.view!=='function'||
    typeof allowance.recordCompletion!=='function'||typeof allowance.settle!=='function'||
    !budget||typeof budget.reserve!=='function'||typeof budget.settle!=='function'||
    typeof budget.cancelWithoutDispatch!=='function'||
-   provider?.mode!=='DEEPSEEK_CUSTOMER_CHAT'||provider?.model!=='deepseek-flash'||
+   !['DEEPSEEK_CUSTOMER_CHAT','THEFA_CUSTOMER_MULTI_AI'].includes(provider?.mode)||
+   (provider.mode==='DEEPSEEK_CUSTOMER_CHAT'&&provider.model!=='deepseek-flash')||
    typeof provider.ask!=='function'||typeof persistAnswer!=='function'||
    maxInputTokens!==48000||maxOutputTokens!==1024)
   throw stop(503,'LIVE_AI_PIPELINE_DEPENDENCIES_NOT_VERIFIED');
@@ -54,8 +55,9 @@ export function createProtectedFree10AiPipeline({
   if(quota.planRequired||quota.remaining===0)
    throw stop(402,'FREE10_EXHAUSTED_UPGRADE_REQUIRED');
   }
+  const modelId=provider.modelId??'deepseek-flash';
   let held;
-  try{held=await budget.reserve(principalId,requestId,{maxInputTokens,maxOutputTokens});}
+  try{held=await budget.reserve(principalId,requestId,{maxInputTokens,maxOutputTokens,modelId});}
   catch(e){
    if(e?.code==='DAILY_AI_BUDGET_EXHAUSTED')throw stop(429,'TODAY_AI_BUDGET_EXHAUSTED');
    throw e;
@@ -81,14 +83,27 @@ export function createProtectedFree10AiPipeline({
   // From here onwards, the provider may have accepted a billable request:
   // never call it a second time or automatically refund outstanding holds.
   let answer;
-  try{answer=await provider.ask({messages});}
-  catch{throw stop(503,'AI_DISPATCH_OUTCOME_UNKNOWN_NO_AUTOREPLAY');}
-  if(!answer||answer.model!=='deepseek-flash'||typeof answer.content!=='string'||
+  try{
+   const permit=provider.mode==='THEFA_CUSTOMER_MULTI_AI'?budget.issueProviderPermit(held,{modelId}):undefined;
+   answer=await provider.ask({messages,permit});
+  }catch(error){
+   if(typeof persistProviderOutcome==='function'){
+    try{await persistProviderOutcome({principalId,requestId,modelId,meteringReceipt:error?.meteringReceipt??null});}
+    catch{throw stop(503,'AI_OUTCOME_PERSISTENCE_UNCERTAIN_NO_AUTOREPLAY');}
+   }
+   if(error?.meteringReceipt?.normalizedUsage){
+    try{await budget.settle(principalId,requestId,{day:held.day,modelId,normalizedUsage:error.meteringReceipt.normalizedUsage});}
+    catch{throw stop(503,'AI_BUDGET_SETTLEMENT_RECONCILIATION_REQUIRED');}
+   }
+   throw stop(503,'AI_DISPATCH_OUTCOME_UNKNOWN_NO_AUTOREPLAY');
+  }
+  if(!answer||answer.model!==provider.model||typeof answer.content!=='string'||
      !answer.content.trim()||
      !Number.isSafeInteger(answer.promptTokens)||answer.promptTokens<1||
      !Number.isSafeInteger(answer.outputTokens)||answer.outputTokens<1)
    throw stop(503,'MODEL_USAGE_OR_CONTENT_RECEIPT_INVALID_NO_REPLAY');
   try{
+   if(typeof persistProviderOutcome==='function')await persistProviderOutcome({principalId,requestId,modelId,outcome:'REPLY_RECEIVED',meteringReceipt:{modelId,provider:answer.provider,normalizedUsage:answer.normalizedUsage}});
    if(!employeeUnlimited)await allowance.recordCompletion(principalId,requestId,answer);
    const persisted=await persistAnswer({
     principalId,requestId,messages,answer
@@ -103,12 +118,12 @@ export function createProtectedFree10AiPipeline({
   let charge;
   try{charge=await budget.settle(principalId,requestId,{
    day:held.day,inputTokens:answer.promptTokens,
-   outputTokens:answer.outputTokens
+   outputTokens:answer.outputTokens,modelId,normalizedUsage:answer.normalizedUsage??null
   });}
   catch{throw stop(503,'AI_BUDGET_SETTLEMENT_RECONCILIATION_REQUIRED');}
   return Object.freeze({
    status:'SAVED_REAL_AI_RESPONSE',
-   provider:'DEEPSEEK_API',
+   provider:answer.provider,
    model:answer.model,
    requestId,
    assistantMessageSaved:true,

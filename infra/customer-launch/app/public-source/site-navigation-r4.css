@@ -1,0 +1,94 @@
+/* THE FA Core customer preview R4 shared navigation and official visual identity. */
+.core-site-nav{display:flex;align-items:center;gap:5px;min-width:0;justify-content:flex-end}
+.core-site-nav a{display:inline-flex;align-items:center;justify-content:center;min-height:34px;min-width:0;padding:8px 11px;border-radius:8px;border:1px solid transparent;text-decoration:none;color:#e3ded3;font:600 12px/1.2 TFAPretendard,Pretendard,"Malgun Gothic",sans-serif;white-space:nowrap}
+.core-site-nav a:hover,.core-site-nav a[aria-current="page"]{color:#f7e8cb;border-color:#65543c;background:#292723}
+.core-site-nav a:focus-visible,.core-mobile-menu summary:focus-visible{outline:2px solid #d4b573;outline-offset:3px}
+.core-mobile-menu{position:relative;display:none;flex-shrink:0}
+.core-mobile-menu summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:center;gap:5px;min-height:39px;padding:7px 11px;border:1px solid #756147;border-radius:9px;color:#f4e6ce;background:#201f1b;font:650 12px TFAPretendard,Pretendard,system-ui}
+.core-mobile-menu summary::-webkit-details-marker{display:none}
+.core-mobile-menu[open] summary{background:#393021}
+.core-mobile-menu .core-mobile-list{box-sizing:border-box;position:absolute;right:0;top:calc(100% + 7px);width:min(245px,calc(100vw - 28px));padding:9px;background:#15191c;border:1px solid #76613e;border-radius:12px;box-shadow:0 16px 40px #000b;display:grid;gap:4px;z-index:1000}
+.core-mobile-menu .core-mobile-list a{color:#f4ead8;text-decoration:none;padding:10px 13px;border-radius:8px;font:650 13px TFAPretendard,Pretendard,system-ui;min-height:39px}
+.core-mobile-menu .core-mobile-list a[aria-current="page"],.core-mobile-menu .core-mobile-list a:hover{background:#383124}
+.core-mobile-menu .core-mobile-list .divider{height:1px;background:#4c4333;margin:2px 8px}
+.core-brand-official{display:inline-flex;align-items:center;gap:9px;min-width:0;flex-shrink:0;text-decoration:none;color:#f4eada}
+.core-brand-official img{display:block;width:148px;max-width:100%;height:39px;object-fit:contain}
+.core-brand-official .core-brand-context{color:#d0b282;font:800 11px/1.3 TFAPretendard,Pretendard,system-ui;letter-spacing:.12em;border-left:1px solid #67583e;padding-left:11px;white-space:nowrap}
+header.core-header-r4{box-sizing:border-box;min-height:76px;padding:14px clamp(18px,3vw,44px);display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:18px;background:#101315;border-bottom:1px solid #39352e;color:#f4eadc}
+header.core-header-r4 .core-brand-official{flex:0 0 auto}
+body.world-r4 .topbar .core-site-nav{margin-left:auto;flex:0 1 auto}
+body.world-r4 .topbar .topnav{gap:12px;margin-right:10px;margin-left:auto}
+body.world-r4 .topbar .status{display:none}
+body.world-r4 .topbar .core-mobile-menu{margin-left:auto}
+body.world-r4 .topbar .core-site-nav a{font-size:11px;padding-inline:8px}
+body.world-r4 .topbar .brand .core-brand-context{font-size:11px}
+body.core-broker-r4 header.core-header-r4{position:relative!important;width:100%;max-width:none;border-bottom:1px solid #554734;margin:0 auto!important}
+body.core-broker-r4 header.core-header-r4 .core-brand-official img{width:160px}
+body.core-broker-r4 #core-preview-context{max-width:1100px;margin:18px auto 12px;padding:0 16px;color:#ada89f;font:600 12px/1.5 TFAPretendard,Pretendard,system-ui}
+body.core-broker-r4{color:#f4f0e8!important}
+body.core-broker-r4 section{overflow-wrap:break-word}
+body.core-broker-r4 section button.primary{background:#d9b67b;color:#15130f;border-color:#d9b67b}
+body.core-broker-r4 #core-broker-safety-label{display:inline-block;background:#25221d;color:#e6d5bb;border:1px solid #574832;border-radius:8px;padding:6px 10px;font-size:11px}
+body.core-paid-r4 header.topbar .core-site-nav{margin-left:auto}
+body.core-paid-r4 header.topbar .nav-actions{display:flex;gap:5px}
+body.core-paid-r4 header.topbar .nav-actions > a{font-size:12px}
+body.core-app-r4 .topbar-right .core-site-nav{margin-right:8px}
+body.core-app-r4 .topbar-right .core-site-nav a{font-size:11px;padding:5px 7px}
+body.core-auth-r4 header .core-site-nav{margin-left:auto}
+body.core-studio-r4 .core-site-nav,body.core-about-r4 .core-site-nav{margin-left:auto}
+body.core-world-r4 .topnav{display:flex}
+body.core-auth-r4 header .core-brand-official img{width:145px}
+#core-world-shortcut{color:#e8cfaa!important}
+@media(max-width:1380px){
+ body.world-r4 .topbar .topnav{display:none}
+ body.world-r4 .topbar .core-site-nav{margin-left:auto}
+}
+@media(max-width:1100px){
+ .core-site-nav{gap:1px}
+ .core-site-nav a{font-size:11px;padding:7px 6px}
+}
+@media(max-width:780px){
+ .core-site-nav{display:none!important}
+ .core-mobile-menu{display:block}
+ header.core-header-r4{min-height:62px;padding:10px 14px;gap:8px}
+ header.core-header-r4 .core-brand-official img{width:132px;height:33px}
+ .core-brand-official .core-brand-context{font-size:9px;padding-left:8px}
+ body.world-r4 .topbar .core-site-nav{display:none!important}
+ body.world-r4 .topbar .core-mobile-menu{display:block!important}
+ body.core-app-r4 .topbar-right .core-mobile-menu{display:none}
+ body.core-paid-r4 header.topbar .core-site-nav{display:none!important}
+ body.core-auth-r4 header .core-site-nav{display:none!important}
+ body.core-studio-r4 header .core-site-nav{display:none!important}
+ body.core-about-r4 header .core-site-nav{display:none!important}
+}
+@media(max-width:380px){
+ .core-brand-official img{width:119px!important}
+ .core-brand-official .core-brand-context{font-size:9px;padding-left:7px}
+ .core-mobile-menu summary{padding:7px 9px}
+}
+
+/* Final integration: avoid duplicating studio/about header controls. */
+body.core-studio-r4 .studio-header .header-nav,
+body.core-studio-r4 .studio-header .back-chat{display:none!important}
+body.core-studio-r4 .studio-header{display:flex;align-items:center;justify-content:space-between;gap:12px;box-sizing:border-box}
+body.core-studio-r4 .studio-header .core-site-nav{margin-left:auto!important}
+body.core-studio-r4 .studio-header .core-mobile-menu{margin-left:auto!important}
+body.core-about-r4 .about-topbar .about-return{display:none!important}
+body.core-about-r4 .about-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;box-sizing:border-box}
+body.core-about-r4 .about-topbar .core-site-nav{margin-left:auto!important}
+body.core-about-r4 .about-topbar .core-mobile-menu{margin-left:auto!important}
+@media(max-width:780px){
+ body.core-about-r4 .about-topbar .about-page-subtitle{display:none!important}
+ body.core-about-r4 .about-topbar .core-mobile-menu{margin-left:auto!important}
+ body.core-studio-r4 .studio-header .core-mobile-menu{margin-left:auto!important}
+}
+
+/* R4 final visual polish: preview disclaimer must not cover real page content. */
+body #ux3-preview-ribbon{
+  position:relative!important;inset:auto!important;display:block!important;
+  box-sizing:border-box!important;width:fit-content!important;
+  max-width:calc(100% - 28px)!important;
+  margin:16px auto 18px!important;padding:9px 14px!important;
+  z-index:2!important;text-align:center;pointer-events:none;
+}
+body:has(.ux3-auth-preview) #ux3-preview-ribbon{display:none!important}

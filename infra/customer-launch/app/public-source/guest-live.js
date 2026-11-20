@@ -3,8 +3,8 @@
   const $ = selector => document.querySelector(selector);
   const hostedCustomer = location.protocol === 'https:' &&
     (location.hostname === 'app.thefacore.com' || location.hostname.endsWith('.vercel.app'));
-  const durableService=document.documentElement.dataset.liveService==='deepseek';
-  const isDeepSeek=()=>model.workspace.capabilities?.modelProvider==='DEEPSEEK_API';
+  const durableService=document.documentElement.dataset.liveService==='core';
+  const coreChatReady=()=>Boolean(durableService&&model.workspace.capabilities?.chatAiReady);
   const hasChatAi=()=>Boolean(model.workspace.capabilities?.chatAiReady||model.workspace.capabilities?.localAiCanaryAvailable);
   const accountRequired=()=>Boolean(durableService&&model.workspace.capabilities?.accountRequired);
 
@@ -18,7 +18,7 @@
       actualCloudCost:null,verifiedCostSaving:null,avaExecutionReady:false,localAiCanaryAvailable:false}
   });
   const model = { workspace:blank(),view:'chat', projectId:null,conversationId:null,
-    conversation:null,serverConnected:false,preview:true,hostedBlocked:false,busy:false,search:'',pendingRequestIds:new Map(),account:null };
+    conversation:null,serverConnected:false,preview:true,hostedBlocked:false,busy:false,search:'',pendingRequestIds:new Map(),account:null,aiMode:'balanced' };
   let avaEditRevision=0;
   const factory = (tag,cls,text) => { const e=document.createElement(tag);
     if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e; };
@@ -52,6 +52,12 @@
       tiers:caps.supportedAiTiers||(caps.localAiCanaryAvailable?['AUTO','STANDARD']:['AUTO'])};
   }
   function syncMode(){
+    if(durableService){
+      const modes=model.workspace.capabilities?.aiModes||[];
+      id('mode-label').textContent=modes.find(m=>m.id===model.aiMode)?.label||'더파 기본';
+      id('mode-picker').disabled=model.hostedBlocked||model.busy||!modes.length;
+      return;
+    }
     const settings=model.workspace.settings||{},route=ROUTES[settings.route]||'자동 선택';
     id('mode-label').textContent=route+(settings.aiTier&&settings.aiTier!=='AUTO'?' · '+TIER_LABELS[settings.aiTier]:'');
     id('mode-picker').disabled=model.hostedBlocked||model.busy;
@@ -75,12 +81,20 @@
   }
   function openModePanel(){
     if(model.busy||model.hostedBlocked){notify('현재 작업이 끝난 뒤 AI 선택을 변경해 주세요.');return;}
+    if(durableService){
+      const select=id('customer-ai-mode');select.replaceChildren();
+      for(const mode of model.workspace.capabilities?.aiModes||[]){
+        const option=factory('option','',mode.label+' · '+mode.description+(mode.available?'':' · 연결 준비 중'));
+        option.value=mode.id;option.disabled=!mode.available;select.append(option);
+      }
+      select.value=model.aiMode;
+      id('composer-mode-engine').textContent='질문에 맞는 더파 AI 업무 모드를 선택하세요.';
+      id('composer-mode-status').textContent='모든 모드는 무료 이용 10회를 함께 사용합니다. 선택은 다음 질문부터 적용됩니다.';
+      id('composer-mode-panel').hidden=false;id('mode-picker').setAttribute('aria-expanded','true');select.focus();return;
+    }
     configureModeSelects('composer-route','composer-tier');
-    const engine=model.workspace.capabilities?.modelName;
-    id('composer-mode-engine').textContent=engine?(isDeepSeek()?'THE FA Core AI 연결됨':'현재 응답 엔진: '+engine):'아직 응답할 AI가 연결되지 않았습니다.';
-    id('composer-mode-status').textContent=isDeepSeek()
-      ?'자동·일반 답변을 사용할 수 있습니다. 로컬·전문·정밀 기능은 연결 후 선택할 수 있습니다.'
-      :'연결된 자원만 선택할 수 있습니다. 미연결 항목은 실행되지 않습니다.';
+    id('composer-mode-engine').textContent='더파코어가 답변 방식을 관리합니다.';
+    id('composer-mode-status').textContent='고객용 개별 AI 엔진 선택은 제공하지 않습니다.';
     id('composer-mode-panel').hidden=false;id('mode-picker').setAttribute('aria-expanded','true');
     id('composer-route').focus({preventScroll:true});
   }
@@ -119,7 +133,7 @@
         ?'고객 저장소와 연결됐습니다. 고객 간 격리 검증 및 실제 AI 실행·PC 연결은 별도 확인이 필요합니다.'
         :'고객용 화면 미리보기입니다. 프로젝트·대화는 이 브라우저에서만 유지되며 새로고침하면 사라집니다. 실제 AI 답변과 PC 제어는 실행되지 않습니다.';
     id('composer-helper').textContent=canary
-      ?'실제 Ollama 응답입니다. 시간당 최대 2회 체험 가능하며 공식 클라우드 영수증은 아닙니다.'
+      ?'시험용 로컬 응답입니다. 공식 작업 완료 및 비용 절감 영수증은 아닙니다.'
       :isReady
         ?'실제 AI 실행 연결 전입니다. 메시지는 답변 요청이 아닌 초안으로 저장됩니다.'
         :'미리보기 초안입니다. 실제 AI 호출·비용 발생·서버 저장은 없습니다.';
@@ -493,7 +507,7 @@
       hasChatAi()?'질문 보내기':'메시지 초안 기록');
   }
   async function submitCanaryModelMessage(conversation,content,input){
-    const requestKey='local.canary|'+conversation.id+'|'+content;
+    const requestKey='local.canary|'+conversation.id+'|'+content+'|'+model.aiMode;
     const requestId=model.pendingRequestIds.get(requestKey)||'ui-'+uuid();
     model.pendingRequestIds.set(requestKey,requestId);
     model.busy=true;
@@ -503,7 +517,7 @@
     let result;
     try{
       result=await request('/api/customer/chat/send',{method:'POST',
-        body:JSON.stringify({conversationId:conversation.id,content,requestId})});
+        body:JSON.stringify({conversationId:conversation.id,content,requestId,...(durableService?{aiMode:model.aiMode}:{})})});
     }catch(error){
       // A timeout could mean the model ran. Keep the same request id; never auto-replay.
       if(error.status===402){id('free-limit-dialog').showModal();model.busy=false;input.disabled=false;renderConversation();return;}
@@ -543,7 +557,7 @@
     }
     model.busy=false;input.disabled=false;renderConversation();renderSidebar();
     if(!readbackFailed){setConnected(true);renderAccount();}
-    notify(isDeepSeek()?'답변과 대화를 저장했습니다.':'실제 Ollama 모델 답변을 받았습니다. 공식 Core 작업 완료로 인정하지 않습니다.');
+    notify('답변과 대화를 저장했습니다.');
   }
 
   async function submitMessage(){
@@ -664,7 +678,9 @@
   }
   function renderLocal(){
     const cap=model.workspace.capabilities||{};
-    id('local-status').textContent=cap.localPcPaired?'연결 확인됨':'미연결';
+    id('local-status').textContent=cap.localPcPaired?'내 PC 연결 확인됨':'미연결';
+    const chip=id('core-local-status-r3');
+    if(chip)chip.textContent=cap.localPcPaired?'내 PC 로컬 AI · 연결됨':'내 PC 로컬 AI · 미연결';
     id('cost-status').textContent=typeof cap.actualCloudCost==='number'?'₩'+cap.actualCloudCost.toLocaleString('ko-KR'):'측정 전';
     id('savings-status').textContent=typeof cap.verifiedCostSaving==='number'?'₩'+cap.verifiedCostSaving.toLocaleString('ko-KR'):'측정 전';
   }
@@ -675,7 +691,7 @@
     for(const control of form.querySelectorAll('select,button'))control.disabled=blocked;
     id('settings-availability').textContent=blocked
       ?'로그인·고객 저장소 연결이 확인되지 않아 설정 변경을 일시 중단했습니다. 기존 설정과 기록은 보존됩니다.'
-      :'사용 가능한 답변 설정만 선택할 수 있습니다. 저장 후 실제 실행 가능 여부는 서버에서 다시 확인합니다.';
+      :'AI 엔진과 응답 경로는 더파코어가 자동으로 관리합니다. 고객별 이용권은 서버에서 확인합니다.';
     const caps=model.workspace.capabilities||{};
     if(caps.paidUsageVerified!==true){
       id('standard-usage').textContent='실제 이용권 확인 전';
@@ -776,6 +792,11 @@
   id('close-mode-panel').addEventListener('click',()=>closeModePanel(true));
   id('apply-composer-mode').addEventListener('click',async()=>{
     if(model.busy)return;
+    if(durableService){
+      const choice=id('customer-ai-mode').value;
+      if(!model.workspace.capabilities?.aiModes?.some(m=>m.id===choice&&m.available))return;
+      model.aiMode=choice;syncMode();closeModePanel();id('chat-input').focus();notify('다음 질문에 선택한 더파 AI 모드를 적용합니다.');return;
+    }
     const route=id('composer-route').value,aiTier=id('composer-tier').value,available=modeSupport();
     if(!available.routes.includes(route)||!available.tiers.includes(aiTier)){
       id('composer-mode-status').textContent='선택한 기능이 아직 연결되지 않았습니다. 사용 가능한 항목을 선택해 주세요.';return;

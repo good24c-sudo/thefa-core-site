@@ -9,3 +9,5 @@ deployment-candidate-test-*/
 
 .vercel
 .env*
+
+deployment-operations-*/

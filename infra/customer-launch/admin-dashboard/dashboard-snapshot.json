@@ -1,0 +1,236 @@
+{
+  "contract": "THEFA_CORE_AI_FINOPS_DASHBOARD_R1",
+  "observedDateKst": "2026-11-18",
+  "snapshotType": "VERIFIED_METADATA_NO_LIVE_CUSTOMER_USAGE",
+  "primarySite": "https://thefacore.com",
+  "customerDeploymentId": "dpl_EKH6r6Jgsm2NtjrhXhmuWaqndRor",
+  "sourceOfPricing": "Vercel AI Gateway model catalogue (public reference prices only)",
+  "sourceOfBilling": "NO_PORTONE_REAL_PAYMENTS_CONNECTED",
+  "monthlyPricePlans": [
+    {
+      "id": "standard",
+      "name": "STANDARD",
+      "priceKrw": 19000,
+      "credits": 500
+    },
+    {
+      "id": "pro",
+      "name": "PRO",
+      "priceKrw": 49000,
+      "credits": 1800
+    }
+  ],
+  "liveMetrics": {
+    "observedRequests": null,
+    "observedInputTokens": null,
+    "observedOutputTokens": null,
+    "vendorInvoicedKrw": null,
+    "measuredModelCostKrw": null,
+    "paidActiveUsers": null,
+    "capturedPaymentsKrw": null,
+    "contributionMarginPercent": null
+  },
+  "guards": {
+    "customerDailyBudgetLimitKrw": 10000,
+    "marginTargetPercent": 40,
+    "free10OneTimeLimit": 10,
+    "customerAiUsageReceipt": "P1B_ISOLATED_QA_ONLY",
+    "primaryRevenueAccounting": "PORTONE_NOT_CONNECTED",
+    "modelGatewayUsage": "403_NO_SCOPE_ACCESS",
+    "modelGatewayBudgets": "NO_BUDGETS_FOUND",
+    "crossTenantAdminAccess": "NOT_VERIFIED_CEO_ROLE_REQUIRED"
+  },
+  "providers": [
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "tag": "기존 운영",
+      "state": "RUNNING",
+      "description": "고객용 API 등록, DeepSeek Flash 기본 답변 코드 확인",
+      "connected": true
+    },
+    {
+      "id": "anthropic",
+      "name": "Claude",
+      "tag": "키·응답 검증 완료 · 고객 유료 이용권 대기",
+      "state": "API_KEY_REGISTERED_AND_MODEL_CANARY_VERIFIED",
+      "description": "4060 PC의 기존 DPAPI 키를 정식 고객 Vercel에 암호화 등록. 2026-11-18 최소 모델 답변 HTTP 200 확인. 고객용 과금·사용권은 잠금.",
+      "connected": false,
+      "credentialOnCustomerProduction": true,
+      "verifiedModelCanary": "claude-haiku-5-5",
+      "customerPaidDispatchEnabled": false
+    },
+    {
+      "id": "google",
+      "name": "Gemini",
+      "tag": "키·응답 검증 완료 · 고객 유료 이용권 대기",
+      "state": "API_KEY_REGISTERED_AND_MODEL_CANARY_VERIFIED",
+      "description": "기존 Gemini 키를 고객 Vercel에 암호화 등록. 2026-11-18 Flash Lite 최소 텍스트 답변 확인. 고객용 과금·사용권은 잠금.",
+      "connected": false,
+      "credentialOnCustomerProduction": true,
+      "verifiedModelCanary": "gemini-3.1-flash-lite",
+      "customerPaidDispatchEnabled": false
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "tag": "키·응답 검증 완료 · 고객 유료 이용권 대기",
+      "state": "API_KEY_REGISTERED_AND_MODEL_CANARY_VERIFIED",
+      "description": "기존 OpenAI 키를 고객 Vercel에 암호화 등록. 2026-11-18 GPT-6 Luna 최소 모델 답변 HTTP 200 확인. 고객용 과금·사용권은 잠금.",
+      "connected": false,
+      "credentialOnCustomerProduction": true,
+      "verifiedModelCanary": "gpt-6-luna",
+      "customerPaidDispatchEnabled": false
+    },
+    {
+      "id": "mistral",
+      "name": "Mistral",
+      "tag": "API 설정 필요",
+      "state": "NOT_CONFIGURED",
+      "description": "고객용 API 키·실제 모델 호출 미검증",
+      "connected": false
+    },
+    {
+      "id": "gateway",
+      "name": "Vercel AI Gateway",
+      "tag": "예산·조회 미확인",
+      "state": "GATE_BLOCKED",
+      "description": "사용량 조회 권한 403, 예산 항목 없음. 활성화 금지",
+      "connected": false
+    },
+    {
+      "id": "qwen",
+      "name": "로컬 Ollama / Qwen",
+      "tag": "PC 인증 연결 필요",
+      "state": "LOCAL_ONLY",
+      "description": "4070 PC 7개·4060 PC 8개 모델 설치 확인, 웹 브로커 연결 미검증",
+      "connected": false
+    },
+    {
+      "id": "other",
+      "name": "Grok · Kimi · Llama · GLM 등",
+      "tag": "Gateway 준비",
+      "state": "CATALOG_ONLY",
+      "description": "공급사 모델 카탈로그에는 등록, 고객용 실제 실행 미검증",
+      "connected": false
+    }
+  ],
+  "modelPrices": [
+    {
+      "id": "deepseek/deepseek-v4.1-flash",
+      "name": "DeepSeek V4.1 Flash",
+      "provider": "DeepSeek",
+      "inputUsdPerToken": 3e-7,
+      "outputUsdPerToken": 0.0000012,
+      "routing": "DIRECT_RATE_AS_REPORTED"
+    },
+    {
+      "id": "anthropic/claude-haiku-5.5",
+      "name": "Claude Haiku 5.5",
+      "provider": "Anthropic",
+      "inputUsdPerToken": 1e-7,
+      "outputUsdPerToken": 5e-7,
+      "routing": "VERCEL_GATEWAY_CATALOG"
+    },
+    {
+      "id": "anthropic/claude-sonnet-5.5",
+      "name": "Claude Sonnet 5.5",
+      "provider": "Anthropic",
+      "inputUsdPerToken": 0.000002,
+      "outputUsdPerToken": 0.00001,
+      "routing": "VERCEL_GATEWAY_CATALOG"
+    },
+    {
+      "id": "google/gemini-3.6-flash",
+      "name": "Gemini 3.6 Flash",
+      "provider": "Google",
+      "inputUsdPerToken": 7.5e-7,
+      "outputUsdPerToken": 0.00000375,
+      "routing": "VERCEL_GATEWAY_CATALOG"
+    },
+    {
+      "id": "openai/gpt-6-luna",
+      "name": "GPT-6 Luna",
+      "provider": "OpenAI",
+      "inputUsdPerToken": 1e-7,
+      "outputUsdPerToken": 5e-7,
+      "routing": "VERCEL_GATEWAY_CATALOG"
+    },
+    {
+      "id": "openai/gpt-6.2-sol",
+      "name": "GPT-6.2 Sol",
+      "provider": "OpenAI",
+      "inputUsdPerToken": 0.000002,
+      "outputUsdPerToken": 0.00001,
+      "routing": "VERCEL_GATEWAY_CATALOG"
+    },
+    {
+      "id": "mistral/mistral-large-4",
+      "name": "Mistral Large 4",
+      "provider": "Mistral",
+      "inputUsdPerToken": 7e-7,
+      "outputUsdPerToken": 0.0000021,
+      "routing": "VERCEL_GATEWAY_CATALOG"
+    },
+    {
+      "id": "alibaba/qwen3-max-thinking",
+      "name": "Qwen3 Max Thinking",
+      "provider": "Alibaba",
+      "inputUsdPerToken": 0.0000012,
+      "outputUsdPerToken": 0.000006,
+      "routing": "VERCEL_GATEWAY_CATALOG"
+    }
+  ],
+  "roadmap": [
+    {
+      "id": "p1a",
+      "title": "토큰·원가 계산",
+      "state": "ISOLATED_QA_PASS",
+      "detail": "P1A 36개 합성 시험 통과, 고객 운영 미적용"
+    },
+    {
+      "id": "p1b",
+      "title": "사용량·원가 원장",
+      "state": "ISOLATED_QA_PASS",
+      "detail": "P1B 31개 합성·CAS 시험 통과, 운영 원장 미적용"
+    },
+    {
+      "id": "p1c",
+      "title": "CEO 비용 대시보드",
+      "state": "PREVIEW_READY",
+      "detail": "실계정 관리자 권한과 원장 데이터 소스 연동 필요"
+    },
+    {
+      "id": "p2",
+      "title": "사용권·크레딧",
+      "state": "PENDING",
+      "detail": "FREE10과 유료 크레딧 분리, 결제 증거 검증 전 유료 권한 지급 금지"
+    },
+    {
+      "id": "p3",
+      "title": "PortOne V2 결제",
+      "state": "PENDING",
+      "detail": "테스트 PG·Webhook·서버 상태 조회·취소·중복 지급 차단"
+    },
+    {
+      "id": "p4",
+      "title": "고객별 실원가 대사",
+      "state": "PENDING",
+      "detail": "공급사 usage 원장↔업체 청구서↔관리자 정산 대조"
+    }
+  ],
+  "customerAiApiKeyAdoption": {
+    "observedAt": "2026-11-18T05:14:08Z",
+    "sourceMachine": "4060 WINDOWS_DPAPI_CURRENT_USER",
+    "newSensitiveKeysRegistered": [
+      "CUSTOMER_OPENAI_API_KEY",
+      "CUSTOMER_ANTHROPIC_API_KEY",
+      "CUSTOMER_GEMINI_API_KEY"
+    ],
+    "existingSensitiveKeyPreserved": "CUSTOMER_DEEPSEEK_API_KEY",
+    "rawSecretsIncluded": false,
+    "productionDeploymentId": "dpl_EKH6r6Jgsm2NtjrhXhmuWaqndRor",
+    "stage": "REGISTERED_PROD_AND_MINIMAL_MODEL_CANARIES_VERIFIED",
+    "billingAndAccountEntitlement": "NOT_CONNECTED"
+  }
+}

@@ -1,4 +1,5 @@
 import {validateCustomerOrigin} from './customer-origin-policy.mjs';
+import {customerPlanCatalog} from '../customer-plans.mjs';
 const failure=(status,code)=>Response.json({code},{status,headers:{
  'cache-control':'no-store','x-content-type-options':'nosniff','referrer-policy':'no-referrer'}});
 const authPaths=new Set(['/api/auth/providers','/api/auth/session','/auth/start','/auth/google/callback','/auth/logout','/auth/complete','/auth/email/send','/auth/email/verify','/auth/email/signup','/auth/email/login','/auth/email/resend','/auth/email/recover','/auth/email/recovery/verify','/auth/email/reset']);
@@ -16,6 +17,7 @@ export function createCustomerApplication({runtime,authRoutes,originConfig={}}={
     return failure(403,'CUSTOMER_APPLICATION_ORIGIN_INVALID');
    if((url.search&&!proxy.test(url.pathname)&&url.pathname!=='/auth/google/callback')||url.hash||url.pathname.includes('%')||url.pathname.includes('\\'))
     return failure(404,'CUSTOMER_APPLICATION_ROUTE_NOT_FOUND');
+   if(url.pathname==='/api/plans'&&request.method==='GET')return Response.json(customerPlanCatalog(),{headers:{'cache-control':'public, max-age=60','x-content-type-options':'nosniff'}});
    if(url.pathname.startsWith('/api/customer/'))return await runtime.handler(request);
    if(authPaths.has(url.pathname)||proxy.test(url.pathname))return await authRoutes(request);
    return failure(404,'CUSTOMER_APPLICATION_ROUTE_NOT_FOUND');

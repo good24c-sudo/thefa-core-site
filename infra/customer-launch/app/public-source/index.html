@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko" data-final-service-host="thefacore.com" data-layout="customer-workspace-only" data-live-service="deepseek">
+<html lang="ko" data-final-service-host="thefacore.com" data-layout="customer-workspace-only" data-live-service="core">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -17,6 +17,20 @@
 
 
 
+<link rel="stylesheet" href="/customer-uiux-r4.css">
+
+<script defer src="/customer-uiux-r4.js"></script>
+<link rel="stylesheet" href="/site-navigation-r4.css">
+<script defer src="/site-navigation-r4.js"></script>
+<link rel="stylesheet" href="/customer-private-routing-r3.css">
+<link rel="stylesheet" href="/customer-sidebar-scroll-r4.css">
+<script defer src="/customer-sidebar-scroll-r4.js"></script>
+<link rel="stylesheet" href="/customer-sidebar-workspace-r6.css">
+<script defer src="/customer-sidebar-workspace-r6.js"></script>
+<link rel="stylesheet" href="/ava-secondbrain-p0.css">
+<script type="module" src="/ava-secondbrain-p0-ui.mjs"></script>
+<link rel="stylesheet" href="/customer-workspace-modes-r7.css">
+<script defer src="/customer-workspace-modes-r7.js"></script>
 </head>
 <body>
 <a class="skip" href="#chat-main">본문으로 바로 가기</a>
@@ -36,8 +50,8 @@
         <div class="sidebar-tools-list">
       <button id="account-logout" class="bottom-action" type="button" hidden>로그아웃</button>
       <button type="button" class="bottom-action" data-section="ava"><span aria-hidden="true">A</span> 나의 AVA <span class="soft-pill">설정</span></button>
-      <button type="button" class="bottom-action" data-section="local"><span aria-hidden="true">▣</span> 로컬 AI · PC 연결</button>
-      <button type="button" class="bottom-action" data-section="settings"><span aria-hidden="true">⚙</span> 답변 설정</button>
+      <button type="button" class="bottom-action" data-section="local"><span aria-hidden="true">▣</span> 내 PC 로컬 AI · 미연결</button>
+      <button type="button" class="bottom-action" data-section="settings"><span aria-hidden="true">⚙</span> 이용 설정</button>
       <a class="bottom-action bottom-action-link" id="open-service-introduction" href="/about"><span aria-hidden="true">ⓘ</span> 서비스 소개</a>
       <a class="bottom-action bottom-action-link" href="/plans"><span aria-hidden="true">◇</span> 요금제</a>
         </div>
@@ -70,7 +84,7 @@
       </div>
       <div class="topbar-right">
         <span class="connection-badge" id="connection-badge"><span class="status-dot"></span><span id="connection-text">연결 확인 중</span></span>
-        <button type="button" class="icon-button" id="open-settings" aria-label="답변 설정 열기">⚙</button>
+        <button type="button" class="icon-button" id="open-settings" aria-label="이용 설정 열기">⚙</button>
       </div>
     </header>
     <div class="notice-bar" id="readiness-notice" role="status">작업공간 연결을 확인하고 있습니다.</div>
@@ -104,15 +118,19 @@
             <textarea id="chat-input" rows="2" maxlength="8000" placeholder="더파코어에 질문하거나 업무를 요청하세요..." required></textarea>
             <div class="composer-toolbar">
               <div class="composer-options">
+                <span class="core-managed-routing-r3" aria-label="더파코어 AI 대화">✦ 더파코어 AI</span>
+                <span id="core-local-status-r3" class="core-customer-local-r3" role="status" aria-live="polite">내 PC 로컬 AI · 미연결</span>
                 <button type="button" class="round-action" id="attachment-info" title="첨부파일 상태" aria-label="파일 첨부 정보">＋</button>
                 <div class="mode-selector" id="mode-selector">
                   <button type="button" class="mode-button" id="mode-picker" title="대화에서 AI 선택" aria-haspopup="dialog" aria-expanded="false" aria-controls="composer-mode-panel"><span aria-hidden="true">◎</span><span id="mode-label">자동 선택</span><span aria-hidden="true">⌄</span></button>
                   <div class="composer-mode-panel" id="composer-mode-panel" role="dialog" aria-modal="false" aria-labelledby="composer-mode-title" hidden>
                     <div class="mode-panel-heading"><h2 id="composer-mode-title">이번 대화의 AI 선택</h2><button type="button" class="icon-button" id="close-mode-panel" aria-label="AI 선택 닫기">✕</button></div>
                     <p id="composer-mode-engine" class="muted">사용 가능한 AI를 확인합니다.</p>
-                    <label for="composer-route">자원 선택</label>
+                    <label for="customer-ai-mode">업무 모드</label>
+                    <select id="customer-ai-mode" aria-label="더파 AI 업무 모드"><option value="balanced">더파 기본</option></select>
+                    <label for="composer-route" hidden>자원 선택</label>
                     <select id="composer-route"><option value="AUTO">자동 선택</option><option value="CLOUD_FIRST">클라우드 우선</option><option value="LOCAL_FIRST">로컬 우선</option><option value="LOCAL_ONLY">로컬 전용</option></select>
-                    <label for="composer-tier">답변 수준</label>
+                    <label for="composer-tier" hidden>답변 수준</label>
                     <select id="composer-tier"><option value="AUTO">자동</option><option value="STANDARD">일반 답변</option><option value="EXPERT">전문 분석</option><option value="ULTRA">정밀 검토</option></select>
                     <p class="mode-panel-status" id="composer-mode-status" role="status" aria-live="polite"></p>
                     <button type="button" class="button primary" id="apply-composer-mode">선택 적용</button>
@@ -152,14 +170,14 @@
       </section>
 
       <section class="panel feature-panel" id="local-panel" hidden aria-labelledby="local-heading">
-        <div class="feature-heading"><p class="overline">LOCAL FIRST · SMART COST</p><h1 id="local-heading">로컬 AI · PC 연결</h1><p>내 PC 자원을 활용하고 꼭 필요할 때만 외부 AI를 사용하는 방향으로 준비합니다.</p></div>
+        <div class="feature-heading"><p class="overline">LOCAL FIRST · SMART COST</p><h1 id="local-heading">내 PC 로컬 AI · 연결 상태</h1><p>내 PC 자원을 활용하고 꼭 필요할 때만 외부 AI를 사용하는 방향으로 준비합니다.</p></div>
         <div class="feature-hero"><span class="feature-mark">▣</span><div><h2>내 PC는 그대로, 필요할 때만 연결</h2><p>로컬 AI·개발 도구를 사용하면 일부 작업의 외부 API 비용을 줄일 수 있습니다. PC 연결은 사용자 승인과 별도의 안전한 연결 절차가 필요합니다.</p></div></div>
         <div class="three-cards">
-          <div class="card mini"><span class="muted">로컬 AI 연결</span><strong id="local-status">미연결</strong><small>이 브라우저는 PC에 자동 접근하지 않습니다.</small></div>
+          <div class="card mini"><span class="muted">내 PC 로컬 AI 연결</span><strong id="local-status">미연결</strong><small>이 브라우저는 PC에 자동 접근하지 않습니다.</small></div>
           <div class="card mini"><span class="muted">외부 AI 비용</span><strong id="cost-status">측정 전</strong><small>실제 사용 기록 기준으로만 표시합니다.</small></div>
           <div class="card mini"><span class="muted">검증된 비용 절약</span><strong id="savings-status">측정 전</strong><small>추정 절감액은 실제 절감액으로 표시하지 않습니다.</small></div>
         </div>
-        <div class="card stack"><h2>고객용 로컬 설정 안내</h2><p>Windows 설정 도구와 로컬 AI 모델 준비는 선택 사항입니다. 이미 설치한 모델과 개발 파일을 제거하거나 바꾸지 않습니다.</p>
+        <div class="card stack"><h2>내 PC 로컬 설정 안내</h2><p>Windows 설정 도구와 로컬 AI 모델 준비는 선택 사항입니다. 이미 설치한 모델과 개발 파일을 제거하거나 바꾸지 않습니다.</p>
           <div class="steps"><div><b>01</b><span>PC에서 설치 항목과 기존 자원 확인</span></div><div><b>02</b><span>필요한 로컬 AI 모델만 사용자 승인으로 선택</span></div><div><b>03</b><span>안전한 PC 연결·권한·비용 상한 확인</span></div><div><b>04</b><span>로컬 가능 작업 우선, 부족하면 승인을 받고 클라우드 사용</span></div></div>
           <span class="button" aria-disabled="true">로컬 PC 설치·연결은 현재 비활성화 상태</span>
           <p class="muted">실제 고객용 PC 자동 연결은 아직 제공하지 않습니다. 설치 파일 다운로드와 연결 성공은 별개입니다.</p>
@@ -167,9 +185,10 @@
       </section>
 
       <section class="panel feature-panel" id="settings-panel" hidden aria-labelledby="settings-heading">
-        <div class="feature-heading"><p class="overline">RESPONSE SETTINGS</p><h1 id="settings-heading">답변 설정</h1><p>현재 연결된 답변 방식만 선택할 수 있습니다. 기본값은 자동입니다.</p></div>
+        <div class="feature-heading"><p class="overline">RESPONSE SETTINGS</p><h1 id="settings-heading">이용 설정</h1><p>AI 모델 및 응답 경로는 더파코어가 자동 관리합니다. 고객이 선택할 필요가 없습니다.</p></div>
         <div class="card"><h2>나의 사용량</h2><div class="setting-line"><span>무료 AI 답변</span><strong id="free-usage">로그인 후 사용량 확인</strong></div><div class="setting-line"><span>스탠다드 이용권</span><strong id="standard-usage">실제 이용권 확인 전</strong></div><div class="setting-line"><span>프로 이용권</span><strong id="pro-usage">실제 이용권 확인 전</strong></div><p class="muted">무료 답변 횟수와 유료 이용권은 서버에서 확인된 경우에만 표시합니다. 연결되지 않은 유료 기능은 사용할 수 없습니다.</p><a class="text-button" href="/plans">요금제 보기 →</a></div>
-        <form class="stack-cards" id="settings-form"><p id="settings-availability" class="settings-availability" role="status" aria-live="polite">고객용 연결을 확인하고 있습니다.</p><div class="card">
+        <div class="card core-auto-settings-r3"><h2>더파코어 자동 응답</h2><p>AI 엔진과 모델 선택은 더파코어가 관리합니다. 고객은 어떤 모델을 사용할지 선택할 필요가 없습니다.</p><p>내 PC의 로컬 AI는 본인 기기 연결·권한 확인 전에는 사용되지 않습니다.</p></div>
+        <form class="stack-cards" id="settings-form" aria-hidden="true"><p id="settings-availability" class="settings-availability" role="status" aria-live="polite">고객용 연결을 확인하고 있습니다.</p><div class="card">
           <label class="input-label" for="routing-setting">자원 선택 방식</label>
           <select id="routing-setting"><option value="AUTO">자동 선택 · 권장</option><option value="LOCAL_FIRST">로컬 우선 · 비용 최적화</option><option value="LOCAL_ONLY">로컬 AI만 사용</option><option value="CLOUD_FIRST">클라우드 우선 · 품질 중시</option></select>
           <p class="muted">로컬 모델이 연결되지 않은 경우 자동으로 비용을 발생시키지 않고 사용자의 선택을 요청해야 합니다.</p>

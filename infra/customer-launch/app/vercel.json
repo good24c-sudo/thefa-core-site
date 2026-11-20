@@ -1,163 +1,211 @@
 {
- "$schema": "https://openapi.vercel.sh/vercel.json",
- "version": 2,
- "framework": null,
- "buildCommand": null,
- "outputDirectory": "customer-public",
- "public": false,
- "functions": {
-  "api/dispatch.mjs": {
-   "maxDuration": 60,
-   "includeFiles": "private-data/migration/**"
-  }
- },
- "rewrites": [
-  {
-   "source": "/server/:path*",
-   "destination": "/api/source-denied"
-  },
-  {
-   "source": "/api/auth/providers",
-   "destination": "/api/dispatch?__customer_route=/api/auth/providers"
-  },
-  {
-   "source": "/api/auth/session",
-   "destination": "/api/dispatch?__customer_route=/api/auth/session"
-  },
-  {
-   "source": "/auth/start",
-   "destination": "/api/dispatch?__customer_route=/auth/start"
-  },
-  {
-   "source": "/auth/google/callback",
-   "destination": "/api/dispatch?__customer_route=/auth/google/callback"
-  },
-  {
-   "source": "/auth/logout",
-   "destination": "/api/dispatch?__customer_route=/auth/logout"
-  },
-  {
-   "source": "/auth/complete",
-   "destination": "/api/dispatch?__customer_route=/auth/complete"
-  },
-  {
-   "source": "/auth/email/send",
-   "destination": "/api/dispatch?__customer_route=/auth/email/send"
-  },
-  {
-   "source": "/auth/email/verify",
-   "destination": "/api/dispatch?__customer_route=/auth/email/verify"
-  },
-  {
-   "source": "/api/customer/workspace",
-   "destination": "/api/dispatch?__customer_route=/api/customer/workspace"
-  },
-  {
-   "source": "/api/customer/action",
-   "destination": "/api/dispatch?__customer_route=/api/customer/action"
-  },
-  {
-   "source": "/api/customer/conversations/:conversationId(chat_[0-9a-f-]{36})",
-   "destination": "/api/dispatch?__customer_route=/api/customer/conversations/:conversationId"
-  },
-  {
-   "source": "/api/customer/chat/send",
-   "destination": "/api/dispatch?__customer_route=/api/customer/chat/send"
-  },
-  {
-   "source": "/api/customer/billing",
-   "destination": "/api/dispatch?__customer_route=/api/customer/billing"
-  },
-  {
-   "source": "/api/customer/allowance",
-   "destination": "/api/dispatch?__customer_route=/api/customer/allowance"
-  },
-  {
-   "source": "/functions/v1/core-customer-auth/callback/google/oauth-proxy",
-   "destination": "/api/dispatch?__customer_route=/functions/v1/core-customer-auth/callback/google/oauth-proxy"
-  },
-  {
-   "source": "/functions/v1/core-customer-auth/callback/kakao/oauth-proxy",
-   "destination": "/api/dispatch?__customer_route=/functions/v1/core-customer-auth/callback/kakao/oauth-proxy"
-  },
-  {
-   "source": "/about",
-   "destination": "/about.html"
-  },
-  {
-   "source": "/about/",
-   "destination": "/about.html"
-  },
-  {
-   "source": "/login",
-   "destination": "/login.html"
-  },
-  {
-   "source": "/signup",
-   "destination": "/signup.html"
-  },
-  {
-   "source": "/plans",
-   "destination": "/plans.html"
-  },
-  {
-   "source": "/install",
-   "destination": "/install.html"
-  },
-  {
-   "source": "/chat.html",
-   "destination": "/index.html"
-  },
-  {
-   "source": "/guest-live.html",
-   "destination": "/index.html"
-  },
-  {
-   "source": "/auth/email/signup",
-   "destination": "/api/dispatch?__customer_route=/auth/email/signup"
-  },
-  {
-   "source": "/auth/email/login",
-   "destination": "/api/dispatch?__customer_route=/auth/email/login"
-  },
-  {
-   "source": "/auth/email/resend",
-   "destination": "/api/dispatch?__customer_route=/auth/email/resend"
-  },
-  {
-   "source": "/auth/email/recover",
-   "destination": "/api/dispatch?__customer_route=/auth/email/recover"
-  },
-  {
-   "source": "/auth/email/recovery/verify",
-   "destination": "/api/dispatch?__customer_route=/auth/email/recovery/verify"
-  },
-  {
-   "source": "/auth/email/reset",
-   "destination": "/api/dispatch?__customer_route=/auth/email/reset"
-  }
- ],
- "headers": [
-  {
-   "source": "/(.*)",
-   "headers": [
-    {
-     "key": "X-Content-Type-Options",
-     "value": "nosniff"
-    },
-    {
-     "key": "Referrer-Policy",
-     "value": "no-referrer"
-    },
-    {
-     "key": "X-Frame-Options",
-     "value": "DENY"
-    },
-    {
-     "key": "Content-Security-Policy",
-     "value": "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "framework": null,
+  "buildCommand": null,
+  "outputDirectory": "customer-public",
+  "public": false,
+  "functions": {
+    "api/dispatch.mjs": {
+      "maxDuration": 60,
+      "includeFiles": "private-data/migration/**"
     }
-   ]
-  }
- ]
+  },
+  "rewrites": [
+    {
+      "source": "/server/:path*",
+      "destination": "/api/source-denied"
+    },
+    {
+      "source": "/api/customer/usage",
+      "destination": "/api/dispatch?__customer_route=/api/customer/usage"
+    },
+    {
+      "source": "/api/customer/ai-modes",
+      "destination": "/api/dispatch?__customer_route=/api/customer/ai-modes"
+    },
+    {
+      "source": "/api/plans",
+      "destination": "/api/dispatch?__customer_route=/api/plans"
+    },
+    {
+      "source": "/api/auth/providers",
+      "destination": "/api/dispatch?__customer_route=/api/auth/providers"
+    },
+    {
+      "source": "/api/auth/session",
+      "destination": "/api/dispatch?__customer_route=/api/auth/session"
+    },
+    {
+      "source": "/auth/start",
+      "destination": "/api/dispatch?__customer_route=/auth/start"
+    },
+    {
+      "source": "/auth/google/callback",
+      "destination": "/api/dispatch?__customer_route=/auth/google/callback"
+    },
+    {
+      "source": "/auth/logout",
+      "destination": "/api/dispatch?__customer_route=/auth/logout"
+    },
+    {
+      "source": "/auth/complete",
+      "destination": "/api/dispatch?__customer_route=/auth/complete"
+    },
+    {
+      "source": "/auth/email/send",
+      "destination": "/api/dispatch?__customer_route=/auth/email/send"
+    },
+    {
+      "source": "/auth/email/verify",
+      "destination": "/api/dispatch?__customer_route=/auth/email/verify"
+    },
+    {
+      "source": "/api/customer/workspace",
+      "destination": "/api/dispatch?__customer_route=/api/customer/workspace"
+    },
+    {
+      "source": "/api/customer/action",
+      "destination": "/api/dispatch?__customer_route=/api/customer/action"
+    },
+    {
+      "source": "/api/customer/conversations/:conversationId(chat_[0-9a-f-]{36})",
+      "destination": "/api/dispatch?__customer_route=/api/customer/conversations/:conversationId"
+    },
+    {
+      "source": "/api/customer/chat/send",
+      "destination": "/api/dispatch?__customer_route=/api/customer/chat/send"
+    },
+    {
+      "source": "/api/customer/billing",
+      "destination": "/api/dispatch?__customer_route=/api/customer/billing"
+    },
+    {
+      "source": "/api/customer/allowance",
+      "destination": "/api/dispatch?__customer_route=/api/customer/allowance"
+    },
+    {
+      "source": "/functions/v1/core-customer-auth/callback/google/oauth-proxy",
+      "destination": "/api/dispatch?__customer_route=/functions/v1/core-customer-auth/callback/google/oauth-proxy"
+    },
+    {
+      "source": "/functions/v1/core-customer-auth/callback/kakao/oauth-proxy",
+      "destination": "/api/dispatch?__customer_route=/functions/v1/core-customer-auth/callback/kakao/oauth-proxy"
+    },
+    {
+      "source": "/about",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/about/",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/login.html"
+    },
+    {
+      "source": "/signup",
+      "destination": "/signup.html"
+    },
+    {
+      "source": "/plans",
+      "destination": "/plans.html"
+    },
+    {
+      "source": "/install",
+      "destination": "/install.html"
+    },
+    {
+      "source": "/chat.html",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/guest-live.html",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/auth/email/signup",
+      "destination": "/api/dispatch?__customer_route=/auth/email/signup"
+    },
+    {
+      "source": "/auth/email/login",
+      "destination": "/api/dispatch?__customer_route=/auth/email/login"
+    },
+    {
+      "source": "/auth/email/resend",
+      "destination": "/api/dispatch?__customer_route=/auth/email/resend"
+    },
+    {
+      "source": "/auth/email/recover",
+      "destination": "/api/dispatch?__customer_route=/auth/email/recover"
+    },
+    {
+      "source": "/auth/email/recovery/verify",
+      "destination": "/api/dispatch?__customer_route=/auth/email/recovery/verify"
+    },
+    {
+      "source": "/auth/email/reset",
+      "destination": "/api/dispatch?__customer_route=/auth/email/reset"
+    },
+    {
+      "source": "/world-original-v2",
+      "destination": "/world-original-v2.html"
+    },
+    {
+      "source": "/world-original-v2/",
+      "destination": "/world-original-v2.html"
+    },
+    {
+      "source": "/paid-demo",
+      "destination": "/paid-demo.html"
+    },
+    {
+      "source": "/paid-demo/",
+      "destination": "/paid-demo.html"
+    },
+    {
+      "source": "/studio",
+      "destination": "/studio.html"
+    },
+    {
+      "source": "/studio/",
+      "destination": "/studio.html"
+    },
+    {
+      "source": "/broker-preview",
+      "destination": "/broker-preview/index.html"
+    },
+    {
+      "source": "/broker-preview/",
+      "destination": "/broker-preview/index.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+        }
+      ]
+    }
+  ]
 }

@@ -1,0 +1,103 @@
+/* THE FA CORE R3 — BLACK / CHARCOAL / IVORY / WARM GOLD. Preview only. */
+:root{
+  --ux3-bg:#0c0d0f;--ux3-side:#121416;--ux3-surface:#1b1d20;
+  --ux3-surface-hover:#24262a;--ux3-line:#333537;
+  --ux3-ivory:#f3efe7;--ux3-muted:#b5b1a9;--ux3-gold:#cba76b;
+  --ux3-gold-soft:#e0c695;--ux3-gold-border:#67553d;
+}
+html,body{background:var(--ux3-bg)!important;color:var(--ux3-ivory)}
+.sidebar{background:var(--ux3-side)!important;border-right:1px solid var(--ux3-line)!important}
+.brand-row{padding:4px 12px 13px!important}
+.sidebar-actions{gap:8px!important;padding:0 7px 13px!important}
+.sidebar-actions .new-chat{min-height:44px!important;background:#212224!important;border:1px solid #484441!important;border-radius:10px!important;color:var(--ux3-ivory)!important;box-shadow:none!important;font-size:13px!important}
+.sidebar-actions .new-chat:hover{background:#2a2824!important;border-color:#8b714a!important}
+.sidebar-actions .new-chat span:first-child{color:var(--ux3-gold)!important}
+.sidebar-actions .search-field{min-height:40px!important;background:#191b1d!important;border:1px solid #343536!important;border-radius:10px!important}
+.sidebar-actions .search-field:focus-within{border-color:var(--ux3-gold)!important;box-shadow:0 0 0 2px #cba76b26}
+.sidebar-actions .search-field input{font-size:13px!important;color:var(--ux3-ivory)!important}
+.sidebar-quick-tools{display:flex!important;flex-direction:column!important;grid-template-columns:none!important;gap:3px!important;isolation:initial!important;z-index:auto!important}
+.ux3-section-title{display:flex;align-items:center;justify-content:space-between;padding:9px 11px 7px;color:#aaa49b;letter-spacing:.11em;font-size:10px;font-weight:750}
+.sidebar-quick-tools .ux3-nav-link{box-sizing:border-box;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;width:100%!important;min-width:0;min-height:44px!important;padding:9px 11px!important;background:transparent!important;border:1px solid transparent!important;border-radius:10px!important;color:var(--ux3-ivory)!important;font-size:13px!important;font-weight:580!important;white-space:normal!important;text-decoration:none!important;box-shadow:none!important;line-height:1.35!important;cursor:pointer}
+.sidebar-quick-tools .ux3-nav-link:hover,.sidebar-quick-tools .ux3-more-summary:hover{background:#222426!important;border-color:#48423a!important}
+.sidebar-quick-tools .ux3-nav-link:focus-visible,.sidebar-quick-tools .ux3-more-summary:focus-visible,.ux3-official-auth:focus-visible{outline:2px solid #d6b775;outline-offset:2px}
+.ux3-primary{min-height:61px!important;background:linear-gradient(110deg,#2a251d,#232221)!important;border:1px solid #715d40!important;margin-bottom:5px!important}
+.ux3-primary:hover{background:linear-gradient(110deg,#363024,#282621)!important;border-color:#c4a36e!important}
+.ux3-symbol{display:grid;place-items:center;width:22px;min-width:22px;height:22px;font-size:18px;color:var(--ux3-gold)!important;line-height:1}
+.ux3-nav-name{display:block;flex:1;min-width:0;line-height:1.32;white-space:normal}
+.ux3-nav-name small{display:block;color:#b6afa5;font-size:10px;font-weight:450;line-height:1.6}
+.ux3-chevron{margin-left:auto;flex:0 0 auto;font-size:18px;font-weight:400;color:#a8a39a}
+.ux3-more{border-top:1px solid #32312e;margin-top:7px;padding-top:8px;min-width:0}
+.sidebar-quick-tools .ux3-more-summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:43px;padding:9px 11px;border:1px solid transparent;border-radius:10px;color:#c9c5bc;cursor:pointer;font-size:13px;font-weight:600}
+.ux3-more-summary::-webkit-details-marker{display:none}
+.ux3-more[open]>.ux3-more-summary{background:#222426;border-color:#46433c}
+.ux3-more[open] .ux3-more-summary .ux3-chevron{transform:rotate(180deg)}
+.ux3-more-content{display:grid;gap:2px;max-height:min(40dvh,260px);overflow-y:auto;scrollbar-width:thin;margin:5px 4px 4px 11px;padding:4px 0 4px 9px;border-left:1px solid #544736}
+.sidebar-quick-tools .ux3-more-content>.ux3-nav-link,.sidebar-quick-tools .ux3-more-content>.ux3-secondary{box-sizing:border-box;display:flex!important;align-items:center;min-width:0;width:100%!important;min-height:39px!important;padding:9px 8px!important;margin:0!important;border:1px solid transparent!important;border-radius:8px!important;background:transparent!important;color:#d7d3ca!important;text-decoration:none!important;font-weight:520!important;font-size:12.5px!important}
+.sidebar-quick-tools .ux3-more-content>.ux3-nav-link:hover,.sidebar-quick-tools .ux3-more-content>.ux3-secondary:hover{background:#272825!important;color:#fff8eb!important}
+.sidebar-quick-tools .ux3-more-content .ux3-symbol{width:19px;min-width:19px;height:19px;font-size:16px}
+.sidebar-quick-tools .ux3-more-content .ux3-nav-name small{font-size:9px}
+.sidebar-quick-tools .ux3-more-content .bottom-action .soft-pill{margin-left:auto}
+.navigation{border-top:1px solid #313330!important;padding-top:10px!important;flex:1 1 0%!important;min-height:0!important;overflow-y:auto!important}
+.navigation .section-label{font-size:12px!important;color:var(--ux3-muted)!important}
+.sidebar-bottom{max-height:min(32dvh,220px)!important;overflow:auto!important;flex:0 0 auto!important;border-top:1px solid #353634!important;padding:8px 6px 7px!important;display:grid!important;gap:6px!important}
+.sidebar-bottom .account-row{border:1px solid #353637;background:#1c1e20;padding:10px 9px!important;border-radius:10px;min-height:55px!important}
+.sidebar-bottom .account-row .avatar{background:#3c3729!important;color:#f2dfb7!important;border:1px solid #786243!important}
+.sidebar-bottom .account-actions{margin:0!important;padding:0!important;display:flex;flex-wrap:wrap;gap:6px}
+.sidebar-bottom .account-actions[hidden]{display:none!important}
+.sidebar-bottom .account-actions small{flex:1 1 100%;color:#9c9891;font-size:10px}
+.sidebar-bottom .account-actions a{min-height:36px!important;border:1px solid #61523c!important;border-radius:9px!important;padding:8px 10px!important;color:var(--ux3-ivory)!important;background:#1e2021!important;flex:1;text-align:center}
+.sidebar-bottom .account-actions a:hover{background:#2b2925!important;border-color:#a58b60!important}
+.ux3-logout{display:flex!important;align-items:center;justify-content:center;gap:8px;min-height:39px;width:100%;border:1px solid #66543e;border-radius:9px;background:#24231f;color:#ece6dc;font-size:12.5px;cursor:pointer}
+.ux3-logout:hover{background:#312c23;border-color:#be9e65}
+.ux3-logout:disabled{opacity:.65;cursor:wait}
+.ux3-logout[hidden],.sidebar-bottom .account-row[hidden]{display:none!important}
+.ux3-account-preview{width:100%;min-height:30px;border:0;border-radius:8px;background:transparent;color:#bcb4a7;font-size:10px;font-weight:600;text-align:center;cursor:pointer}
+.ux3-account-preview:hover{background:#292723;color:#e3d6bc}
+.ux3-auth-preview{margin-bottom:18px;padding:13px 14px;border:1px solid #6c5636;background:#232017;border-radius:12px;color:#e7e0d2;font-size:13px}
+.ux3-auth-preview strong{font-size:14px;color:#f5e7c8}
+.ux3-auth-preview p{font-size:12px;line-height:1.65;color:#d0c6b4;margin:7px 0 11px}
+.ux3-official-auth{display:inline-flex;align-items:center;justify-content:center;min-height:40px;border-radius:9px;background:#d5b678!important;border:1px solid #e1c78e!important;color:#151411!important;text-decoration:none!important;font-weight:750;padding:9px 16px}
+.ux3-official-auth:hover{background:#ead09e!important}
+#ux3-preview-ribbon{position:fixed;z-index:2147483645;right:14px;bottom:10px;max-width:min(420px,calc(100vw - 26px));padding:8px 12px;border-radius:9px;border:1px solid #66563e;background:#151719f2;color:#e7dbc8;font:600 11px/1.45 Pretendard,system-ui,sans-serif;box-shadow:0 8px 20px #0008;pointer-events:none}
+.topbar{background:#0d0f10!important;border-bottom-color:#303231!important}
+.connection-badge{border-color:#564735!important;color:#d5c6aa!important}
+a,button,input,textarea,select{accent-color:#cba76b}
+.nav-item:hover,.project-item:hover{background:#262723!important}
+#chat-input:focus-visible,.composer:focus-within{border-color:#b79a6b!important}
+.button.primary,.send-button:not(:disabled){background:#cbaa70!important;color:#171512!important;border-color:#d7ba83!important}
+.button.primary:hover,.send-button:hover:not(:disabled){background:#e1bd7f!important}
+.sidebar-quick-tools>.ux3-primary{color:#f3e9d7!important}
+@media(max-width:780px){
+ .sidebar{width:min(320px,90vw)!important;max-width:92vw!important;padding:12px 9px max(8px,env(safe-area-inset-bottom))!important}
+ .sidebar-actions{padding:0 5px 10px!important}
+ .sidebar-quick-tools .ux3-nav-link{min-height:42px!important;padding:8px 10px!important}
+ .sidebar-quick-tools .ux3-primary{min-height:58px!important}
+ .sidebar-bottom{max-height:min(29dvh,200px)!important}
+ body:has(.app.menu-open) #ux3-preview-ribbon{display:none!important}
+}
+@media(max-width:350px){
+ .sidebar{width:min(300px,92vw)!important}
+ .ux3-nav-name{font-size:12px}
+ .ux3-symbol{width:19px;min-width:19px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+
+/* R3 final visual review: one restrained gold feature card, no overlay on auth forms. */
+.sidebar-quick-tools .ux3-nav-link.ux3-primary{
+  background:linear-gradient(108deg,#2b261e,#211f1b)!important;
+  border:1px solid #766243!important;
+  border-radius:11px!important;
+  min-height:61px!important;
+  padding:11px 12px!important;
+}
+.sidebar-quick-tools .ux3-nav-link.ux3-primary:hover{
+  background:linear-gradient(108deg,#373024,#28251f)!important;
+  border-color:#c7a76a!important;
+}
+#ux3-preview-ribbon{font-size:10px!important;max-width:350px!important;padding:6px 10px!important}
+body:has(.ux3-auth-preview) #ux3-preview-ribbon{display:none!important}
+@media(max-width:780px){#ux3-preview-ribbon{max-width:calc(100vw - 24px)!important}}
+
+/* Mobile signup typography: do not split Korean syllables into stray last-line fragments. */
+.login-card h1{word-break:keep-all!important;overflow-wrap:normal!important;text-wrap:balance}
+@media(max-width:480px){.login-card h1{font-size:clamp(27px,7.7vw,33px)!important;line-height:1.3!important;letter-spacing:-.052em!important}}

@@ -1,0 +1,67 @@
+/* THE FA Core Customer Sidebar R6 — R4 layout, unified in-chat tools, wide chat.
+   Only display/navigation; no auth, model routing, customer data or billing changes. */
+#app.r6-sidebar-collapsed > .sidebar {display:none !important}
+#app.r6-sidebar-collapsed > .workspace {flex:1 1 100%;width:100%;min-width:0}
+#r6-toggle-sidebar{
+  display:inline-grid;place-items:center;flex:0 0 38px;width:38px;height:38px;
+  background:transparent;border:1px solid rgba(200,164,118,.22);border-radius:10px;
+  color:#e0d5c6;cursor:pointer;font-size:19px;
+}
+#r6-toggle-sidebar:hover{background:#27231e}
+#r6-toggle-sidebar:focus-visible,.r6-pane-close:focus-visible,.r6-pane-action:focus-visible{
+  outline:2px solid #dfc29d;outline-offset:2px
+}
+.r6-inline-pane {
+  min-width:0;min-height:0;width:100%;height:100%;
+  display:flex;flex-direction:column;flex:1 1 auto;
+  background:#101113;overflow:hidden
+}
+.r6-inline-pane[hidden]{display:none !important}
+.r6-pane-topbar{
+  min-height:56px;flex:0 0 auto;display:flex;align-items:center;gap:12px;
+  padding:8px clamp(12px,3vw,28px);border-bottom:1px solid rgba(200,164,118,.18);
+  background:#171719;min-width:0
+}
+.r6-pane-eyebrow{font-size:10px;color:#ba9b76;letter-spacing:.12em;font-weight:750}
+.r6-pane-title{font-size:14px;font-weight:720;color:#f2ede5;margin:2px 0 0;line-height:1.35}
+.r6-pane-description{font-size:11px;color:#aaa097;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r6-pane-heading{min-width:0;flex:1}
+.r6-pane-close,.r6-pane-action{
+  min-height:38px;padding:7px 12px;border:1px solid #61523d;
+  border-radius:9px;background:#27231e;color:#f2ede5;cursor:pointer;
+  font:inherit;font-size:12px;font-weight:650;white-space:nowrap
+}
+.r6-pane-action{background:transparent;color:#cbbca9}
+.r6-frame-wrap{position:relative;flex:1 1 auto;min-height:0;overflow:hidden;background:#101113}
+.r6-embedded-frame{display:block;width:100%;height:100%;border:0;background:#0d0e0f}
+.r6-pane-loading{
+ position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+ padding:26px;text-align:center;color:#bcb4aa;font-size:13px;line-height:1.7
+}
+.r6-pane-loading[hidden]{display:none !important}
+.r6-draft-state{
+ display:block;color:#9d958b;font-size:10px;text-align:right;padding:3px 3px 0;
+ letter-spacing:.01em
+}
+.r6-draft-state[data-r6-state="saved"]{color:#cbb595}
+.r6-draft-state[data-r6-state="error"]{color:#e9b1a9}
+.r6-pane-loading a{color:#dfc29d}
+/* Keep the real chat composer visible while a tool fills the chat body. */
+.chat-panel.r6-tool-active .chat-flow{
+  display:flex!important;flex-direction:column!important;
+  min-height:0;overflow:hidden!important;padding:0!important
+}
+.chat-panel.r6-tool-active .chat-flow > :not(#r6-inline-pane):not(#ava-secondbrain-root){display:none!important}
+.chat-panel.r6-tool-active #r6-inline-pane{
+  height:100%;min-height:0;flex:1 1 0;
+}
+@media(max-width:780px){
+ #r6-toggle-sidebar{display:none !important}
+ .r6-pane-topbar{gap:8px;min-height:54px;padding:7px 10px}
+ .r6-pane-description{display:none}
+ .r6-pane-close,.r6-pane-action{padding:7px 9px;min-height:38px}
+ .r6-pane-title{font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){
+ #r6-toggle-sidebar,.r6-pane-close{transition:none !important}
+}

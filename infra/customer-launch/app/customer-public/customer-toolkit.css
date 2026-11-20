@@ -1,0 +1,64 @@
+/* Extends existing THE FA Core dark/champagne feature-panel UI; not a new design system. */
+.toolkit-panel{min-width:0}
+.toolkit-head{max-width:760px}
+.toolkit-head>p{line-height:1.8;color:var(--muted)}
+.toolkit-note{font-size:11px;color:#bfae96;margin:11px 0}
+.toolkit-modebar{display:flex;gap:7px;overflow-x:auto;scrollbar-width:thin;padding:3px 0 15px;margin:19px 0 4px}
+.toolkit-mode{color:var(--muted);background:#1b1b1d;border:1px solid var(--line);border-radius:9px;padding:10px 12px;white-space:nowrap;font-size:12px;min-height:42px}
+.toolkit-mode.selected{color:#e9d5b5;border-color:#876b46;background:#2b251d;font-weight:700}
+.toolkit-workbench{padding:20px;margin:0 0 18px;border-radius:13px}
+.toolkit-workbench h2{font-size:18px;margin:0 0 9px;font-weight:700}
+.toolkit-workbench>p{color:var(--muted);font-size:12px;line-height:1.75}
+.toolkit-quick{display:flex;gap:9px;align-items:center;margin:12px 0 20px}
+.toolkit-quick textarea{flex:1;width:100%;min-height:49px;max-height:120px;resize:vertical}
+.toolkit-quick .button{white-space:nowrap;min-height:44px}
+.toolkit-quick textarea,.toolkit-input{color:var(--text);background:var(--card2);border:1px solid #4a4034;border-radius:9px;padding:10px 12px;font-size:13px}
+.toolkit-input:focus{outline:2px solid #876b46;outline-offset:1px}
+.toolkit-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:15px 0}
+.toolkit-field{display:flex;flex-direction:column;gap:7px;min-width:0}
+.toolkit-field:has(textarea){grid-column:1/-1}
+.toolkit-label{font-size:12px;color:#e6d5bb;font-weight:650;line-height:1.5}
+.toolkit-input{width:100%;max-width:100%;min-height:42px}
+textarea.toolkit-input{resize:vertical;min-height:78px;line-height:1.65}
+.toolkit-actions{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 3px;align-items:center}
+.toolkit-actions .button{min-height:42px}
+.toolkit-status{padding:12px 13px;background:#211e1a;border:1px solid #50402f;border-radius:9px;line-height:1.7;color:#d0bd9e;font-size:11px;white-space:pre-wrap}
+.toolkit-status[data-state=error]{border-color:#a05d51;color:#ffb6a5}
+.toolkit-status[data-state=success]{border-color:#527e62;color:#bce4c7}
+.toolkit-result{border:1px solid #3b352d;background:#17181b;border-radius:13px;padding:20px;margin-top:17px;min-height:95px}
+.toolkit-result-title{font-size:17px;line-height:1.45;margin:0 0 14px}
+.toolkit-result-item{padding:12px 0;border-bottom:1px solid var(--line)}
+.toolkit-result-item:last-child{border-bottom:none}
+.toolkit-result-item strong{font-size:13px;color:#e7d1b1}
+.toolkit-result-item p{color:#cac6c0;font-size:12px;line-height:1.75;margin:6px 0 3px;white-space:pre-wrap}
+.toolkit-result-item small,.toolkit-muted{color:var(--muted);font-size:11px;line-height:1.7}
+.toolkit-result-sub{color:#d9c198;font-size:12px;margin-top:12px}
+.toolkit-caution{font-size:11px;color:#bda78b;border-top:1px solid var(--line);padding-top:13px;margin-top:16px;line-height:1.8}
+.toolkit-table-wrap{overflow-x:auto;max-width:100%;border:1px solid var(--line);border-radius:10px}
+.toolkit-table{border-collapse:collapse;min-width:530px;width:100%;font-size:11px;line-height:1.6}
+.toolkit-table th,.toolkit-table td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.toolkit-table th{background:#28231d;color:#e5cc9f;font-weight:700;white-space:nowrap}
+.toolkit-table td{color:#d6d1c8;max-width:250px;overflow-wrap:anywhere}
+.toolkit-checklist{grid-column:1/-1}
+.toolkit-checklist-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:9px 0}
+.toolkit-checklist-row label{flex:1;font-size:12px}
+.toolkit-score{flex:none;width:150px}
+.toolkit-extra-help{color:var(--muted);font-size:11px;line-height:1.8}
+.toolkit-privacy{padding:14px 17px;margin-top:14px;border:1px solid var(--line);border-radius:10px;font-size:11px;line-height:1.7;color:#b5a99b}
+.toolkit-coming{margin-top:15px;padding:16px;border:1px solid #51402d;border-radius:12px;background:#211c17}
+.toolkit-coming strong{display:block;font-size:13px;margin:0 0 6px}
+.toolkit-coming p{font-size:11px;color:#b6ab9f;line-height:1.8;margin:0 0 10px}
+.toolkit-coming .button{min-height:38px}
+.toolkit-shortcut{display:flex;align-items:center;gap:9px;width:100%;font-size:12px;text-align:left;font-weight:650;cursor:pointer;min-height:38px}
+.toolkit-shortcut span{color:var(--accent);font-size:16px}
+.toolkit-shortcut small{margin-left:auto;color:var(--muted);font-weight:400;font-size:10px}
+@media(max-width:750px){
+ .toolkit-workbench,.toolkit-result{padding:15px}
+ .toolkit-fields{grid-template-columns:1fr}
+ .toolkit-field:has(textarea){grid-column:1}
+ .toolkit-quick{flex-direction:column;align-items:stretch}
+ .toolkit-quick .button{width:100%}
+ .toolkit-checklist-row{align-items:stretch;flex-direction:column;gap:5px}
+ .toolkit-score{width:100%}
+ .toolkit-modebar{margin-top:14px}
+}

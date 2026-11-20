@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko" data-build="P02_CUSTOMER_BUSINESS_RESEARCH_R5">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="color-scheme" content="dark">
+<title>THE FA Core | 비즈니스 자료 조사 업무실 R5</title>
+<link rel="icon" href="/assets/THEFA_Core_Primary_Dark_web.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/paid-workbench.css">
+<script defer src="/vendor/jszip.min.js"></script>
+<script defer src="/vendor/pptxgen.min.js"></script>
+
+<link rel="stylesheet" href="/customer-uiux-r4.css">
+
+<script defer src="/customer-uiux-r4.js"></script>
+<link rel="stylesheet" href="/site-navigation-r4.css">
+<script defer src="/site-navigation-r4.js"></script>
+<script defer src="/demo-readonly-r4.js"></script></head>
+<body>
+<a href="#task" class="skip">본문으로 이동</a>
+<div class="shell">
+<header class="topbar">
+  <a class="brand" href="/" aria-label="더파코어 기존 고객 화면"><img src="/assets/THEFA_Core_Primary_Dark_web.svg" alt="THE FA Core" width="142"></a>
+  <div class="nav-actions"><a href="/">기존 작업공간</a><a href="/studio.html">파일 만들기</a></div>
+</header>
+<div class="qa-banner" role="note"><strong>개발용 검증 환경</strong> · 정식 실행 연결 전 · 실제 결제와 고객 인증은 연결되지 않습니다.</div>
+<main id="task">
+<section class="hero">
+ <p class="eyebrow">THE FA CORE · MY WORKSPACE</p>
+ <h1>무엇을 만들어 드릴까요?</h1>
+ <p>연결된 검색 도구가 수집한 출처 자료와 AI 업무 계획·초안·검토 기록으로 근거를 확인할 수 있는 보고서를 제작합니다.</p>
+</section>
+<div class="layout">
+ <section class="panel" aria-labelledby="work-title">
+  <h2 id="work-title">AI 업무 맡기기</h2>
+  <form id="work-form">
+   <label for="task-mode">작업 유형</label>
+   <select id="task-mode">
+    <option value="BUSINESS_EVIDENCE" selected>지역·업종 공개 검색 자료 기반 사업 보고서 (QA)</option>
+    <option value="RESEARCH">공개 학술자료 조사 + 근거 있는 AI 보고서</option>
+    <option value="WORKFLOW">단계별 AI 업무 실행 · 계획→제작→검토</option>
+    <option value="AUTO">자동 선택 (빠른 답변)</option>
+    <option value="GENERAL">질문하고 답변받기</option>
+    <option value="PLAN">업무 계획·실행안</option>
+    <option value="MARKETING">마케팅·고객 유입</option>
+    <option value="BUSINESS">사업계획서 초안</option>
+    <option value="CONTENT">콘텐츠·홍보 문구 제작</option>
+    <option value="DATA">입력 자료 분석</option>
+   </select>
+   <div id="business-context-group"><label for="business-dataset">사업체 조사 자료 (검증된 시험 자료)</label>
+    <select id="business-dataset"><option value="PANGYO_CAFE_QA">판교역 카페 · 공개 웹 검색 스니펫 4건</option></select>
+    <p class="muted">이 자료는 연결된 웹 검색 도구가 개발 시험 중 수집한 기록입니다. 고객 요청 때마다 실시간 재검색하는 기능은 아직 아닙니다. 매장 영업·가격·매출·평점·경쟁사 전체 여부는 검증되지 않았습니다.</p>
+   </div>
+   <div id="research-query-group"><label for="research-query">학술자료 검색 주제 (한국어·영어 키워드)</label>
+   <input id="research-query" class="research-keywords" maxlength="160" value="customer loyalty retention" placeholder="예: customer loyalty customer retention">
+   <p class="muted">Crossref·OpenAlex의 논문 제목, 발행일, DOI 등 공개 메타데이터만 조회합니다. 원문 논문 분석이나 지역 업체 실시간 검색은 아닙니다.</p></div>
+   <label for="task-prompt">어떤 일을 처리할까요?</label>
+   <textarea id="task-prompt" rows="8" maxlength="3500" placeholder="예: 판교 카페 오픈을 위한 7일 홍보 콘텐츠와 고객 방문 전환 실행안을 작성해줘. 아직 실제 수치가 없는 부분은 가정이라고 표시해줘." required></textarea>
+   <label for="task-file">내 자료로 분석하기 (선택)</label>
+   <input id="task-file" type="file" accept=".txt,.md,.csv,text/plain,text/csv">
+   <p class="muted">16KB 이내 파일을 로컬에서 읽습니다. 이 시험판은 입력 내용을 PC에 보존하므로 실제 고객 개인정보는 사용하지 마세요.</p>
+   <div class="examples">
+    <button type="button" data-example="BUSINESS_EVIDENCE" data-prompt="판교역 주변 카페 사업을 준비하고 있습니다. 공개 웹 검색 출처 [B번호]에 나온 정보와 확인되지 않은 정보를 구분해 경쟁 후보 정보 검토표, 차별화 아이디어, 매장 방문 전 체크리스트를 작성해 주세요. 최신 영업 여부·가격·매출·인기도는 추측하지 마세요.">판교역 카페 조사</button>
+    <button type="button" data-example="RESEARCH" data-research="customer loyalty retention" data-prompt="소규모 카페 고객의 재방문을 높이기 위한 실행안과 연구 근거를 정리해 주세요. 실제 외부 메타데이터로 확인된 자료만 [S번호]로 표시하고, 논문 본문은 읽지 않았다고 명시해 주세요.">학술 근거 조사</button>
+    <button type="button" data-example="PLAN" data-prompt="소규모 카페 신규 고객 확보를 위한 2주 실행 계획과 담당자별 할 일, 검증 지표를 구체적으로 작성해줘.">업무 계획</button>
+    <button type="button" data-example="CONTENT" data-prompt="카페 여름 신메뉴를 알릴 인스타그램 게시물 3개를 실제 업로드 전 검토 가능한 완성 문구로 작성해줘. 근거 없는 효과는 쓰지 말아줘.">홍보 콘텐츠</button>
+    <button type="button" data-example="BUSINESS" data-prompt="지역 미용실 신규 서비스를 위한 간단한 사업계획서 초안과 검증해야 할 수치·증빙 목록을 작성해줘.">사업계획서</button>
+   </div>
+   <button id="run" type="submit">AI 업무실 · 기능 검증 중</button>
+  </form>
+  <p id="service-state" class="muted" role="status" aria-live="polite">서비스 상태를 확인하고 있습니다.</p>
+ </section>
+ <section class="panel result-pane" aria-labelledby="result-title">
+  <div class="result-heading"><div><h2 id="result-title">작업 결과</h2><p id="job-status">대기 중</p></div><span class="live-dot" aria-hidden="true"></span></div>
+  <ol id="workflow-timeline" class="workflow-timeline" aria-label="AI 단계별 업무 진행상태" aria-live="polite" hidden></ol>
+  <p id="quality-notice" class="quality-notice" hidden></p>
+  <pre id="result-content" class="result-content">업무를 입력하면 실제 생성 결과가 이곳에 표시됩니다.</pre>
+  <div class="result-actions">
+   <a id="download-md" class="action" href="#" download hidden>원본 Markdown</a>
+   <a id="download-plan" class="action" href="#" download hidden>작업 계획 근거 JSON</a>
+   <a id="download-review" class="action" href="#" download hidden>AI 검토 결과 JSON</a>
+   <a id="download-sources" class="action" href="#" download hidden>근거 자료 원장 JSON</a>
+   <button id="download-docx" class="action" type="button" disabled>Word 내려받기</button>
+   <button id="download-xlsx" class="action" type="button" disabled>엑셀 요약표 내려받기</button>
+   <button id="download-pptx" class="action" type="button" disabled>발표자료 PPTX 내려받기</button>
+   <button id="refresh-job" class="action" type="button" disabled>기존 결과 다시 확인</button>
+  </div>
+  <section id="research-sources" class="research-sources" hidden><h3 id="source-list-title">실조회 자료·출처</h3><ol id="research-source-list"></ol><p class="muted" id="source-list-notice">출처의 확인 범위는 자료마다 다릅니다. 실제 매장 확인과 최신 자료 검증은 별도 필요합니다.</p></section>
+  <p class="muted note">R5 사업체 자료는 일부 제3자 검색 결과를 개발 QA용으로 보존한 것이며 실시간 사업체 검색·전체 경쟁 현황·매출 추정이 아닙니다. 학술 서지정보 검색과 Office 파일 제작은 기존 시험 기능으로 유지합니다.</p>
+ </section>
+</div>
+<section class="panel history">
+  <div class="result-heading"><h2>기존 작업</h2><button type="button" id="refresh-list" class="action">목록 갱신</button></div>
+  <ol id="job-list"></ol>
+</section>
+</main>
+<footer>THE FA Core · 격리 QA · 코드·운영 DB·결제 미변경</footer>
+</div>
+</body>
+</html>

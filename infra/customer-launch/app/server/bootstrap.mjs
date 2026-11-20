@@ -50,7 +50,9 @@ export function readCustomerServerConfiguration(env=process.env){
   if(der.toString('base64')!==encoded)invalid();verificationKey=createPublicKey({key:der,type:'spki',format:'der'});
   if(verificationKey.asymmetricKeyType!=='ed25519'||!verificationKey.export({format:'der',type:'spki'}).equals(der))invalid();
   }
-  const config={accountMode,usageEpoch,launchStartedAt,environment,customerOrigin,supabaseUrl,serviceRoleKey:text(env,'CUSTOMER_SERVICE_ROLE_KEY',16),tenantKey:text(env,'CUSTOMER_TENANT_KEY',32),accountSecret,allowanceSecret,budgetSecret,deepseekApiKey:text(env,'CUSTOMER_DEEPSEEK_API_KEY',16),redirectReady:true};
+  const aiProviderEnv={CUSTOMER_DEEPSEEK_API_KEY:text(env,'CUSTOMER_DEEPSEEK_API_KEY',16)};
+  for(const key of ['CUSTOMER_OPENAI_API_KEY','CUSTOMER_ANTHROPIC_API_KEY','CUSTOMER_GEMINI_API_KEY']){if(env[key]!==undefined&&env[key]!=='')aiProviderEnv[key]=text(env,key,16);}
+  const config={aiProviderEnv:Object.freeze(aiProviderEnv),accountMode,usageEpoch,launchStartedAt,environment,customerOrigin,supabaseUrl,serviceRoleKey:text(env,'CUSTOMER_SERVICE_ROLE_KEY',16),tenantKey:text(env,'CUSTOMER_TENANT_KEY',32),accountSecret,allowanceSecret,budgetSecret,deepseekApiKey:text(env,'CUSTOMER_DEEPSEEK_API_KEY',16),redirectReady:true};
   return Object.freeze({config:Object.freeze(config),projectRef,issuer:supabaseUrl+'/functions/v1/core-customer-auth',receiptDirectory,verificationKey,
    authEngine,googleProvider,publishableKey:authEngine==='managed-email-v1'?text(env,'CUSTOMER_SUPABASE_PUBLISHABLE_KEY',32):null,
    connectionString:authEngine==='managed-email-v1'?null:text(env,'CUSTOMER_AUTH_DATABASE_URL',32),secret:text(env,'CUSTOMER_AUTH_SECRET',32),proxySecret:authEngine==='managed-email-v1'?null:text(env,'CUSTOMER_AUTH_PROXY_SECRET',32),

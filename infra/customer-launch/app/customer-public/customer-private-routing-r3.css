@@ -1,0 +1,11 @@
+/* THE FA Core manages models server-side. The customer cannot choose vendors. */
+#settings-form,#composer-route,#composer-tier{display:none!important}
+.core-managed-routing-r3,.core-customer-local-r3{display:inline-flex;align-items:center;justify-content:center;border:1px solid #68553c;border-radius:9px;min-height:30px;padding:6px 10px;background:#292722;color:#f2e0c2;font-size:11px;font-weight:650;line-height:1.4;white-space:nowrap;user-select:none}
+.core-customer-local-r3{color:#c0bbb2;border-color:#424642;background:#242728;font-weight:540}
+.core-auto-settings-r3{border:1px solid #5b4a34;background:#242522;color:#d7d0c2}
+.core-auto-settings-r3 h2{color:#f2dfc0}
+.core-auto-settings-r3 p{font-size:12px;line-height:1.85;word-break:keep-all}
+@media(max-width:430px){.core-managed-routing-r3,.core-customer-local-r3{font-size:10px;padding:6px 7px}.core-customer-local-r3{white-space:normal;text-align:center}}
+@media(max-width:350px){.core-customer-local-r3{font-size:9px}}
+
+#mode-selector{display:block!important}.composer-mode-panel{z-index:100}#customer-ai-mode{width:100%;padding:10px;border-radius:8px;background:#20242c;color:#f4f5f8;border:1px solid #555b6a}.composer-options{flex-wrap:wrap}

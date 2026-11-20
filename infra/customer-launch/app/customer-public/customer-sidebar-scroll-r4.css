@@ -1,0 +1,88 @@
+/* THE FA Core sidebar accessibility hotfix R4 (2026-11-18).
+ * One scroll region for all workspace navigation, no nested clipped details.
+ * No purple. Original chat/auth/billing/AI implementation remains unchanged. */
+.sidebar .sidebar-actions{flex:0 0 auto!important;min-height:0!important;overflow:visible!important}
+.sidebar .navigation{
+ flex:1 1 0%!important;min-height:0!important;overflow-x:hidden!important;
+ overflow-y:auto!important;overscroll-behavior-y:contain!important;
+ -webkit-overflow-scrolling:touch;touch-action:pan-y!important;
+ scroll-behavior:auto!important;scrollbar-width:thin;
+ scrollbar-color:#91765a #211e1b;scrollbar-gutter:stable;
+ padding-top:9px!important;padding-bottom:max(18px,env(safe-area-inset-bottom))!important
+}
+.sidebar .navigation>.sidebar-quick-tools{
+ display:flex!important;flex-direction:column!important;
+ box-sizing:border-box;min-height:0;width:100%;flex:0 0 auto;
+ padding:0 3px 11px;border-bottom:1px solid #39352e;margin-bottom:12px
+}
+.sidebar .navigation>.sidebar-quick-tools .ux3-more-content{
+ max-height:none!important;overflow:visible!important;
+ overscroll-behavior:auto!important;scrollbar-width:none;
+ height:auto!important;min-height:0;
+}
+.sidebar #sidebar-tools[open]>.ux3-more-summary>.ux3-symbol,
+.sidebar #sidebar-tools[open]>.ux3-more-summary>.ux3-nav-name,
+.sidebar #sidebar-tools[open]>.ux3-more-summary>.ux3-nav-name *{
+ transform:none!important;rotate:none!important
+}
+.sidebar #sidebar-tools>.ux3-more-summary>.ux3-nav-name{
+ transform:none!important;writing-mode:horizontal-tb!important;
+ direction:ltr;unicode-bidi:normal;line-height:1.45
+}
+.sidebar #sidebar-tools[open]>.ux3-more-summary>.ux3-chevron{
+ transform:rotate(180deg)!important;rotate:none!important
+}
+.sidebar #sidebar-tools:not([open])>.ux3-more-summary>.ux3-chevron{
+ transform:none!important
+}
+.sidebar .ux3-more-summary{
+ position:relative;min-height:46px!important;line-height:1.45;
+ text-align:left;overflow-wrap:anywhere
+}
+.sidebar #sidebar-tools>.ux3-more-summary .ux3-symbol{
+ display:inline-grid;place-items:center;line-height:1
+}
+.sidebar .navigation:focus-visible{
+ outline:2px solid #d9b776;outline-offset:-2px;border-radius:9px
+}
+.sidebar .ux3-more-content .bottom-action,
+.sidebar .ux3-more-content .ux3-nav-link{
+ min-height:44px!important;touch-action:manipulation
+}
+@media(max-width:780px){
+ .sidebar .navigation{padding-top:8px!important;padding-bottom:max(22px,env(safe-area-inset-bottom))!important}
+ .sidebar .navigation>.sidebar-quick-tools{padding-inline:2px}
+ .sidebar .ux3-more-summary{min-height:48px!important}
+}
+@media(max-height:520px){
+ .sidebar .navigation{scrollbar-width:thin;padding-bottom:22px!important}
+ .sidebar .sidebar-bottom{max-height:min(26dvh,112px)!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .sidebar #sidebar-tools>.ux3-more-summary .ux3-chevron{transition:none!important}
+}
+
+/* ROOT CAUSE #2: guest-live.css placed the legacy details list in an
+ * absolutely positioned overlay (right:0; width:286px; max-height:470px).
+ * Bring it back into normal document flow so the ONE navigation scrollbar
+ * can reach every link, including under browser zoom/short windows. */
+.sidebar .navigation>.sidebar-quick-tools #sidebar-tools>.sidebar-tools-list.ux3-more-content{
+ position:static!important;top:auto!important;right:auto!important;
+ bottom:auto!important;left:auto!important;inset:auto!important;
+ display:grid!important;width:auto!important;max-width:100%!important;
+ min-width:0!important;min-height:0!important;height:auto!important;
+ max-height:none!important;overflow:visible!important;
+ z-index:auto!important;box-shadow:none!important;
+ background:transparent!important;
+ border:0!important;border-left:1px solid #544736!important;
+ border-radius:0!important;
+ padding:4px 0 4px 9px!important;margin:5px 4px 4px 11px!important;
+ overscroll-behavior-y:auto!important;scrollbar-width:none!important
+}
+.sidebar .navigation>.sidebar-quick-tools #sidebar-tools[open]{
+ position:relative!important;overflow:visible!important;
+ display:block!important;width:100%!important
+}
+.sidebar .navigation>.sidebar-quick-tools #sidebar-tools:not([open])>.sidebar-tools-list{
+ display:none!important
+}

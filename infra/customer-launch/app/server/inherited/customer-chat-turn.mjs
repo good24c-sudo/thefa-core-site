@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { customerChatState } from './customer-chat-domain.mjs';
+import {resolveCustomerAiMode} from './customer-ai-modes.mjs';
 
 const bad=(status,code)=>Object.assign(new Error(code),{status,code});
 const pattern=/^[a-zA-Z0-9._:-]{8,128}$/;
@@ -37,11 +38,12 @@ function contextFor(w,c,upto) {
   }
   return [{role:'system',content:system.join('\n')},...previous];
 }
-export function reserveCustomerChatTurn(state,{conversationId,requestId,content}={}){
+export function reserveCustomerChatTurn(state,{conversationId,requestId,content,aiMode='balanced'}={}){
   const message=validate({conversationId,requestId,content});
   const w=clone(customerChatState(state,{initialize:true}));
   if(!w.turnRequests)w.turnRequests={};
-  const digest=sum(JSON.stringify({conversationId,content:message}));
+  resolveCustomerAiMode(aiMode);
+  const digest=sum(JSON.stringify({conversationId,content:message,aiMode}));
   const earlier=w.turnRequests[requestId];
   if(earlier){
     if(earlier.digest!==digest)throw bad(409,'SEND_REQUEST_CONFLICT');
@@ -62,7 +64,7 @@ export function reserveCustomerChatTurn(state,{conversationId,requestId,content}
   if(c.title==='새 대화')c.title=message.slice(0,45);
   c.updatedAt=now();
   w.turnRequests[requestId]={digest,phase:'MODEL_REQUEST_PENDING',conversationId,
-    userMessageId:id,createdAt:now(),assistantMessageId:null};
+    userMessageId:id,createdAt:now(),assistantMessageId:null,aiMode};
   state.customerChat=w;
   return {reused:false,phase:'MODEL_REQUEST_PENDING',conversationId,userMessageId:id,
     messages:[...history,{role:'user',content:message}]};
@@ -78,9 +80,14 @@ export function commitCustomerChatTurn(state,{requestId,userMessageId,result}={}
       assistantMessage:clone(conversation.messages.find(m=>m.id===turn.assistantMessageId))};
   }
   if(turn.phase!=='MODEL_REQUEST_PENDING')throw bad(409,'CHAT_RESERVATION_NOT_ACTIVE');
+  if(result?.normalizedUsage){
+    const expected=resolveCustomerAiMode(turn.aiMode??'balanced');
+    if(result.modelId!==expected.modelId||result.normalizedUsage.modelId!==expected.modelId)
+      throw bad(502,'CHAT_MODEL_MODE_BINDING_INVALID');
+  }
   const text=typeof result?.content==='string'?result.content.trim():null;
   if(!text || typeof text!=='string' || text.length>15000 ||
-      typeof result?.model!=='string' || !['OLLAMA_ISOLATED_LAPTOP_CANARY','DEEPSEEK_API'].includes(result?.provider) ||
+      typeof result?.model!=='string' || !['OLLAMA_ISOLATED_LAPTOP_CANARY','DEEPSEEK_API','OPENAI_API','ANTHROPIC_API','GEMINI_API'].includes(result?.provider) ||
       sum(text)!==result.sha256)throw bad(502,'MODEL_RESULT_INVALID');
   const conversation=findConversation(w,turn.conversationId,{includeArchived:true});
   const original=conversation.messages.find(m=>m.id===userMessageId);
@@ -88,7 +95,7 @@ export function commitCustomerChatTurn(state,{requestId,userMessageId,result}={}
   original.state='SENT_TO_MODEL';
   const reply={id:'msg_'+randomUUID(),role:'assistant',content:text,createdAt:now(),
     state:'MODEL_RESPONSE_RECEIVED_UNVERIFIED',receiptId:null,
-    model:result.model,provider:result.provider,contentSha256:result.sha256,
+    model:result.model,modelId:result.modelId??result.model,aiMode:turn.aiMode??'balanced',provider:result.provider,contentSha256:result.sha256,
     promptTokens:result.promptTokens,outputTokens:result.outputTokens};
   conversation.messages.push(reply);
   conversation.updatedAt=now();

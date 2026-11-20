@@ -5,6 +5,7 @@
  */
 import {createHmac} from 'node:crypto';
 import {TenantStateStore} from './customer-tenant-storage.mjs';
+import {quoteModelMaxKrw,priceModelUsage,MODEL_COST_VERSION} from './customer-model-costs.mjs';
 
 export const BUDGET_POLICY=Object.freeze({
  contract:'THEFA_AI_DAILY_BUDGET_KST_R30',
@@ -105,6 +106,16 @@ export function createIsolatedDailyAiBudget({rest,secret,clock=Date.now}={}){
  if(!validSecret(secret)||typeof clock!=='function')
   throw fault(503,'BUDGET_STABLE_KEY_REQUIRED');
 
+ const admittedHolds=new WeakMap(),providerPermits=new WeakMap();
+ function issueProviderPermit(hold,{modelId}={}){
+  const meta=admittedHolds.get(hold);
+  if(!meta||meta.used||meta.modelId!==modelId)throw fault(403,'MODEL_BUDGET_HOLD_NOT_VERIFIED');
+  meta.used=true;const permit=Object.freeze({});providerPermits.set(permit,{modelId,used:false});return permit;
+ }
+ function consumeProviderPermit(permit,{modelId}={}){
+  const meta=providerPermits.get(permit);if(!meta||meta.used||meta.modelId!==modelId)return false;
+  meta.used=true;return true;
+ }
  async function scoped(day,operation,{write=false}={}){
   const store=new TenantStateStore(rest,{workspaceId:budgetWorkspaceForDay(day,secret)});
   let outcome,problem=null;
@@ -136,32 +147,35 @@ export function createIsolatedDailyAiBudget({rest,secret,clock=Date.now}={}){
   if(!DAY.test(day))throw fault(400,'BUDGET_DAY_INVALID');
   return scoped(day,s=>budgetReadout(s.state.dailyAiCostBudget,{day}));
  }
- async function reserve(accountId,requestId,{maxInputTokens,maxOutputTokens}={}){
+ async function reserve(accountId,requestId,{maxInputTokens,maxOutputTokens,modelId='deepseek-flash'}={}){
   const key=budgetRequestHash(accountId,requestId,secret);
   const day=nowDay(clock);
-  const quoted=conservativeFlashQuoteKrw(maxInputTokens,maxOutputTokens);
-  return scoped(day,store=>store.mutate(state=>{
+  const quoted=quoteModelMaxKrw(modelId,maxInputTokens,maxOutputTokens);
+  const admitted=await scoped(day,store=>store.mutate(state=>{
    let ledger=state.dailyAiCostBudget??=newLedger(day);
    const info=budgetReadout(ledger,{day,allowMissing:false});
    if(Object.hasOwn(ledger.requests,key))throw fault(409,'BUDGET_REQUEST_ALREADY_EXISTS_NO_REPLAY');
    if(info.records>=BUDGET_POLICY.maxRecordsPerDay)throw fault(429,'BUDGET_RECORD_LIMIT');
    if(info.remainingKrw<quoted)throw fault(429,'DAILY_AI_BUDGET_EXHAUSTED');
-   ledger.requests[key]={state:'RESERVED',reservedKrw:quoted};
+   ledger.requests[key]={state:'RESERVED',reservedKrw:quoted,modelId,priceVersion:MODEL_COST_VERSION};
    ledger.reservedKrw+=quoted;
    budgetReadout(ledger,{day,allowMissing:false});
-   return {day,reservedKrw:quoted,requestFingerprint:key,admitted:true,
+   return {day,reservedKrw:quoted,requestFingerprint:key,admitted:true,modelId,
     automaticReplayAllowed:false};
   }),{write:true});
+  admittedHolds.set(admitted,{modelId,used:false});return admitted;
  }
- async function settle(accountId,requestId,{day,inputTokens,outputTokens}={}){
+ async function settle(accountId,requestId,{day,inputTokens,outputTokens,modelId='deepseek-flash',normalizedUsage=null}={}){
   const key=budgetRequestHash(accountId,requestId,secret);
   if(!DAY.test(day??''))throw fault(400,'BUDGET_DAY_INVALID');
-  const actual=conservativeFlashQuoteKrw(inputTokens,outputTokens);
+  const actual=normalizedUsage?priceModelUsage(modelId,normalizedUsage).conservativeKrwDisplay:
+   quoteModelMaxKrw(modelId,inputTokens,outputTokens);
   return scoped(day,store=>store.mutate(state=>{
    const ledger=state.dailyAiCostBudget;
    const report=budgetReadout(ledger,{day,allowMissing:false});
    const entry=ledger.requests[key];
    if(!entry)throw fault(409,'BUDGET_RESERVATION_MISSING');
+   if((entry.modelId??'deepseek-flash')!==modelId)throw fault(409,'BUDGET_MODEL_BINDING_MISMATCH');
    if(entry.state==='SETTLED')return {alreadySettled:true,chargedKrw:entry.chargedKrw};
    if(entry.state!=='RESERVED')throw fault(409,'BUDGET_RESERVATION_NOT_ACTIVE');
    if(actual>entry.reservedKrw)throw fault(503,'BUDGET_USAGE_EXCEEDED_RESERVED_HOLD');
@@ -187,5 +201,5 @@ export function createIsolatedDailyAiBudget({rest,secret,clock=Date.now}={}){
    return {cancelled:true};
   }),{write:true});
  }
- return Object.freeze({status,reserve,settle,cancelWithoutDispatch});
+ return Object.freeze({status,reserve,settle,cancelWithoutDispatch,issueProviderPermit,consumeProviderPermit});
 }

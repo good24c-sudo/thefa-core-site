@@ -1,0 +1,98 @@
+/* THE FA CORE / R7 strict workspace modes.
+ * CHAT: global composer visible. WORLD/AVA/STUDIO/WORKBENCH/OTHER TOOLS:
+ * global chat composer never rendered; only each feature's own controls.
+ * No server or authentication behavior altered.
+ */
+#app.r7-isolated-workspace .workspace{
+  grid-template-rows:56px minmax(0,1fr);
+}
+#app.r7-isolated-workspace #readiness-notice,
+#app.r7-isolated-workspace .topbar-right,
+#app.r7-isolated-workspace .topbar nav,
+#app.r7-isolated-workspace .topbar [class*="site-nav"]{
+  display:none!important;
+}
+#app.r7-isolated-workspace .topbar{
+  min-height:0;max-height:56px;
+  background:#101112;
+  border-bottom:1px solid rgba(223,194,157,.16);
+}
+#app.r7-isolated-workspace .topbar-left{max-width:100%;flex:1 1 auto}
+#r7-topbar-back{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:34px;padding:6px 12px;border-radius:9px;
+  border:1px solid rgba(223,194,157,.35);
+  color:#ead7bb;background:#27231e;font-size:11px;font-weight:690;
+  white-space:nowrap;cursor:pointer;
+}
+#r7-topbar-back[hidden]{display:none!important}
+#r7-topbar-back:focus-visible{outline:2px solid #dfc29d;outline-offset:2px}
+#app.r7-isolated-workspace .top-brand-mobile{display:none!important}
+#app.r7-isolated-workspace .breadcrumb{
+  max-width:min(64vw,600px);font-size:13px;color:#dfc29d;
+}
+/* The full chat panel becomes a feature surface without chat affordances. */
+#app.r7-isolated-workspace #chat-panel{
+  width:100%;height:100%;min-height:0;min-width:0;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+#app.r7-isolated-workspace #chat-panel > .composer-region,
+#app.r7-isolated-workspace #chat-panel > .disclaimer{
+  display:none!important;
+}
+#app.r7-isolated-workspace #chat-panel > .chat-flow{
+  flex:1 1 0!important;
+  min-height:0;height:100%;
+  overflow:hidden!important;padding:0!important;margin:0!important;
+  display:flex!important;flex-direction:column!important;
+}
+#app.r7-isolated-workspace #chat-panel > .chat-flow > :not(#r6-inline-pane):not(#ava-secondbrain-root){
+  display:none!important;
+}
+/* R6 embedded tools get the whole remaining vertical canvas. */
+#app.r7-isolated-workspace #r6-inline-pane:not([hidden]),
+#app.r7-isolated-workspace #ava-secondbrain-root:not([hidden]){
+  flex:1 1 0;min-width:0;min-height:0;height:100%;
+  width:100%;max-width:none;overflow:hidden;
+}
+/* One shared navigation bar: hide the redundant R6 tool heading. */
+#app.r7-isolated-workspace #r6-inline-pane .r6-pane-topbar{display:none!important}
+#app.r7-isolated-workspace .r6-pane-topbar{
+  flex:0 0 52px;
+  min-height:52px;max-height:52px;
+  padding:5px clamp(10px,2vw,22px);
+  background:#141517;
+}
+#app.r7-isolated-workspace .r6-pane-eyebrow{
+  font-size:9px;letter-spacing:.08em
+}
+#app.r7-isolated-workspace .r6-pane-title{
+  font-size:13px;margin:1px 0 0
+}
+#app.r7-isolated-workspace .r6-pane-description{display:none!important}
+#app.r7-isolated-workspace .r6-frame-wrap{height:100%;min-height:0;overflow:hidden}
+#app.r7-isolated-workspace .r6-embedded-frame{
+  width:100%;height:100%;min-width:0;min-height:0;border:0
+}
+/* AVA has its own Ask field. It is not the shared chat composer. */
+#app.r7-isolated-workspace #ava-secondbrain-root > .ava-p0-scroll{
+  flex:1 1 auto;min-height:0;overflow-y:auto;
+}
+#app.r7-isolated-workspace #ava-secondbrain-root > .ava-p0-top{
+  min-height:60px;flex:0 0 auto;
+}
+/* All panels automatically restore original chat layout after exiting. */
+#app[data-workspace-mode="chat"] .composer-region{display:block}
+#app[data-workspace-mode="chat"] .disclaimer{display:block}
+@media(max-width:780px){
+  #app.r7-isolated-workspace .workspace{
+    grid-template-rows:52px minmax(0,1fr)
+  }
+  #app.r7-isolated-workspace .topbar{min-height:52px;max-height:52px}
+  #app.r7-isolated-workspace .r6-pane-topbar{
+    flex-basis:48px;min-height:48px;max-height:48px
+  }
+  #app.r7-isolated-workspace .r6-pane-eyebrow{display:none!important}
+  #app.r7-isolated-workspace .r6-pane-title{font-size:12px}
+  #app.r7-isolated-workspace .r6-pane-action{font-size:10px;min-height:34px}
+}

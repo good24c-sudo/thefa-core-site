@@ -1,0 +1,108 @@
+/* THE FA AVA SecondBrain synthetic P0. Existing R4/R6 design tokens preserved. */
+.chat-panel.r6-tool-active .chat-flow > :not(#r6-inline-pane):not(#ava-secondbrain-root) {display:none!important}
+#ava-secondbrain-root[hidden] {display:none!important}
+#ava-secondbrain-root {
+ display:flex;flex-direction:column;flex:1 1 0;min-height:0;height:100%;width:100%;
+ overflow:hidden;background:#101113;color:#f2eee8;
+}
+#ava-secondbrain-root button,#ava-secondbrain-root input,#ava-secondbrain-root select,
+#ava-secondbrain-root textarea {font:inherit}
+.ava-p0-top {
+ display:flex;gap:15px;align-items:center;justify-content:space-between;
+ padding:14px clamp(14px,3vw,32px);flex:0 0 auto;
+ border-bottom:1px solid rgba(223,194,157,.18);background:#171719;
+}
+.ava-p0-top small{color:#b6a88f;font-size:10px;letter-spacing:.15em;font-weight:700}
+.ava-p0-top h2{font-size:19px;margin:5px 0 4px;line-height:1.35}
+.ava-p0-top p{color:#aaa096;font-size:12px;line-height:1.5;margin:0}
+.ava-p0-top button,.ava-p0-btn{
+ background:#29241e;color:#f4ecdf;border:1px solid #65513b;
+ border-radius:10px;padding:10px 14px;min-height:41px;cursor:pointer;
+ font-weight:650;font-size:12px;white-space:nowrap
+}
+.ava-p0-btn:hover,.ava-p0-top button:hover{background:#383026}
+.ava-p0-btn.primary{background:#dfc29d;color:#1d1b16;border-color:#dfc29d}
+.ava-p0-btn:disabled{opacity:.45;cursor:not-allowed}
+.ava-p0-scroll{overflow-x:hidden;overflow-y:auto;flex:1 1 auto;min-height:0;scrollbar-width:thin;padding:18px clamp(12px,3vw,32px) 40px}
+.ava-p0-measure{max-width:1000px;margin:0 auto;display:grid;gap:16px}
+.ava-p0-eyebrow{text-transform:uppercase;letter-spacing:.11em;color:#d2b38b;font-size:10px;font-weight:700}
+.ava-p0-banner{
+ display:flex;gap:16px;align-items:center;justify-content:space-between;
+ background:linear-gradient(115deg,#27231d,#1b1c1d);border:1px solid #615039;
+ border-radius:17px;padding:16px 18px;flex-wrap:wrap
+}
+.ava-p0-banner strong{font-size:15px}
+.ava-p0-banner p{font-size:12px;color:#baaFA0;line-height:1.6;margin:6px 0 0}
+.ava-p0-synthetic-tag{font-size:11px;font-weight:800;color:#e9c99c;border:1px solid #8a6d49;padding:6px 10px;border-radius:99px;white-space:nowrap}
+.ava-p0-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ava-p0-toolbar label{display:flex;align-items:center;gap:7px;font-size:12px;color:#ded6ca}
+.ava-p0-toolbar input[type=checkbox]{accent-color:#dfc29d;width:17px;height:17px}
+.ava-p0-toolbar .muted{font-size:11px;color:#aaa39b;margin:0}
+.ava-p0-tabs{
+ display:flex;gap:5px;overflow-x:auto;scrollbar-width:thin;padding:4px;
+ border:1px solid #37312b;border-radius:12px;background:#161719;
+ position:relative;top:auto;z-index:auto
+}
+.ava-p0-tabs button{
+ appearance:none;border:0;border-radius:9px;background:none;color:#b9b2a7;
+ white-space:nowrap;padding:11px 14px;min-height:42px;cursor:pointer;font-size:12px;font-weight:650
+}
+.ava-p0-tabs button[aria-selected=true]{color:#191714;background:#dfc29d}
+.ava-p0-tabs button:focus-visible,.ava-p0-btn:focus-visible,.ava-p0-top button:focus-visible,
+.ava-p0-card button:focus-visible{outline:2px solid #dfc29d;outline-offset:2px}
+.ava-p0-content{display:grid;gap:14px;min-width:0}
+.ava-p0-panel{display:grid;gap:14px}
+.ava-p0-panel[hidden]{display:none!important}
+.ava-p0-section-head h3{margin:0;font-size:19px;letter-spacing:-.02em}
+.ava-p0-section-head p{margin:7px 0 0;color:#aaa39b;font-size:12px;line-height:1.65}
+.ava-p0-ask{
+ display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;
+ padding:13px;background:#1d1b19;border:1px solid #65523d;border-radius:14px
+}
+.ava-p0-ask input{flex:1 1 300px;min-width:0;min-height:46px;border:0;border-radius:9px;color:#f1ece4;background:#141414;padding:12px}
+.ava-p0-ask select{background:#24211f;color:#f1ece4;border:1px solid #4d4033;border-radius:9px;padding:9px;min-height:46px}
+.ava-p0-ask button{min-height:46px}
+.ava-p0-hints{display:flex;flex-wrap:wrap;gap:7px}
+.ava-p0-hints button{
+ font-size:11px;min-height:36px;max-width:100%;text-align:left;
+ padding:8px 10px;border-radius:9px;background:#24221f;border:1px solid #4a4036;color:#d6c8b6;cursor:pointer
+}
+.ava-p0-status{font-size:12px;line-height:1.6;color:#c8beae;margin:0;padding:12px 14px;border:1px solid #393531;border-radius:12px;background:#1b1b1d}
+.ava-p0-status[data-state=GROUNDED_SYNTHETIC]{border-color:#66563d}
+.ava-p0-status[data-state=DENIED]{color:#d9b5ac}
+.ava-p0-grid{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.ava-p0-card{
+ padding:16px;min-width:0;border-radius:14px;background:#1b1b1d;
+ border:1px solid #3d3831;display:grid;gap:9px;align-content:start
+}
+.ava-p0-card h4{font-size:14px;margin:0;line-height:1.55}
+.ava-p0-card p{margin:0;color:#dfd7c9;font-size:12px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+.ava-p0-card small{font-size:10.5px;color:#ac9f8e;line-height:1.65;overflow-wrap:anywhere}
+.ava-p0-chip{display:inline-block;border-radius:8px;padding:4px 7px;font-size:10px;color:#e4c69b;background:#3a3025;max-width:max-content}
+.ava-p0-chip.pending{background:#372c2a;color:#e2bbaa}
+.ava-p0-actions{display:flex;flex-wrap:wrap;gap:8px}
+.ava-p0-actions button{border:1px solid #61513f;color:#e6ddcf;background:#29241f;
+ min-height:36px;border-radius:8px;font-size:11px;padding:8px 10px;cursor:pointer}
+.ava-p0-card textarea{width:100%;min-height:85px;resize:vertical;border:1px solid #6c563b;
+ border-radius:9px;padding:10px;background:#151516;color:#eee6dd;font-size:12px}
+.ava-p0-empty{padding:20px;background:#1a1b1d;color:#b7aea2;border-radius:13px;border:1px dashed #61513d;font-size:12px;line-height:1.8}
+.ava-p0-sources{display:grid;gap:9px}
+.ava-p0-source-row{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+ border:1px solid #3c3832;border-radius:11px;padding:12px 14px;background:#1c1c1e}
+.ava-p0-source-row strong{font-size:12px}
+.ava-p0-source-row p{color:#aba193;font-size:11px;margin:4px 0 0}
+.ava-p0-source-row span{font-size:10px;font-weight:700;color:#d4b586;padding:6px 9px;background:#393028;border-radius:7px}
+.ava-p0-relation{border-left:2px solid #bda47f;padding:10px 13px;background:#211e1a;border-radius:0 10px 10px 0;
+ font-size:12px;color:#d3c9bd;line-height:1.6}
+.ava-p0-relation strong{color:#eddec6}
+@media(max-width:680px){
+ .ava-p0-top{padding:10px 12px}
+ .ava-p0-top h2{font-size:16px}
+ .ava-p0-top p{font-size:11px}
+ .ava-p0-tabs{top:-18px}
+ .ava-p0-grid{grid-template-columns:1fr}
+ .ava-p0-ask input{flex-basis:100%}
+ .ava-p0-banner{padding:13px}
+ .ava-p0-top button{padding:8px 10px}
+ .ava-p0-scroll{padding-inline:11px}
+}
