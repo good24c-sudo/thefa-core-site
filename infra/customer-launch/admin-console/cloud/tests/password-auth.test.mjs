@@ -69,7 +69,7 @@ test('native form fallback never puts password or OTP into a GET URL; setup link
   const form=html.match(new RegExp('<form[^>]*id=\"'+id+'\"[^>]*>'))?.[0];
   assert.match(form,/method=\"post\"/);assert.match(form,/action=\"\/auth\//);
  }
- assert.match(html,/href=\"https:\/\/thefacore\.com\/signup#email-login-form\" target=\"_blank\" rel=\"noopener noreferrer\"/);
+ assert.match(html,/href=\"https:\/\/thefacore\.com\/login#email-login-form\" target=\"_blank\" rel=\"noopener noreferrer\"/);
  assert.match(html,/autocomplete=\"current-password\"/);
  assert.match(html,/id=\"otpFallback\"/);
 });

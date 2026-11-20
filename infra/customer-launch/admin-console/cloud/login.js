@@ -45,7 +45,7 @@
   }
 
   function failureMessage(status, phase) {
-    if (phase === 'password' && [400,401,403,422].includes(status)) return '이메일과 THE FA Core 비밀번호를 확인해 주세요. 처음이라면 비밀번호를 먼저 만들어 주세요.';
+    if (phase === 'password' && [400,401,403,422].includes(status)) return '이메일과 THE FA Core 비밀번호를 확인해 주세요. 비밀번호를 처음 설정하거나 재설정하려면 아래 전용 링크를 이용해 주세요.';
     if (status === 403) return '이 이메일의 관리자 접근 권한을 확인하지 못했습니다. 등록된 관리자 이메일을 확인해 주세요.';
     if (status === 429) return '요청 또는 인증 시도 한도에 도달했습니다. 안내된 시간이 지난 뒤 다시 요청해 주세요.';
     if (status === 502) return '메일 전송이 완료되지 않았습니다. 잠시 후 다시 요청하거나 운영 문의로 알려주세요.';
