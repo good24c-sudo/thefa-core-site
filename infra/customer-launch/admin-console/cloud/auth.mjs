@@ -14,7 +14,7 @@ export function parseAllowedEmails(value) {
   return new Set(emails);
 }
 
-export function createAuthService({origin,otpSecret,database,sendEmail,allowedEmails=ALLOWED_EMAILS,clock=Date.now}={}) {
+export function createAuthService({origin,otpSecret,database,sendEmail,passwordVerifier,allowedEmails=ALLOWED_EMAILS,clock=Date.now}={}) {
   if(!origin?.startsWith('https://')||typeof otpSecret!=='string'||otpSecret.length<32||!database||!sendEmail) throw new Error('AUTH_CONFIGURATION_REQUIRED');
   const codeHash=(challengeId,email,code)=>createHmac('sha256',otpSecret).update(`${challengeId}\n${email}\n${code}`).digest('hex');
   function tokenFrom(header='') {
@@ -26,6 +26,15 @@ export function createAuthService({origin,otpSecret,database,sendEmail,allowedEm
   }
   const cookie=(token,maxAge)=>`${COOKIE_NAME}=${token}; Path=/; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Lax`;
   return {
+    async verifyPassword(input) {
+      if(typeof passwordVerifier!=='function'||typeof database.createSession!=='function')throw failure(503,'비밀번호 로그인 연결을 준비 중입니다.');
+      const identity=await passwordVerifier(input);
+      if(identity?.verified!==true||!allowedEmails.has(identity.email))throw failure(401,'이메일과 THE FA Core 비밀번호를 확인해 주세요.');
+      const token=randomBytes(32).toString('base64url');
+      await database.createSession({token_hash:digest(token),email:identity.email,expires_at:new Date(clock()+28800000).toISOString()});
+      // Issue a browser cookie only after the durable session is acknowledged.
+      return {email:identity.email,cookie:cookie(token,28800)};
+    },
     async requestCode(value) {
       const email=emailOf(value);
       if(!allowedEmails.has(email)) throw failure(403,'사전에 허가된 이메일만 참가할 수 있습니다.');
@@ -65,13 +74,14 @@ export function createRestDatabase({url,key,fetchImpl=fetch}={}) {
     try { response=await fetchImpl(url+'/rest/v1/'+route,{method,headers:{apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(10000)}); }
     catch { throw failure(503,'인증 저장소에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.'); }
     if(!response.ok)throw failure(503,'인증 저장소가 요청을 처리하지 못했습니다.');
-    return response.status===204?null:response.json();
+    return [201,204].includes(response.status)?null:response.json();
   }
   return {
     rpc:(name,body)=>request('rpc/'+name,'POST',body),
     async getChallenge(id){const rows=await request('core_console_email_challenges_v2?select=email&id=eq.'+encodeURIComponent(id)+'&limit=1');return rows[0]||null;},
     async getSession(hash){const rows=await request('core_console_sessions_v2?select=email,expires_at&token_hash=eq.'+hash+'&limit=1');return rows[0]||null;},
-    deleteSession:hash=>request('core_console_sessions_v2?token_hash=eq.'+hash,'DELETE')
+    deleteSession:hash=>request('core_console_sessions_v2?token_hash=eq.'+hash,'DELETE'),
+    createSession:row=>request('core_console_sessions_v2','POST',row)
   };
 }
 
@@ -85,3 +95,4 @@ export function createResendSender({key,allowedEmails=ALLOWED_EMAILS,fetchImpl=f
     return {id:data.id};
   };
 }
+

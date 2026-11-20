@@ -14,10 +14,10 @@ const ACCOUNT=/^[a-f0-9]{64}$/;
 const REQUEST=/^[A-Za-z0-9._:-]{8,160}$/;
 const stop=(status,code)=>Object.assign(new Error(code),{status,code});
 export function createProtectedFree10AiPipeline({
- allowance,budget,provider,persistAnswer,persistProviderOutcome=null,
+ allowance,budget,provider,persistAnswer,persistProviderOutcome=null,creditBilling=null,
  maxInputTokens=48000,maxOutputTokens=1024
 }={}){
- if(!allowance||typeof allowance.reserve!=='function'||typeof allowance.view!=='function'||
+ if((creditBilling!==null&&['preflight','reserve','recordCompletion','settleInDraft'].some(k=>typeof creditBilling[k]!=='function'))||!allowance||typeof allowance.reserve!=='function'||typeof allowance.view!=='function'||
    typeof allowance.recordCompletion!=='function'||typeof allowance.settle!=='function'||
    !budget||typeof budget.reserve!=='function'||typeof budget.settle!=='function'||
    typeof budget.cancelWithoutDispatch!=='function'||
@@ -46,16 +46,19 @@ export function createProtectedFree10AiPipeline({
   if(bytes>24000||messages.at(-1).role!=='user')
    throw stop(400,'AI_CONTEXT_LIMIT');
   const employeeUnlimited=isEmployeeEntitlement(employeeEntitlement,principalId);
+  let quota=null;
   if(!employeeUnlimited){
-  const quota=await allowance.view(principalId);
+  quota=await allowance.view(principalId);
   if(quota?.freeLimit!==10||!Number.isSafeInteger(quota.used)||
      !Number.isSafeInteger(quota.pending)||!Number.isSafeInteger(quota.remaining)||
      quota.used<0||quota.pending<0||quota.used+quota.pending+quota.remaining!==10)
    throw stop(503,'FREE10_LEDGER_NOT_VERIFIED');
-  if(quota.planRequired||quota.remaining===0)
-   throw stop(402,'FREE10_EXHAUSTED_UPGRADE_REQUIRED');
+  if(quota.remaining===0&&!(creditBilling&&quota.used===10&&quota.pending===0))
+   throw stop(quota.pending>0?409:402,quota.pending>0?'FREE10_REQUEST_ALREADY_RESERVED':'FREE10_EXHAUSTED_UPGRADE_REQUIRED');
   }
+  const fundingMode=employeeUnlimited?'EMPLOYEE':quota.used===10?'PAID_CREDITS':'FREE_TRIAL';
   const modelId=provider.modelId??'deepseek-flash';
+  if(creditBilling)creditBilling.preflight({requestId,modelId,mode:fundingMode});
   let held;
   try{held=await budget.reserve(principalId,requestId,{maxInputTokens,maxOutputTokens,modelId});}
   catch(e){
@@ -65,10 +68,11 @@ export function createProtectedFree10AiPipeline({
   if(!held?.admitted||!held.day)throw stop(503,'BUDGET_ADMISSION_RECEIPT_MISSING');
   try{
    if(employeeUnlimited){isEmployeeEntitlement(employeeEntitlement,principalId);}
-   else{
+   else if(fundingMode==='FREE_TRIAL'){
     const saved=await allowance.reserve(principalId,requestId);
     if(saved?.alreadySaved)throw stop(409,'FREE10_REQUEST_ALREADY_SAVED_NO_MODEL_REPLAY');
    }
+   if(creditBilling)await creditBilling.reserve({requestId,modelId,mode:fundingMode});
   }catch(err){
    // We have not dispatched any model call. The budget hold may be cancelled
    // but an uncertain allowance RPC remains protected and must be reconciled.
@@ -76,6 +80,7 @@ export function createProtectedFree10AiPipeline({
     await budget.cancelWithoutDispatch(principalId,requestId,{
      day:held.day,modelNotInvoked:true});
    }catch{throw stop(503,'PRE_DISPATCH_BUDGET_RECONCILIATION_REQUIRED')}
+   if(/^(CREDIT_|PAID_CREDITS_)/.test(err?.code??''))throw err;
    if(err?.status===402)throw stop(402,'FREE10_EXHAUSTED_UPGRADE_REQUIRED');
    if(err?.status===409)throw stop(409,'FREE10_REQUEST_ALREADY_RESERVED');
    throw stop(503,'FREE10_ADMISSION_RECONCILIATION_REQUIRED');
@@ -104,7 +109,8 @@ export function createProtectedFree10AiPipeline({
    throw stop(503,'MODEL_USAGE_OR_CONTENT_RECEIPT_INVALID_NO_REPLAY');
   try{
    if(typeof persistProviderOutcome==='function')await persistProviderOutcome({principalId,requestId,modelId,outcome:'REPLY_RECEIVED',meteringReceipt:{modelId,provider:answer.provider,normalizedUsage:answer.normalizedUsage}});
-   if(!employeeUnlimited)await allowance.recordCompletion(principalId,requestId,answer);
+   if(fundingMode==='FREE_TRIAL')await allowance.recordCompletion(principalId,requestId,answer);
+   if(creditBilling)await creditBilling.recordCompletion(requestId,answer);
    const persisted=await persistAnswer({
     principalId,requestId,messages,answer
    });
@@ -113,7 +119,7 @@ export function createProtectedFree10AiPipeline({
   }catch{
    throw stop(503,'CHAT_WRITE_OUTCOME_UNCERTAIN_NO_AUTOREPLAY');
   }
-  try{if(!employeeUnlimited)await allowance.settle(principalId,requestId,{saved:true});}
+  try{if(fundingMode==='FREE_TRIAL')await allowance.settle(principalId,requestId,{saved:true});}
   catch{throw stop(503,'FREE10_SETTLEMENT_RECONCILIATION_REQUIRED');}
   let charge;
   try{charge=await budget.settle(principalId,requestId,{
@@ -127,8 +133,8 @@ export function createProtectedFree10AiPipeline({
    model:answer.model,
    requestId,
    assistantMessageSaved:true,
-   freeAnswerCharged:!employeeUnlimited,
-   usagePolicy:employeeUnlimited?'EMPLOYEE_UNLIMITED':'CUSTOMER_FREE10',
+   freeAnswerCharged:fundingMode==='FREE_TRIAL',
+   usagePolicy:employeeUnlimited?'EMPLOYEE_UNLIMITED':fundingMode==='PAID_CREDITS'?'CUSTOMER_COST_CREDITS':'CUSTOMER_FREE10',
    budgetChargedKrw:charge.chargedKrw,
    automaticReplayAllowed:false,
    receiptClass:'CUSTOMER_CHAT_AND_BUDGET_STATE_ONLY_NOT_CORE_WORKUNIT'
@@ -136,3 +142,4 @@ export function createProtectedFree10AiPipeline({
  }
  return Object.freeze({execute});
 }
+

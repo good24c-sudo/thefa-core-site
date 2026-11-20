@@ -93,6 +93,22 @@
       "destination": "/api/dispatch?__customer_route=/functions/v1/core-customer-auth/callback/kakao/oauth-proxy"
     },
     {
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/privacy/",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html"
+    },
+    {
+      "source": "/terms/",
+      "destination": "/terms.html"
+    },
+    {
       "source": "/about",
       "destination": "/about.html"
     },

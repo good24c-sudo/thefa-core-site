@@ -12,6 +12,7 @@ import {conversationDetail} from './customer-chat-domain.mjs';
 import {createProtectedFree10AiPipeline} from './free10-budget-admission.mjs';
 import {validateCustomerOrigin} from './customer-origin-policy.mjs';
 import {isEmployeeEntitlement,employeeAllowanceView} from '../employee-entitlement.mjs';
+import {createBoundCreditBilling,customerCreditView} from './customer-credit-wallet.mjs';
 import {customerPlanCatalog} from '../customer-plans.mjs';
 import {createBoundP1BCostWriter,preflightBoundTenantCostCapacity,recordProviderOutcome,summarizeBoundTenantCost} from './customer-ai-cost-ledger.mjs';
 import {touchCustomerMembership,membershipNeedsTouch} from './customer-membership.mjs';
@@ -95,6 +96,8 @@ function sendPayload(body){
   body.content.trim().length<=4000;
 }
 const errorsForUser=new Map([
+ ['PAID_CREDITS_INSUFFICIENT',[402,'CREDITS_REQUIRED']],
+ ['CREDIT_REQUEST_ALREADY_EXISTS_NO_REPLAY',[409,'CHAT_REQUEST_RECONCILIATION_REQUIRED']],
  ['FREE10_EXHAUSTED_UPGRADE_REQUIRED',[402,'PLAN_REQUIRED']],
  ['TODAY_AI_BUDGET_EXHAUSTED',[429,'TODAY_AI_BUDGET_EXHAUSTED']],
  ['FREE10_REQUEST_ALREADY_RESERVED',[409,'CHAT_REQUEST_RECONCILIATION_REQUIRED']],
@@ -106,7 +109,7 @@ const errorsForUser=new Map([
 ]);
 
 export function createVerifiedCustomerApi({
- sessionVerifier,rest,tenantKey,allowance,budget,provider,legacyMigrationVerifier=null,resolveEmployeeEntitlement=null,aiModes=null,membershipTracking=false,
+ sessionVerifier,rest,tenantKey,allowance,budget,provider,legacyMigrationVerifier=null,resolveEmployeeEntitlement=null,aiModes=null,membershipTracking=false,pricingPolicyService=null,
 }={},originConfig={}){
  const origin=validateCustomerOrigin(originConfig);
  const host=new URL(origin).host;
@@ -123,6 +126,7 @@ export function createVerifiedCustomerApi({
   throw new Error('VERIFIED_CUSTOMER_RUNTIME_DEPENDENCIES_REQUIRED');
 
  const storage=email=>createTenantCloudPersistence({email,tenantKey,rest});
+ async function creditsFor(session){const store=storage(session.workspaceEmail).store;try{await store.init();return customerCreditView(store.state,session.principalId);}finally{await store.close();}}
  const env=Object.freeze({
   CORE_CONSOLE_STORAGE_MODE:'tenant-v3',
   CORE_CUSTOMER_TENANT_HMAC_KEY:tenantKey,
@@ -132,7 +136,7 @@ export function createVerifiedCustomerApi({
 
  async function send(session,body){
   if(!sendPayload(body))return reject(400,'CUSTOMER_CHAT_SEND_BODY_INVALID');
-  let store=null,reservation=null,modelInvoked=false;
+  let store=null,reservation=null,modelInvoked=false,billingResult=null;
   let selectedProvider=provider;
   try{if(aiModes)selectedProvider=aiModes.providerFor(body.aiMode??'balanced');
    else if(body.aiMode&&body.aiMode!=='balanced')return reject(503,'CUSTOMER_AI_MODE_UNAVAILABLE');
@@ -142,12 +146,14 @@ export function createVerifiedCustomerApi({
    store=st.store;
    await store.init();
    if(aiModes)preflightBoundTenantCostCapacity({store,session,tenantKey});
-   reservation=await store.mutate(s=>reserveCustomerChatTurn(s,body));
+   const pricingSnapshot=pricingPolicyService?(await pricingPolicyService.read()).policy:null;
+   reservation=await store.mutate(s=>{const reserved=reserveCustomerChatTurn(s,body);if(!reserved.reused&&pricingSnapshot)s.customerChat.turnRequests[body.requestId].pricingPolicy=structuredClone(pricingSnapshot);return reserved;});
    if(reservation.reused)return reject(409,'CHAT_REQUEST_RECONCILIATION_REQUIRED');
    if(!reservation.messages||!reservation.userMessageId)
     return reject(503,'CHAT_REQUEST_UNVERIFIED');
+   const creditBilling=aiModes&&pricingSnapshot?createBoundCreditBilling({store,session,tenantKey,policy:pricingSnapshot}):null;
    const pipeline=createProtectedFree10AiPipeline({
-    allowance,budget,provider: {
+    allowance,budget,creditBilling,provider: {
      mode:selectedProvider.mode,model:selectedProvider.model,modelId:selectedProvider.modelId,
      ask:async({messages,permit})=>{modelInvoked=true;return selectedProvider.ask({messages,permit})}
     },
@@ -155,9 +161,10 @@ export function createVerifiedCustomerApi({
     persistAnswer:async({requestId,answer})=>{
      if(requestId!==body.requestId)
       throw new Error('CHAT_PERSIST_REQUEST_BINDING_MISMATCH');
-     const result=aiModes?await createBoundP1BCostWriter({store,session,tenantKey}).commit({requestId,userMessageId:reservation.userMessageId,result:answer}):await store.mutate(state=>commitCustomerChatTurn(state,{
+     const result=aiModes?await createBoundP1BCostWriter({store,session,tenantKey,settleBilling:creditBilling?.settleInDraft}).commit({requestId,userMessageId:reservation.userMessageId,result:answer}):await store.mutate(state=>commitCustomerChatTurn(state,{
       requestId,userMessageId:reservation.userMessageId,result:answer
      }));
+     billingResult=result?.billing??null;
      return {durable:result?.assistantMessage?.role==='assistant'&&
       result?.assistantMessage?.contentSha256===answer.sha256};
     }
@@ -180,7 +187,7 @@ export function createVerifiedCustomerApi({
    if(!userMessage||!assistantMessage)return reject(503,'CHAT_DURABLE_READBACK_REQUIRED');
    return response(200,{
     reused:false,userMessage:publicMessage(userMessage),assistantMessage:publicMessage(assistantMessage),
-    verifiedCoreReceipt:false
+    verifiedCoreReceipt:false,...(billingResult?{billing:billingResult}:{})
    });
   }catch(error){
    // Never resend. A model call or persistence write could have succeeded without ACK.
@@ -252,19 +259,19 @@ export function createVerifiedCustomerApi({
   }
   if(pathname==='/api/customer/billing'||pathname==='/api/customer/allowance'||
     pathname==='/api/customer/workspace'){
-   let balance,daily;
-   try{[balance,daily]=await Promise.all([
-    balanceForSession(),budget.status()
+   let balance,daily,creditBalance,pricingSnapshot;
+   try{[balance,daily,creditBalance,pricingSnapshot]=await Promise.all([
+    balanceForSession(),budget.status(),creditsFor(session),pricingPolicyService?pricingPolicyService.read():null
    ])}catch{return reject(503,'CUSTOMER_ACCOUNT_LEDGER_UNAVAILABLE')}
    if((!employeeUnlimited&&!verifiedBalance(balance))||daily?.capKrw!==10000||!Number.isSafeInteger(daily.remainingKrw))
     return reject(503,'CUSTOMER_ACCOUNT_LEDGER_INVALID');
    if(pathname==='/api/customer/allowance')
-    return response(200,{contract:employeeUnlimited?'THEFA_EMPLOYEE_UNLIMITED_V1':'THEFA_FREE10_ALLOWANCE_R31',allowance:balance});
+    return response(200,{contract:employeeUnlimited?'THEFA_EMPLOYEE_UNLIMITED_V1':'THEFA_FREE10_ALLOWANCE_R31',allowance:balance,credits:creditBalance});
    if(pathname==='/api/customer/billing')
     return response(200,{
      authenticated:true,memberType:employeeUnlimited?'EMPLOYEE':'CUSTOMER',allowance:balance,
      subscription:{planId:null,status:'PAYMENT_NOT_CONNECTED'},
-     paymentReady:false,plansUrl:'/plans',catalog:customerPlanCatalog()
+     paymentReady:false,plansUrl:'/plans',credits:creditBalance,catalog:customerPlanCatalog(pricingSnapshot?.policy)
     });
   }
   // Routing and model selection are managed by THE FA Core, not browser settings.
@@ -288,6 +295,7 @@ export function createVerifiedCustomerApi({
     delete view.capabilities.modelName;
     view.account={authenticated:true,provider:'SERVER_VERIFIED',memberType:employeeUnlimited?'EMPLOYEE':'CUSTOMER'};
     view.allowance=await balanceForSession();
+    view.credits=await creditsFor(session);
     view.subscription={status:'PAYMENT_NOT_CONNECTED'};
     return response(200,view);
    }
@@ -302,3 +310,4 @@ export function createVerifiedCustomerApi({
   }
  };
 }
+

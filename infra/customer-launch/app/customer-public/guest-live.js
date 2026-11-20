@@ -234,13 +234,15 @@
       const usage=model.workspace.allowance;
       const left=Number.isInteger(usage?.remaining)&&usage.remaining>=0&&usage.remaining<=10?usage.remaining:null;
       id('free-usage').textContent=!user?'로그인 후 사용량 확인':employee?'무제한 이용':left===null?'사용량 확인 중':left+'/10회 남음';
+      const credits=model.workspace.credits;
+      if(user&&!employee&&Number.isSafeInteger(credits?.availableCredits)){id('free-usage').textContent='무료 '+(left===null?'확인 중':left+'/10회')+' · 유료 '+credits.availableCredits.toLocaleString('ko-KR')+'크레딧';}
       const subscription=model.workspace.subscription;
       for(const planId of ['standard','pro']){
         id(planId+'-usage').textContent=!user?'로그인 후 확인':subscription?.planId===planId&&
           Number.isFinite(subscription.remainingPercent)?subscription.remainingPercent+'% 남음':'미구독';
       }
       if(!user)id('connection-text').textContent='로그인 후 이용';
-      if(user)id('account-status').textContent=employee?'더파 임직원 · 무제한 이용':left===null?'사용량 확인 중':'무료 AI 답변 '+left+' / 10회 남음';
+      if(user)id('account-status').textContent=employee?'더파 임직원 · 무제한 이용':left===null?'사용량 확인 중':'무료 '+left+'/10회 · 유료 '+(Number.isSafeInteger(credits?.availableCredits)?credits.availableCredits.toLocaleString('ko-KR')+'크레딧':'확인 중');
       document.querySelector('.guest-label').textContent=user?'MY CORE · 나의 작업공간':'THE FA CORE · 나의 AI 작업공간';
       id('readiness-notice').textContent=user
         ?(employee?'인증된 더파 임직원 계정입니다. 무료 답변 횟수 제한 없이 이용하며, 보안·전체 비용 보호는 유지됩니다.':left===null?'계정의 기존 사용량을 확인하고 있습니다. 확인 전에는 남은 횟수를 표시하지 않습니다.':usage?.planRequired?'고객당 무료 AI 답변 10회를 모두 사용했습니다. 계속 이용하려면 확인된 유료 이용 권한이 필요합니다. 현재 결제는 연결되지 않았습니다.':'고객당 AI 답변 10회 · 기존 사용량을 반영해 현재 '+left+'회 남았습니다.')
@@ -565,7 +567,7 @@
     const input=id('chat-input'),content=input.value.trim();
     if(!content||model.busy||id('send-button').disabled)return;
     if(accountRequired()&&!model.account){id('start-guide').showModal();return;}
-    if(accountRequired()&&model.workspace.allowance?.planRequired){id('free-limit-dialog').showModal();return;}
+    if(accountRequired()&&model.workspace.allowance?.planRequired&&!(model.workspace.credits?.availableCredits>0)){id('free-limit-dialog').showModal();return;}
     let c=currentConversation();
     if(!c){
       id('connection-text').textContent='대화를 준비하고 있습니다…';
@@ -854,3 +856,4 @@
   window.addEventListener('pagehide',()=>{model.conversation=null;});
   init();
 })();
+

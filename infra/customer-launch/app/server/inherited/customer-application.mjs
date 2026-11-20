@@ -17,11 +17,12 @@ export function createCustomerApplication({runtime,authRoutes,originConfig={}}={
     return failure(403,'CUSTOMER_APPLICATION_ORIGIN_INVALID');
    if((url.search&&!proxy.test(url.pathname)&&url.pathname!=='/auth/google/callback')||url.hash||url.pathname.includes('%')||url.pathname.includes('\\'))
     return failure(404,'CUSTOMER_APPLICATION_ROUTE_NOT_FOUND');
-   if(url.pathname==='/api/plans'&&request.method==='GET')return Response.json(customerPlanCatalog(),{headers:{'cache-control':'public, max-age=60','x-content-type-options':'nosniff'}});
+   if(url.pathname==='/api/plans'&&request.method==='GET')return Response.json(runtime.planCatalog?await runtime.planCatalog():customerPlanCatalog(),{headers:{'cache-control':'no-store','x-content-type-options':'nosniff'}});
    if(url.pathname.startsWith('/api/customer/'))return await runtime.handler(request);
    if(authPaths.has(url.pathname)||proxy.test(url.pathname))return await authRoutes(request);
    return failure(404,'CUSTOMER_APPLICATION_ROUTE_NOT_FOUND');
   }catch{return failure(503,'CUSTOMER_APPLICATION_UNAVAILABLE')}
  };
 }
+
 

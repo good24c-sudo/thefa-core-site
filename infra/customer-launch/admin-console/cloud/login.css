@@ -10,3 +10,6 @@
 /* Registered primary logo; desktop scale matches the public homepage. */
 @media(min-width:851px){.login-brand{width:214px}}
 @media(max-width:430px){.login-brand{width:155px}}
+
+
+#passwordForm label:not(:first-child){margin-top:18px} .password-help{margin:20px 0;display:flex;flex-wrap:wrap;gap:12px 20px}.password-help a{color:#e6c58e;font-size:13px}.password-help p{width:100%;margin:0;line-height:1.7}#otpFallback{border-top:1px solid #40392f;padding-top:18px}#otpFallback summary{cursor:pointer;color:#d8cdbb;font-size:13px;margin-bottom:18px}input[type=password]{font-family:inherit;font-size:16px;letter-spacing:.1em}

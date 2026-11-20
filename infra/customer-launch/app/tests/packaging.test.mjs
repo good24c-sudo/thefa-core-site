@@ -6,18 +6,19 @@ import {fileURLToPath} from 'node:url';
 import {randomUUID} from 'node:crypto';
 let api={};try{api=await import('../assemble-release.mjs')}catch(error){if(error.code!=='ERR_MODULE_NOT_FOUND')throw error}
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-test('release assembly exposes exactly34 reviewed browser files and privately packages actual bootstrap runtime',async()=>{
+test('release assembly exposes exactly39 reviewed browser files and privately packages actual bootstrap runtime',async()=>{
  assert.equal(typeof api.assembleCustomerRelease,'function');
  const outputDirectory=path.join(root,'deployment-candidate-test-'+randomUUID());
  const manifest=await api.assembleCustomerRelease({outputDirectory});
- assert.equal(manifest.publicFiles.length,34);assert.equal(manifest.runtimeFiles.length>=27,true);
+ assert.equal(manifest.publicFiles.length,39);assert.equal(manifest.runtimeFiles.length>=27,true);
  for(const rel of ['server/managed-email-auth.mjs','server/managed-email-composition.mjs'])assert.equal(manifest.runtimeFiles.some(x=>x.path===rel),true,'MANAGED_AUTH_MODULE_NOT_PACKAGED');
  assert.equal(manifest.validationFiles.some(x=>x.path==='tests/bootstrap.test.mjs'),true);
   assert.equal(manifest.validationFiles.some(x=>x.path==='tests/r42_google_only_ui.test.mjs'),true);assert.equal(manifest.validationFiles.some(x=>x.path==='tests/fake-lease-database.mjs'),true);assert.equal(manifest.validationFiles.some(x=>x.path==='public-files.json'),true);
  const walk=async dir=>(await Promise.all((await readdir(dir,{withFileTypes:true})).map(async x=>x.isDirectory()?walk(path.join(dir,x.name)):[path.relative(path.join(outputDirectory,'customer-public'),path.join(dir,x.name)).replaceAll('\\','/')]))).flat();
  const files=await walk(path.join(outputDirectory,'customer-public'));
- assert.equal(files.length,34);assert.equal(files.some(x=>/server|api\/|\.mjs$|\.env|private-data|\.json$/.test(x)),false);
+ assert.equal(files.length,39);assert.equal(files.some(x=>/server|api\/|\.mjs$|\.env|private-data|\.json$/.test(x)),false);
 
+ for(const file of ['privacy.html','terms.html','brand-legal.css','customer-legal-links.css','assets/THEFA_Core_Google_OAuth_120.png'])assert.equal(files.includes(file),true,'MISSING_LIVE_LEGAL_ASSET:'+file);
  const newStudioFiles=['studio.html','studio.css','studio.js','studio-entry.css',
    'vendor/pptxgen.min.js','vendor/jszip.min.js',
    'vendor/PPTXGENJS-LICENSE.txt','vendor/JSZIP-LICENSE.txt'];
@@ -40,7 +41,7 @@ test('release assembly exposes exactly34 reviewed browser files and privately pa
  assert.equal(scopedJavaScript.includes('keepReadingPosition'),true);
  assert.equal(scopedJavaScript.includes('renderSidebar'),true);
  const publicAssetNames=manifest.publicFiles.map(x=>x.path.replace(/^customer-public\//,''));
- assert.equal(new Set(publicAssetNames).size,34);
+ assert.equal(new Set(publicAssetNames).size,39);
 
  const config=JSON.parse(await readFile(path.join(outputDirectory,'vercel.json'),'utf8'));
  assert.equal(config.outputDirectory,'customer-public');assert.equal(config.public,false);

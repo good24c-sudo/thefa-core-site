@@ -1,3 +1,5 @@
+import {createPricingPolicyService} from '../customer-pricing-policy.mjs';
+import {customerPlanCatalog} from '../customer-plans.mjs';
 import {SupabaseRest} from './store.mjs';
 import {createIsolatedCloudAllowance} from './cloud-allowance.mjs';
 import {createIsolatedDailyAiBudget} from './daily-ai-budget.mjs';
@@ -54,14 +56,15 @@ export function createCustomerRuntime(options={}){
   const allowanceSecret=stableSecret(config,'allowanceSecret');
   const budgetSecret=stableSecret(config,'budgetSecret');
   const rest=new SupabaseRest({url:database.origin,serviceRoleKey,fetcher:fetchImpl});
+  const pricingPolicyService=createPricingPolicyService({rest});
   const allowance=createIsolatedCloudAllowance({rest,secret:allowanceSecret,usageEpoch:config.accountMode==='fresh-launch'?config.usageEpoch:null});
   const budget=createIsolatedDailyAiBudget({rest,secret:budgetSecret,clock});
   const provider=createCustomerDeepSeekProvider({apiKey:deepseekApiKey,fetchImpl,
    model:'deepseek-flash',maxTokens:1024});
   const aiModes=createCustomerAiModes({env:config.aiProviderEnv??{CUSTOMER_DEEPSEEK_API_KEY:deepseekApiKey},budget,fetchImpl});
   const handler=createCustomerHttpAdapter({aiModes,membershipTracking:true,sessionVerifier,legacyMigrationVerifier,resolveEmployeeEntitlement,
-   rest,tenantKey,allowance,budget,provider},{customerOrigin:origin,environment});
-  return Object.freeze({handler});
+   rest,tenantKey,allowance,budget,provider,pricingPolicyService},{customerOrigin:origin,environment});
+  return Object.freeze({handler,planCatalog:async()=>customerPlanCatalog((await pricingPolicyService.read()).policy)});
  }catch{
   // Do not attach cause/config/provider errors: they may contain server secrets.
   throw Object.assign(new Error('CUSTOMER_RUNTIME_CONFIGURATION_INVALID'),{
@@ -69,3 +72,4 @@ export function createCustomerRuntime(options={}){
   });
  }
 }
+

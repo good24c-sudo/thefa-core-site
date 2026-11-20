@@ -11,6 +11,7 @@
   var changeButton = document.getElementById('changeEmail');
   var message = document.getElementById('authMessage');
   var retryNotice = document.getElementById('retryNotice');
+  var passwordForm=document.getElementById('passwordForm'),passwordEmail=document.getElementById('passwordEmail'),password=document.getElementById('password'),passwordButton=document.getElementById('passwordLogin');
   var state = { challengeId: null, busy: false, verified: false, nextRequestAt: 0, expiresAt: 0, timer: null };
 
   function notify(text, type) {
@@ -22,6 +23,7 @@
   function updateControls() {
     var retry = Math.max(0, Math.ceil((state.nextRequestAt - Date.now()) / 1000));
     var expired = Boolean(state.expiresAt && Date.now() >= state.expiresAt);
+    passwordButton.disabled=state.busy || retry>0;
     requestButton.disabled = state.busy || retry > 0;
     resendButton.disabled = state.busy || retry > 0;
     verifyButton.disabled = state.busy || expired || !state.challengeId;
@@ -43,10 +45,11 @@
   }
 
   function failureMessage(status, phase) {
+    if (phase === 'password' && [400,401,403,422].includes(status)) return '이메일과 THE FA Core 비밀번호를 확인해 주세요. 처음이라면 비밀번호를 먼저 만들어 주세요.';
     if (status === 403) return '이 이메일의 관리자 접근 권한을 확인하지 못했습니다. 등록된 관리자 이메일을 확인해 주세요.';
     if (status === 429) return '요청 또는 인증 시도 한도에 도달했습니다. 안내된 시간이 지난 뒤 다시 요청해 주세요.';
     if (status === 502) return '메일 전송이 완료되지 않았습니다. 잠시 후 다시 요청하거나 운영 문의로 알려주세요.';
-    if (status === 503) return '이메일 인증 서비스를 현재 사용할 수 없습니다. 로그인은 완료되지 않았습니다.';
+    if (status === 503) return '로그인 서비스를 현재 사용할 수 없습니다. 로그인은 완료되지 않았습니다.';
     if (status === 400) return phase === 'request' ? '이메일 주소를 다시 확인해 주세요.' : '인증번호가 올바르지 않거나 만료되었습니다. 받은 메일을 확인하거나 새 번호를 요청해 주세요.';
     return '인증 응답을 확인하지 못했습니다. 로그인은 완료되지 않았습니다. 잠시 후 다시 시도해 주세요.';
   }
@@ -99,6 +102,17 @@
     } finally { state.busy = false; updateControls(); }
   }
 
+  passwordForm.addEventListener('submit',async function(event){
+    event.preventDefault();if(state.busy||state.verified||Date.now()<state.nextRequestAt)return;
+    passwordEmail.value=passwordEmail.value.trim();
+    if(!passwordEmail.checkValidity()||!password.value){notify('이메일과 THE FA Core 비밀번호를 입력해 주세요.','error');passwordForm.reportValidity();return;}
+    state.busy=true;updateControls();notify('로그인 정보를 확인하고 있습니다.');
+    try{var result=await post('/auth/password-login',{email:passwordEmail.value,password:password.value},'password');
+      if(result.verified!==true)throw new Error('로그인 완료를 확인하지 못했습니다.');
+      state.verified=true;password.value='';notify('로그인되었습니다. 대시보드로 이동합니다.','success');window.location.replace('/#overview');
+    }catch(error){password.value='';notify(error instanceof TypeError||['AbortError','TimeoutError'].includes(error.name)?'로그인 결과를 확인하지 못했습니다. 연결을 확인해 주세요.':error.message,'error');}
+    finally{if(!state.verified){state.busy=false;updateControls();}}
+  });
   emailForm.addEventListener('submit', function (event) { event.preventDefault(); requestCode(); });
   resendButton.addEventListener('click', requestCode);
   codeForm.addEventListener('submit', async function (event) {
@@ -133,9 +147,10 @@
   var reason = new URLSearchParams(window.location.search).get('reason');
   if (reason === 'session-expired') {
     var notice = document.getElementById('sessionNotice');
-    notice.textContent = '로그인이 만료되었습니다. 이메일 인증 후 대시보드에 다시 로그인해 주세요.';
+    notice.textContent = '로그인이 만료되었습니다. 대시보드에 다시 로그인해 주세요.';
     notice.hidden = false;
   }
-  window.addEventListener('pagehide', function () { if (state.timer) clearInterval(state.timer); });
+  window.addEventListener('pagehide', function () { password.value=''; if (state.timer) clearInterval(state.timer); });
   updateControls();
 })();
+

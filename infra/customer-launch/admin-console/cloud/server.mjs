@@ -1,6 +1,9 @@
+import {createPricingPolicyService,createPricingRest} from './shared/customer-pricing-policy.mjs';
+import {customerPlanCatalog} from './shared/customer-plans.mjs';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { createAuthService, createRestDatabase, createResendSender, parseAllowedEmails } from './auth.mjs';
+import { createManagedPasswordVerifier } from './password-auth.mjs';
 import { executeApi } from './engine-adapter.mjs';
 import {createCustomerOperationsReader} from './customer-operations.mjs';
 import { createCoreIngressAdapter, createFounderLiveHttpTransport, createOpaqueActorRef } from './core-ingress-adapter.mjs';
@@ -34,8 +37,9 @@ async function jsonBody(req) {
   try{const value=JSON.parse(Buffer.concat(chunks).toString('utf8'));if(!value||typeof value!=='object'||Array.isArray(value))throw new Error();return value;}
   catch{throw problem(400,'요청 형식을 확인해 주세요.');}
 }
-export function createCloudHandler({origin=process.env.CORE_CONSOLE_ORIGIN,auth,engine=executeApi,coreIngress,coreFetch=globalThis.fetch,env=process.env,customerOperations,read=path=>readFile(root+path)}={}) {
+export function createCloudHandler({origin=process.env.CORE_CONSOLE_ORIGIN,auth,engine=executeApi,coreIngress,coreFetch=globalThis.fetch,env=process.env,customerOperations,pricingPolicyService,read=path=>readFile(root+path)}={}) {
   customerOperations??=createCustomerOperationsReader({url:env.SUPABASE_URL,key:env.SUPABASE_SERVICE_ROLE_KEY,fetchImpl:coreFetch});
+  if(!pricingPolicyService)try{pricingPolicyService=createPricingPolicyService({rest:createPricingRest({url:env.SUPABASE_URL,key:env.SUPABASE_SERVICE_ROLE_KEY,fetchImpl:coreFetch})});}catch{}
   let setupError=false;
   let allowedOrigins=new Set();
   try{
@@ -57,7 +61,7 @@ export function createCloudHandler({origin=process.env.CORE_CONSOLE_ORIGIN,auth,
     if(executionMode==='core')try{transport=createFounderLiveHttpTransport({supabaseUrl:env.SUPABASE_URL,serviceRoleKey:env.SUPABASE_SERVICE_ROLE_KEY,fetchImpl:coreFetch});}catch{/* Adapter remains fail-closed until server transport is configured. */}
     coreIngress=createCoreIngressAdapter({transport,sourceSha:env.CORE_SOURCE_SHA});
   }
-  if(!auth)try{const allowedEmails=parseAllowedEmails(env.CORE_CONSOLE_ALLOWED_EMAILS);auth=createAuthService({origin,allowedEmails,otpSecret:env.CORE_OTP_SECRET,database:createRestDatabase({url:env.SUPABASE_URL,key:env.SUPABASE_SERVICE_ROLE_KEY}),sendEmail:createResendSender({key:env.RESEND_API_KEY,allowedEmails})});}catch{setupError=true;}
+  if(!auth)try{const allowedEmails=parseAllowedEmails(env.CORE_CONSOLE_ALLOWED_EMAILS);auth=createAuthService({origin,allowedEmails,otpSecret:env.CORE_OTP_SECRET,database:createRestDatabase({url:env.SUPABASE_URL,key:env.SUPABASE_SERVICE_ROLE_KEY,fetchImpl:coreFetch}),passwordVerifier:createManagedPasswordVerifier({url:env.SUPABASE_URL,key:env.SUPABASE_SERVICE_ROLE_KEY,allowedEmails,fetchImpl:coreFetch}),sendEmail:createResendSender({key:env.RESEND_API_KEY,allowedEmails,fetchImpl:coreFetch})});}catch{setupError=true;}
   return async(req,res)=>{
     const reply=(status,body,type='application/json; charset=utf-8')=>{res.statusCode=status;res.setHeader('content-type',type);res.end(type.startsWith('application/json')?JSON.stringify(body):body);};
     res.setHeader('cache-control','no-store');res.setHeader('x-content-type-options','nosniff');res.setHeader('referrer-policy','no-referrer');res.setHeader('x-frame-options','DENY');res.setHeader('strict-transport-security','max-age=31536000');
@@ -84,12 +88,22 @@ export function createCloudHandler({origin=process.env.CORE_CONSOLE_ORIGIN,auth,
       if(setupError)return reply(503,{error:'인증 서비스 연결을 준비 중입니다.'});
       if(req.method==='POST'&&(!allowedOrigins.has(requestOrigin)||req.headers.origin!==requestOrigin||['cross-site','same-site'].includes(req.headers['sec-fetch-site'])))return reply(403,{error:'현재 사이트의 화면에서 요청해 주세요.'});
       if(path==='/auth/request-code'&&req.method==='POST'){const body=await jsonBody(req);return reply(200,await auth.requestCode(body.email));}
+      if(path==='/auth/password-login'&&req.method==='POST'){const body=await jsonBody(req);if(Object.keys(body).length!==2||!Object.hasOwn(body,'email')||!Object.hasOwn(body,'password'))return reply(400,{error:'이메일과 비밀번호를 입력해 주세요.'});const result=await auth.verifyPassword(body);res.setHeader('set-cookie',result.cookie);return reply(200,{verified:true});}
       if(path==='/auth/verify-code'&&req.method==='POST'){const body=await jsonBody(req);const result=await auth.verifyCode(body);res.setHeader('set-cookie',result.cookie);return reply(200,{verified:true});}
       const session=await auth.getSession(req.headers.cookie);
       if(!session){if(['/','/index.html','/admin','/admin/'].includes(path)&&req.method==='GET'){res.setHeader('location','/login.html');res.statusCode=303;return res.end();}return reply(401,{error:'이메일 인증 후 참가해 주세요.'});}
+      if(path==='/api/pricing-policy'){
+        if(!pricingPolicyService)return reply(503,{code:'PRICING_STORAGE_UNAVAILABLE',error:'크레딧 정책 저장소 연결을 확인하지 못했습니다.'});
+        if(req.method==='GET')return reply(200,await pricingPolicyService.read());
+        if(req.method!=='POST')return reply(405,{error:'지원하지 않는 요청입니다.'});
+        const body=await jsonBody(req);
+        if(Object.keys(body).length!==3||!['expectedVersion','requestId','config'].every(k=>Object.hasOwn(body,k)))return reply(400,{error:'정책 변경 요청을 확인해 주세요.'});
+        try{return reply(200,await pricingPolicyService.update(body,createOpaqueActorRef(session.email).slice('actor_sha256:'.length)));}
+        catch(error){return reply(error.status===400?400:error.status===409?409:503,{code:error.code||'PRICING_SAVE_UNVERIFIED',error:error.status===409?'다른 변경 또는 처리 중인 요청이 있습니다. 현재 정책을 다시 확인해 주세요.':'저장 결과를 확인하지 못했습니다. 정책 이력을 확인한 뒤 진행해 주세요.'});}
+      }
       if(path==='/api/customer-operations'){
         if(req.method!=='GET')return reply(405,{error:'조회 요청만 지원합니다.'});
-        try{return reply(200,await customerOperations());}catch{return reply(503,{error:'고객 운영 집계를 확인하지 못했습니다. 잠시 후 다시 확인해 주세요.',code:'CUSTOMER_OPERATIONS_UNAVAILABLE'});}
+        try{const operations=await customerOperations();if(pricingPolicyService){const current=await pricingPolicyService.read();operations.pricing=customerPlanCatalog(current.policy);}return reply(200,operations);}catch{return reply(503,{error:'고객 운영 집계를 확인하지 못했습니다. 잠시 후 다시 확인해 주세요.',code:'CUSTOMER_OPERATIONS_UNAVAILABLE'});}
       }
       if(path==='/auth/logout'&&req.method==='POST'){res.setHeader('set-cookie',await auth.logout(req.headers.cookie));return reply(200,{loggedOut:true});}
       if(files[path]&&['GET','HEAD'].includes(req.method)){const [file,type]=files[path];return reply(200,req.method==='HEAD'?'':await read(file),type);}
@@ -109,4 +123,5 @@ export function createCloudHandler({origin=process.env.CORE_CONSOLE_ORIGIN,auth,
     }catch(error){if(error.retryAfter)res.setHeader('retry-after',String(error.retryAfter));reply(error.status||503,{error:error.status?error.message:'서비스 요청을 처리하지 못했습니다.',...(error.retryAfter?{retryAfter:error.retryAfter}:{})});}
   };
 }
+
 

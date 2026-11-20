@@ -5,9 +5,9 @@ const elem=()=>({textContent:'',hidden:false,disabled:false,children:[],classLis
 const tick=()=>new Promise(r=>setImmediate(r));
 test('saved AI response is visible before a slow conversation readback finishes',async()=>{
  let release;const delayed=new Promise(r=>release=r),elements=new Map(),renders=[];
- const model={pendingRequestIds:new Map(),conversationId:'chat_test',conversation:null,busy:false};
+ const model={pendingRequestIds:new Map(),conversationId:'chat_test',conversation:null,busy:false,aiMode:'balanced'};
  const userMessage={id:'u',role:'user',content:'question'},assistantMessage={id:'a',role:'assistant',content:'saved answer'};
- const context={model,uuid:()=> 'test',id:k=>{if(!elements.has(k))elements.set(k,elem());return elements.get(k)},sessionStorage:{removeItem(){}},
+ const context={model,durableService:true,uuid:()=> 'test',id:k=>{if(!elements.has(k))elements.set(k,elem());return elements.get(k)},sessionStorage:{removeItem(){}},
  request:async p=>p==='/api/customer/chat/send'?{userMessage,assistantMessage}:delayed,
  renderConversation:()=>renders.push(JSON.stringify(model.conversation)),renderSidebar(){},refresh:async()=>{},setConnected(){},renderAccount(){},notify(){},isDeepSeek:()=>true};
  vm.createContext(context);vm.runInContext(section('  async function submitCanaryModelMessage','  async function submitMessage'),context);

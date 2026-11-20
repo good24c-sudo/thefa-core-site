@@ -64,7 +64,8 @@ export class TenantStateStore extends SupabaseStateStore {
       const out=await fn(draft);
       const result=await this.rest.rpc('core_console_save_state_v3',{
         p_workspace:this.workspaceId,p_owner:this.owner,p_expected_version:version,p_state:draft});
-      this.version=safeVersion(result?.version);this.state=draft;this.onChange?.();
+      if(!Number.isSafeInteger(result?.version)||result.version!==version+1)throw failure(503,'TENANT_SAVE_ACK_UNVERIFIED_NO_REPLAY');
+      this.version=result.version;this.state=draft;this.onChange?.();
       return clone(out);
     });
     this.queue=task.catch(()=>{});
@@ -118,3 +119,4 @@ export function createTenantCloudPersistence({email,tenantKey,url,serviceRoleKey
   const store=new TenantStateStore(transport,{workspaceId,owner});
   return {store,artifactStorage:new TenantArtifactStorage(transport,store)};
 }
+

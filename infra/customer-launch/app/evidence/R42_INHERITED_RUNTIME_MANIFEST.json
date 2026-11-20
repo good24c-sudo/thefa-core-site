@@ -15,11 +15,11 @@
     },
     {
       "path": "customer-api-gateway.mjs",
-      "sha256": "6922cd80c549747c8581497fe00e6396662484935b59494fd20dc101f10b50bc"
+      "sha256": "c9a8496b52e4ad3eb5c2285d680b4cf880c442d0a2188002c31ff2dcd062421a"
     },
     {
       "path": "customer-application.mjs",
-      "sha256": "804b01938f60e4e8337fe6942fd45f784ed8dc68f22e3ae392ad1361437b19fd"
+      "sha256": "5560dd0d65dd5fdf0d9235a19cc3ae6af61e73832cd1c6f56cb7f0b9cf7cb74e"
     },
     {
       "path": "customer-auth-routes.mjs",
@@ -35,7 +35,7 @@
     },
     {
       "path": "customer-chat-turn.mjs",
-      "sha256": "c0ae27389f3d35c22959f4142998dea627ddccf755f60846521d4a0c8fb02a28"
+      "sha256": "14c285d3b601ecdddd12dd30f28b161c7dde2bc2a243f08edecee597ed39007e"
     },
     {
       "path": "customer-deepseek-provider.mjs",
@@ -59,7 +59,7 @@
     },
     {
       "path": "customer-runtime-composition.mjs",
-      "sha256": "d2f198c261bd8fe089e678189aa4d4c145e8d36e1a85c130a1af6def4b84057e"
+      "sha256": "1ce263e43f1630795e389329aeb68c4529d36e8a93dbda93f8f8ca40a3781204"
     },
     {
       "path": "customer-session-verifier.mjs",
@@ -67,15 +67,15 @@
     },
     {
       "path": "customer-tenant-storage.mjs",
-      "sha256": "aab296eb9b3af4750a304bd21b110733c4a7e1e3b81769748a6a54bdbb2be203"
+      "sha256": "20874c585fd566a17f5b147828231804d673b75f6cad6b89b5f6d35f2182a28e"
     },
     {
       "path": "daily-ai-budget.mjs",
-      "sha256": "ec40483401521540b5a50a5cc91304716cc3ec70eebcd9fbff245e4e1c69371c"
+      "sha256": "83a0354b83b6fa0a4b15926e3c8a7e026236b9bb6f4a09d58c37d11355c6b94a"
     },
     {
       "path": "free10-budget-admission.mjs",
-      "sha256": "1642761fda54d7a871c3cda1b55c5f73ed8d7bafef77415a90173342ac8b74bc"
+      "sha256": "175689ff412f3b7311744561272e5444cd5ce636c2c4c3427feb989c77a98f36"
     },
     {
       "path": "server/auth/configuration.mjs",
@@ -104,6 +104,10 @@
     {
       "path": "store.mjs",
       "sha256": "aadf1c124183c05c1fd4f2601587b2ebc5975ce7a98165adcef38ad215ea825b"
+    },
+    {
+      "path": "customer-credit-wallet.mjs",
+      "sha256": "72ce7884684381f9a7c030d62590e55f95a0d9ebe0142ba8f7d351f9404d6c24"
     }
   ],
   "count": 26

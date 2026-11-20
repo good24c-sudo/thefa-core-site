@@ -3,7 +3,7 @@
  const $=s=>document.querySelector(s),el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
  const num=n=>n==null?'확인 필요':Number(n).toLocaleString('ko-KR',{maximumFractionDigits:0});
  const won=n=>n==null?'확인 필요':Number(n).toLocaleString('ko-KR',{style:'currency',currency:'KRW',maximumFractionDigits:n<100?2:0});
- const label=(id,text)=>{$('#'+id).textContent=text;};let snapshot=null;
+ const label=(id,text)=>{$('#'+id).textContent=text;};let snapshot=null,pricingSnapshot=null,pricingBusy=false,pricingUncertain=false;
  const views={
   overview:{title:'운영 대시보드',menu:'대시보드',description:'회원과 AI 이용 현황, 원가와 요금제를 한곳에서 확인하세요.'},
   members:{title:'회원 현황',menu:'회원 현황',description:'더파코어를 이용한 회원과 고객 작업공간을 확인하세요.'},
@@ -48,15 +48,16 @@
   const grid=$('#provider-grid');grid.replaceChildren();for(const p of v.providers){const card=el('article',undefined,'provider-card');card.append(el('h3',p.name),el('p',p.modelId,'provider-description'),el('p','고객 업무 모드: '+p.mode),el('span',p.observedRequests?'사용 기록 '+num(p.observedRequests)+'건':'첫 사용 기록 대기','status-label'));grid.append(card);}
   const body=$('#usage-body');body.replaceChildren();for(const p of v.providers){const u=c.byProvider.find(x=>x.provider===p.id);const tr=el('tr');[p.name,num(u?.requests??0),u?.gaps?'확인 필요':num(u?.inputTokens??0),u?.gaps?'확인 필요':num(u?.outputTokens??0),u?.gaps?'일부 확인 필요':won((u?.estimatedKrwMicros??0)/1e6)].forEach(x=>tr.append(el('td',x)));body.append(tr);}
   chart(c.byDay);
-  const plans=$('#plan-grid');plans.replaceChildren();for(const p of v.pricing.plans){const a=el('article',undefined,'panel plan-panel');a.append(el('p',p.name,'plan-label'),el('strong',p.priceGrossKrw===null?'별도 문의':won(p.priceGrossKrw)+(p.billingPeriod==='month'?' / 월':'')),el('p',p.credits===null?'5인 이상 · 도입 범위 협의':num(p.credits)+' 크레딧'+(p.billingPeriod==='month'?' / 월':' · 최초 제공')),el('span',p.id==='FREE'?'무료 이용 가능':p.id==='ENTERPRISE'?'thefa@thefa.kr':'가격 적용 · 결제 준비 중','plan-state'));plans.append(a);}
+  const plans=$('#plan-grid');plans.replaceChildren();for(const p of v.pricing.plans){const a=el('article',undefined,'panel plan-panel');a.append(el('p',p.name,'plan-label'),el('strong',p.priceGrossKrw===null?'별도 문의':won(p.priceGrossKrw)+(p.billingPeriod==='month'?' / 월':'')),el('p',p.id==='FREE'?'무료 체험 '+num(p.freeTrialAnswers)+'회':p.credits===null?'5인 이상 · 도입 범위 협의':num(p.credits)+' 크레딧 = '+num(p.credits)+'원 / 월'),el('span',p.id==='FREE'?'무료 이용 가능':p.id==='ENTERPRISE'?'thefa@thefa.kr':'가격 적용 · 결제 준비 중','plan-state'));plans.append(a);}
   const select=$('#estimate-model'),selected=select.value;select.replaceChildren();for(const p of v.providers){const o=el('option',p.name+' · '+p.modelId);o.value=p.modelId;select.append(o);}if(selected)select.value=selected;calculate();
  }
  function calculate(){
   if(!snapshot)return;const f=$('#estimate-form');if(!f.checkValidity()){label('estimate-profit','입력값 확인');return;}
   const n=id=>Number($('#estimate-'+id).value),p=snapshot.pricing.plans.find(x=>x.id===$('#estimate-plan').value),r=snapshot.modelPrices.find(x=>x.id===$('#estimate-model').value);if(!p||!r)return;
-  const count=n('members'),answers=count*p.credits*n('use')/100,cache=n('cache')/100;
+  const count=n('members'),usedCredits=count*p.credits*n('use')/100,cache=n('cache')/100;
   const inputRate=Math.max(r.inputUsdPerToken,r.cacheWriteShortUsdPerToken,r.cacheWriteLongUsdPerToken);
   const unit=(n('input')*((1-cache)*inputRate+cache*r.cacheReadUsdPerToken)+n('output')*r.outputUsdPerToken)*n('fx');
+  const policy=snapshot.pricing.pricingPolicy;const retailUnit=Math.max(policy.minimumChargeCredits,Math.ceil(unit*policy.markupBps/10000)),answers=usedCredits/retailUnit;
   const gross=count*p.priceGrossKrw,net=gross/1.1,ai=answers*unit,fee=gross*n('pg')/100*1.1,fixed=n('infra')+n('support')+n('other'),profit=net-ai-fee-fixed,margin=net?profit/net*100:0;
   label('estimate-profit',won(profit));label('estimate-margin','공헌이익률 '+margin.toFixed(1)+'% · '+(margin>=40?'목표 40% 이상':'목표 40% 미만'));label('estimate-net',won(net));label('estimate-ai',won(ai));label('estimate-fee',won(fee));label('estimate-fixed',won(fixed));label('estimate-answers',num(answers)+'회');label('estimate-unit',won(unit));
  }
@@ -74,6 +75,37 @@
   }
   finally{button.disabled=false;}
  }
+ function pricingControls(){
+  const disabled=pricingBusy||pricingUncertain||!pricingSnapshot;
+  ['markup','minimum','fx','standard','pro'].forEach(k=>$('#pricing-'+k).disabled=disabled);
+  $('#pricing-save').disabled=disabled;$('#pricing-reload').disabled=pricingBusy;
+ }
+ function pricingExample(){const value=Math.max(Number($('#pricing-minimum').value),Math.ceil(500*Number($('#pricing-markup').value)));label('pricing-example',num(value)+' 크레딧 = '+num(value)+'원');}
+ async function loadPricing(){
+  if(pricingBusy)return;pricingBusy=true;pricingControls();label('pricing-status','현재 저장된 정책을 확인하고 있습니다.');
+  try{const r=await fetch('/api/pricing-policy',{credentials:'same-origin',cache:'no-store',redirect:'error',signal:AbortSignal.timeout(15000)});if(r.status===401){location.assign('/login.html?reason=session-expired');return;}if(!r.ok)throw Error();const data=await r.json();
+   if(data.policy?.contract!=='THEFA_COST_BASED_CREDITS_V1'||!Array.isArray(data.history))throw Error();pricingSnapshot=data.policy;pricingUncertain=false;
+   const p=data.policy;$('#pricing-markup').value=p.markupBps/10000;$('#pricing-minimum').value=p.minimumChargeCredits;$('#pricing-fx').value=p.fxKrwPerUsd;$('#pricing-standard').value=p.standardMonthlyCredits;$('#pricing-pro').value=p.proMonthlyCredits;
+   label('pricing-revision','정책 '+p.revision);pricingExample();const history=$('#pricing-history');history.replaceChildren();
+   if(!data.history.length)history.append(el('li','기본 정책 · 원가 2배 · 1크레딧 = 1원. 저장된 변경 이력이 없습니다.'));
+   for(const entry of data.history.slice(0,20)){const p=entry.policy;history.append(el('li',new Date(p.effectiveAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})+' · 정책 '+p.revision+' · 원가 '+(p.markupBps/10000)+'배 · 환율 '+num(p.fxKrwPerUsd)+'원 · 최소 '+num(p.minimumChargeCredits)+'크레딧'));}
+   label('pricing-status','현재 정책을 확인했습니다. 저장하면 이후 시작하는 요청에 적용됩니다.');
+  }catch{pricingSnapshot=null;label('pricing-status','정책을 확인하지 못했습니다. 저장은 중단된 상태입니다. 현재 정책 확인을 눌러 주세요.');}
+  finally{pricingBusy=false;pricingControls();}
+ }
+ async function savePricing(event){
+  event.preventDefault();if(pricingBusy||pricingUncertain||!pricingSnapshot||!$('#pricing-form').reportValidity())return;
+  const config={markupBps:Math.round(Number($('#pricing-markup').value)*10000),minimumChargeCredits:Number($('#pricing-minimum').value),fxKrwPerUsd:Number($('#pricing-fx').value),standardMonthlyCredits:Number($('#pricing-standard').value),proMonthlyCredits:Number($('#pricing-pro').value)};
+  const requestId='pricing-'+crypto.randomUUID(),expectedVersion=pricingSnapshot.version;pricingBusy=true;pricingControls();label('pricing-status','정책을 저장하고 있습니다.');
+  try{const r=await fetch('/api/pricing-policy',{method:'POST',credentials:'same-origin',redirect:'error',headers:{'Content-Type':'application/json'},body:JSON.stringify({requestId,expectedVersion,config}),signal:AbortSignal.timeout(20000)});
+   if(r.status===401){location.assign('/login.html?reason=session-expired');return;}
+   const data=await r.json();if(!r.ok||data.policy?.contract!=='THEFA_COST_BASED_CREDITS_V1'||!data.savedPolicyVersion)throw Error();
+   pricingSnapshot=data.policy;label('pricing-status','정책 '+data.policy.revision+' 저장이 확인되었습니다. 이후 새 요청부터 적용됩니다.');label('pricing-revision','정책 '+data.policy.revision);refresh();
+   const entry=el('li',new Date(data.policy.effectiveAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})+' · 정책 '+data.policy.revision+' · 원가 '+(data.policy.markupBps/10000)+'배');$('#pricing-history').prepend(entry);
+  }catch{pricingUncertain=true;label('pricing-status','저장 결과를 확인하지 못했습니다. 중복 저장을 멈췄습니다. 현재 정책 확인에서 변경 이력을 확인해 주세요.');}
+  finally{pricingBusy=false;pricingControls();}
+ }
+ $('#pricing-form').addEventListener('submit',savePricing);$('#pricing-form').addEventListener('input',pricingExample);$('#pricing-reload').addEventListener('click',loadPricing);
  async function logout(){
   const button=$('#logout-button');button.disabled=true;button.textContent='로그아웃 중…';
   try{
@@ -87,5 +119,6 @@
  $('#menu-toggle').addEventListener('click',()=>menu(!$('#sidebar').classList.contains('is-open')));
  $('#sidebar-scrim').addEventListener('click',()=>menu(false));document.addEventListener('keydown',e=>{if(e.key==='Escape')menu(false);});
  document.querySelectorAll('.side-nav a').forEach(a=>a.addEventListener('click',()=>menu(false)));
- window.addEventListener('hashchange',()=>activateView(true));activateView();refresh();
+ window.addEventListener('hashchange',()=>activateView(true));activateView();refresh();loadPricing();
 })();
+

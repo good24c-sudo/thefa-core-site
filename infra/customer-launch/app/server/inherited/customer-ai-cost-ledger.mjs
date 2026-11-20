@@ -193,7 +193,7 @@ export function preflightBoundTenantCostCapacity({store,session,tenantKey}={}) {
   providerNotInvoked:true});
 }
 
-export function createBoundP1BCostWriter({store,session,tenantKey,clock=()=>new Date()}={}) {
+export function createBoundP1BCostWriter({store,session,tenantKey,clock=()=>new Date(),settleBilling=null}={}) {
  const identity=validIdentity({store,session,tenantKey});
  if(typeof clock!=='function')throw code('P1B_CLOCK_INVALID',503);
  async function commit({requestId,userMessageId,result}={}) {
@@ -201,10 +201,11 @@ export function createBoundP1BCostWriter({store,session,tenantKey,clock=()=>new 
   if(!(at instanceof Date)||!Number.isFinite(at.valueOf()))
    throw code('P1B_CLOCK_INVALID',503);
   try{
-   return await store.mutate(state=>commitChatWithCostEvidence(state,{
-    principalId:identity.principalId,requestId,userMessageId,result,
-    observedAt:at.toISOString()
-   }));
+   return await store.mutate(state=>{
+    const saved=commitChatWithCostEvidence(state,{principalId:identity.principalId,requestId,userMessageId,result,observedAt:at.toISOString()});
+    const billing=settleBilling?settleBilling(state,{requestId,costRecord:saved.costRecord,assistantMessage:saved.assistantMessage}):null;
+    return {...saved,...(billing?{billing}:{})};
+   });
   }catch(e){
    const known=e?.code&&/^(P1B_|CHAT_|MODEL_)/.test(e.code);
    if(known)throw e;
@@ -265,3 +266,4 @@ export function recordProviderOutcome(state,{principalId,requestId,modelId,meter
 }
 
 export {summarizeCustomerCostRecords} from './customer-cost-summary.mjs';
+
