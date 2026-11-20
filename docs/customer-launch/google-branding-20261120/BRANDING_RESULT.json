@@ -1,0 +1,93 @@
+{
+  "schema": "THEFA_GOOGLE_BRANDING_RESULT_V1",
+  "status": "BRAND_METADATA_SAVED_PUBLIC_DISPLAY_NOT_CHANGED",
+  "observed_at": "2026-11-20T06:41:19.580Z",
+  "project_key": "P02",
+  "google_project": "sangme",
+  "google_client_id": "817682012223-r3dsftua7ee3tdoh702fk5a1hkpg9vd9.apps.googleusercontent.com",
+  "client_internal_name": "단골리턴 Web Login",
+  "before": {
+    "project": "sangme",
+    "clientId": "817682012223-r3dsftua7ee3tdoh702fk5a1hkpg9vd9.apps.googleusercontent.com",
+    "appName": "단골리턴",
+    "homepage": "",
+    "privacyPolicy": "",
+    "terms": "",
+    "authorizedDomains": [
+      "the-fa-staging-runtime-v8.vercel.app",
+      "furfjhymxqsbhvuyeqpx.supabase.co",
+      "cgrppxfdurpzzfvkmfte.supabase.co"
+    ]
+  },
+  "after": {
+    "appName": "THE FA Core (더파코어)",
+    "homepage": "https://thefacore.com/about",
+    "authorizedDomains": [
+      "the-fa-staging-runtime-v8.vercel.app",
+      "furfjhymxqsbhvuyeqpx.supabase.co",
+      "cgrppxfdurpzzfvkmfte.supabase.co",
+      "thefacore.com"
+    ],
+    "privacyPolicy": "",
+    "terms": ""
+  },
+  "save_confirmation": "브랜딩 변경사항이 저장되었습니다.",
+  "reload_verified": true,
+  "live_verification": {
+    "savedAppName": "THE FA Core (더파코어)",
+    "savedHomepage": "https://thefacore.com/about",
+    "savedCoreDomain": "thefacore.com",
+    "loginReturnedTo": "https://thefacore.com/",
+    "workspaceConnected": true,
+    "googleChooserDisplay": "cgrppxfdurpzzfvkmfte.supabase.co",
+    "publicDisplayChanged": false,
+    "brandVerificationSubmitted": false,
+    "audience": "Testing",
+    "publishAppEnabled": false,
+    "observedAt": "2026-11-20T06:41:19.580Z"
+  },
+  "production_deployment_unchanged": "dpl_HmHyj1t82zoaPWWz29KktwdqXFck",
+  "modifications": {
+    "branding_metadata": true,
+    "client_secret": false,
+    "client_callback": false,
+    "provider_scopes": false,
+    "supabase_site_url": false,
+    "production_code": false,
+    "billing": false,
+    "dns": false,
+    "core_writer_or_fence": false
+  },
+  "external_blocker": {
+    "audience": "Testing",
+    "publish_button_enabled": false,
+    "publish_disabled_reason": "Complete configuration on Branding page",
+    "brand_verification_submitted": false,
+    "brand_publish_completed": false
+  },
+  "privacy_readiness": {
+    "existing_policy": "https://thefa.kr/privacy.html",
+    "existing_policy_http_status": 200,
+    "existing_policy_scope": "Corporate homepage inquiries; explicitly excludes member signup",
+    "core_homepage": "https://thefacore.com/about",
+    "core_homepage_http_status": 200,
+    "core_homepage_has_privacy_link": false,
+    "core_specific_policy_found": false,
+    "scope_of_search": "Current repo/app/docs, public pages and their linked policies, bounded GitHub default-branch search in core-site and THE_FA_PRODUCTION",
+    "draft_prepared": true,
+    "published": false
+  },
+  "open_decisions": [
+    "Account and conversation retention policy",
+    "Actual deletion/withdrawal support procedure and deadline",
+    "Processor/overseas-transfer contract and retention details"
+  ],
+  "verification_constraints": [
+    "A saved Google brand is not a published/verified customer display",
+    "No fake policy URLs entered",
+    "No claim that public Google display has changed",
+    "Configured app name is project-wide and affects the existing shared client"
+  ],
+  "core_policy_revision": 62,
+  "evidence_semantics": "Scoped Google UI settings record and real login observation; not a Core writer transfer or external verification approval"
+}

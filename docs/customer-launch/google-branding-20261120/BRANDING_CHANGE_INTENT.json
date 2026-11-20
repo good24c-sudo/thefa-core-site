@@ -1,0 +1,32 @@
+{
+  "schema": "THEFA_GOOGLE_BRANDING_SCOPED_CHANGE_V1",
+  "phase": "PREPARED",
+  "user_instruction": "그리고 이 부분도 개선 해야지 더파코어로 이동 하게 해야지",
+  "before": {
+    "project": "sangme",
+    "clientId": "817682012223-r3dsftua7ee3tdoh702fk5a1hkpg9vd9.apps.googleusercontent.com",
+    "appName": "단골리턴",
+    "homepage": "",
+    "privacyPolicy": "",
+    "terms": "",
+    "authorizedDomains": [
+      "the-fa-staging-runtime-v8.vercel.app",
+      "furfjhymxqsbhvuyeqpx.supabase.co",
+      "cgrppxfdurpzzfvkmfte.supabase.co"
+    ]
+  },
+  "proposed": {
+    "appName": "THE FA Core (더파코어)",
+    "homepage": "https://thefacore.com/about",
+    "additionalAuthorizedDomain": "thefacore.com"
+  },
+  "scope": "App branding metadata only; existing client secret, callbacks, scopes, Supabase endpoint and customer IDs retained",
+  "production_deployment": "dpl_HmHyj1t82zoaPWWz29KktwdqXFck",
+  "core_policy_revision": 62,
+  "sole_mutation_actor": "current P02 root via authenticated Google Cloud UI",
+  "blocking_verification_prerequisites": [
+    "Core-specific privacy policy and terms not yet identified",
+    "Google brand verification and publish not yet completed"
+  ],
+  "client_linkage_verified": true
+}
