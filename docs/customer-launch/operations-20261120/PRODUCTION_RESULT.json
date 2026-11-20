@@ -1,0 +1,80 @@
+{
+  "contract": "P02_CUSTOMER_OPERATIONS_PRODUCTION_RESULT_V1",
+  "status": "DEPLOYED_AUTHENTICATED_LIVE_QA_PENDING",
+  "project": "P02",
+  "codeHead": "d97591cb80f7cc36cc216bcc958c24395edeb81e",
+  "qa": {
+    "localPassed": 68,
+    "localFailed": 0,
+    "jsonbRoundTrip": true,
+    "sharedFree10": true,
+    "providerResponses": "SYNTHETIC",
+    "actualProviderCallsThisTurn": 0
+  },
+  "customer": {
+    "domain": "thefacore.com",
+    "deployment": {
+      "id": "dpl_3GDRJesH8QdT9yGouGTdfg3gu7pz",
+      "url": "thefa-core-customer-a1q18d0sj-thefa.vercel.app"
+    }
+  },
+  "console": {
+    "domain": "app.thefacore.com",
+    "deployment": {
+      "id": "dpl_4VdNoZeMPJeoGFiteUSTC3TjQua8",
+      "url": "thefa-core-console-1l4ty3dde-thefa.vercel.app"
+    }
+  },
+  "admission": {
+    "policy": "THE_FA_VERCEL_DEPLOY_ADMISSION_V1",
+    "decision": "ALLOW_ONCE_PER_PROJECT",
+    "newBuildsCustomer": 1,
+    "newBuildsConsole": 1,
+    "scope": "Current user requested customer and existing administrator service changes"
+  },
+  "runtime": {
+    "publicPlansHttp": 200,
+    "supportEmail": "thefa@thefa.kr",
+    "standardPriceGrossKrw": 19000,
+    "standardCredits": 500,
+    "proPriceGrossKrw": 49000,
+    "proCredits": 1800,
+    "vatIncluded": true,
+    "paymentReady": false,
+    "anonymousAiModesHttp": 401,
+    "anonymousAdminAggregateHttp": 401,
+    "anonymousAdminScriptHttp": 401,
+    "anonymousAdminStylesHttp": 401,
+    "contactHttp": 200,
+    "authProvidersHttp": 200,
+    "plansBrowserVerified": true
+  },
+  "membershipRead": {
+    "at": "2026-11-20T07:36:44.766735+00:00",
+    "customerWorkspaces": 1,
+    "verifiedCoreMembershipMarkers": 0,
+    "costLedgerWorkspaces": 0,
+    "historicalAuthUsersNotUsedAsProductMemberCount": true
+  },
+  "limits": [
+    "No fresh authenticated customer or admin session in available browser",
+    "New membership markers appear after a verified customer workspace visit",
+    "New usage ledger is populated by actual AI calls after deployment",
+    "Paid subscription and PortOne remain unconnected",
+    "256 cost records per workspace requires paid-scale archival before paid activation",
+    "Google branding public display final verification remains pending"
+  ],
+  "protected": {
+    "coreWriterChanged": false,
+    "coreFenceChanged": false,
+    "mainMerged": false,
+    "secretValuesRead": false,
+    "apiKeysChanged": false,
+    "dnsChanged": false,
+    "aclChanged": false
+  },
+  "rollback": {
+    "customer": "dpl_HmHyj1t82zoaPWWz29KktwdqXFck",
+    "console": "dpl_A8DHqgNnTEfjFq1fS1YTvEfKd1ZW"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "contract": "P02_CUSTOMER_OPERATIONS_APPLY_INTENT_V1",
+  "authorization": "Current representative instruction to apply contact, dashboard, agreed pricing and multiple AI providers to the existing service",
+  "project": "P02",
+  "branch": "candidate/p02-customer-operations-20261120",
+  "codeHead": "d97591cb80f7cc36cc216bcc958c24395edeb81e",
+  "qaPassed": 68,
+  "coreRevision": 62,
+  "coreWriterChanged": false,
+  "mainChanged": false,
+  "apiKeysReadOrChanged": false,
+  "billingOrAclChanged": false,
+  "targets": [
+    {
+      "projectId": "prj_FEJ9dUhjDAYspZsfcDjKwp4euMFo",
+      "domain": "thefacore.com",
+      "rollbackDeployment": "dpl_HmHyj1t82zoaPWWz29KktwdqXFck",
+      "sourceDigest": "78c0fc4b2d021f260380ebfc6a0eee97f445c77e091b947c75a01d7a4c4d6dbb"
+    },
+    {
+      "projectId": "prj_D76yqyl7E0YXtpEfmQjW0WYA6gjA",
+      "domain": "app.thefacore.com",
+      "rollbackDeployment": "dpl_A8DHqgNnTEfjFq1fS1YTvEfKd1ZW",
+      "sourceDigest": "1b2a7e75599ca310fc2d896e631b27c0be532caa3f9afed9af273b089165d8c6"
+    }
+  ],
+  "buildPolicy": "One on-demand production build per project, code SHA and purpose; no blind retry",
+  "note": "Service deployment receipt only, not a Core writer transfer or WorkUnit completion."
+}
