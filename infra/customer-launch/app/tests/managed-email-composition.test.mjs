@@ -3,6 +3,15 @@ import {readCustomerServerConfiguration,createCustomerServerFromEnvironment} fro
 const base=()=>({NODEJS_HELPERS:'0',VERCEL:'1',CUSTOMER_ENVIRONMENT:'production',CUSTOMER_ORIGIN:'https://thefacore.com',CUSTOMER_SUPABASE_URL:'https://cgrppxfdurpzzfvkmfte.supabase.co',CUSTOMER_SERVICE_ROLE_KEY:'synthetic-service-only-test',CUSTOMER_TENANT_KEY:'synthetic-stable-tenant-key-at-least-32',CUSTOMER_ACCOUNT_SECRET_BASE64:Buffer.alloc(32,11).toString('base64'),CUSTOMER_ALLOWANCE_SECRET_BASE64:Buffer.alloc(32,12).toString('base64'),CUSTOMER_BUDGET_SECRET_BASE64:Buffer.alloc(32,13).toString('base64'),CUSTOMER_DEEPSEEK_API_KEY:'sk-synthetic-test-only-api-key',CUSTOMER_REDIRECTS_READY:'true',CUSTOMER_ACCOUNT_MODE:'fresh-launch',CUSTOMER_USAGE_EPOCH:'new-customer-20261117',CUSTOMER_LAUNCH_STARTED_AT:new Date(Date.now()-60000).toISOString(),CUSTOMER_AUTH_ENGINE:'managed-email-v1',CUSTOMER_AUTH_SECRET:'synthetic-private-server-session-key-32',CUSTOMER_SUPABASE_PUBLISHABLE_KEY:'sb_publishable_synthetic_12345678901234567890'});
 test('managed fresh mode does not depend on missing legacy inventory/Google callback/BetterAuth DB',()=>{const s=readCustomerServerConfiguration(base());assert.equal(s.authEngine,'managed-email-v1');assert.equal(s.verificationKey,null);assert.equal(s.connectionString,null);assert.equal(s.google,undefined);});
 test('managed engine is never silently enabled for a legacy preservation mode',()=>assert.throws(()=>readCustomerServerConfiguration({...base(),CUSTOMER_ACCOUNT_MODE:'legacy-preserved'}),/CUSTOMER_SERVER_CONFIGURATION_INVALID/));
+test('custom Google configuration is explicit, bounded and needs no additional client secret',()=>{
+ const s=readCustomerServerConfiguration({...base(),CUSTOMER_GOOGLE_AUTH_PROVIDER:'custom:google'});assert.equal(s.googleProvider,'custom:google');assert.equal(s.google,undefined);
+ for(const value of ['google','custom:naver','','custom:google '])assert.throws(()=>readCustomerServerConfiguration({...base(),CUSTOMER_GOOGLE_AUTH_PROVIDER:value}),/CUSTOMER_SERVER_CONFIGURATION_INVALID/);
+});
+test('configured Google reaches the managed composition catalog',async()=>{
+ const server=await createCustomerServerFromEnvironment({env:{...base(),CUSTOMER_GOOGLE_AUTH_PROVIDER:'custom:google'},fetchImpl:async()=>{throw Error('NO_UPSTREAM_CALL_EXPECTED')}});
+ const r=await server.application(new Request('https://thefacore.com/api/auth/providers',{headers:{host:'thefacore.com'}}));
+ assert.equal((await r.json()).providers[0].enabled,true);await server.close();
+});
 test('managed fresh composition serves auth catalog and rejects anonymous workspace without 503',async()=>{
  const server=await createCustomerServerFromEnvironment({env:base(),fetchImpl:async()=>{throw Error('ANONYMOUS_READ_MUST_NOT_CALL_PROVIDER')}});
  const headers={host:'thefacore.com'};

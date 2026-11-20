@@ -16,8 +16,14 @@
 
   function verifiedCatalog(data){
     if(data?.email?.method==='password-confirmed'){
-      if(!['https://cgrppxfdurpzzfvkmfte.supabase.co/auth/v1','https://furfjhymxqsbhvuyeqpx.supabase.co/auth/v1'].includes(data.issuer)||data.accountMode!=='fresh-launch'||!Array.isArray(data.providers)||data.providers.length!==2||data.providers.some(p=>!['google','kakao'].includes(p.id)||p.enabled!==false))throw Error('INVALID_MANAGED_CATALOG');
-      return {google:{enabled:false},kakao:{enabled:false}};
+      if(!['https://cgrppxfdurpzzfvkmfte.supabase.co/auth/v1','https://furfjhymxqsbhvuyeqpx.supabase.co/auth/v1'].includes(data.issuer)||data.accountMode!=='fresh-launch'||!Array.isArray(data.providers)||data.providers.length!==2)throw Error('INVALID_MANAGED_CATALOG');
+      const result=Object.create(null);
+      for(const p of data.providers){
+        if(!['google','kakao'].includes(p?.id)||Object.hasOwn(result,p.id)||typeof p.enabled!=='boolean'||p.id==='kakao'&&p.enabled)throw Error('INVALID_MANAGED_CATALOG');
+        if(p.enabled&&(p.flow!=='supabase-pkce'||p.provider!=='custom:google'||p.callback!==location.origin+'/auth/google/callback'))throw Error('INVALID_MANAGED_CATALOG');
+        result[p.id]={enabled:p.enabled,flow:p.flow,provider:p.provider,callback:p.callback,issuer:data.issuer};
+      }
+      return result;
     }
     if(typeof data?.issuer!=='string'||!/^https:\/\/[a-z0-9]+\.supabase\.co\/functions\/v1\/core-customer-auth$/.test(data.issuer)||
       !Array.isArray(data.providers)||data.providers.length!==2)throw Error('INVALID_PROVIDER_CATALOG');
@@ -100,8 +106,15 @@
       }
       status.textContent=managedEmail?(signingUp?'이메일로 THE FA Core 계정을 만드세요.':'이메일로 THE FA Core에 로그인하세요.'):enabled?'원하는 계정으로 간편하게 시작하세요.':'간편 로그인을 준비하고 있습니다. 작업공간을 먼저 둘러보세요.';
       if(managedEmail){document.getElementById('auth-method-note').textContent=signingUp?'비밀번호는 12자 이상입니다. 확인 메일을 통해 이메일 소유권을 검증합니다.':'비밀번호는 인증 서버에서 검증하며 이 브라우저에 저장하지 않습니다.';document.querySelector('.intro').textContent=signingUp?'이메일 확인 후 가입한 계정으로 작업공간을 사용할 수 있습니다.':'가입한 이메일과 비밀번호를 입력해 주세요.';if(emailVerificationReturn)emailStatus.textContent='이메일 확인 링크를 열었습니다. 확인이 완료됐다면 비밀번호로 로그인해 주세요.';}
+      if(managedEmail&&catalog.google.enabled){
+        status.textContent='Google 계정으로 가입과 로그인을 한 번에 진행하세요.';
+        document.querySelector('.intro').textContent='Google 계정을 선택하면 바로 시작할 수 있습니다. 별도 비밀번호나 이메일 인증은 필요하지 않습니다.';
+        document.getElementById('auth-method-note').textContent=signingUp?'Google 가입에는 확인 메일이 필요하지 않습니다. 아래 이메일 가입을 선택한 경우에만 확인 메일을 보냅니다.':'Google 계정으로 간편하게 로그인하거나, 기존 이메일과 비밀번호를 이용하세요.';
+      }
 
       if(location.hash==='#login-failed'){status.textContent='로그인이 취소됐거나 완료되지 않았습니다. 다시 시도해 주세요.';status.classList.add('error');}
+      const googleErrors={'#google-cancelled':'Google 로그인을 취소했습니다. 원하실 때 다시 시작하세요.','#google-expired':'로그인 요청이 만료됐거나 다른 브라우저에서 열렸습니다. Google로 계속하기를 다시 눌러 주세요.','#google-busy':'로그인 요청이 많습니다. 잠시 후 다시 시도해 주세요.','#google-unavailable':'Google 로그인 연결을 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.','#google-failed':'Google 로그인을 완료하지 못했습니다. Google로 계속하기를 다시 눌러 주세요.'};
+      if(Object.hasOwn(googleErrors,location.hash)){status.textContent=googleErrors[location.hash];status.classList.add('error');history.replaceState(null,'',location.pathname);}
     }catch{syncEmail(false);catalog=null;buttons.forEach(button=>{button.disabled=true;button.hidden=true;});status.textContent='기존 로그인 서버와 연결하지 못했습니다. 통합 계정 연결을 확인합니다.';status.classList.add('error');}
     finally{group.setAttribute('aria-busy','false');}
   }
@@ -115,7 +128,12 @@
       const direct=provider==='google'&&target.origin==='https://accounts.google.com'&&target.pathname==='/o/oauth2/v2/auth'&&
         target.searchParams.get('redirect_uri')===catalog[provider].callback&&
         ['redirect_uri','client_id','state'].every(k=>target.searchParams.getAll(k).length===1&&target.searchParams.get(k));
-      if(target.protocol!=='https:'||target.username||target.password||target.hash||!direct)throw Error('UNEXPECTED_LOGIN_DESTINATION');
+      const managed=managedEmail&&provider==='google'&&catalog.google.flow==='supabase-pkce'&&target.origin+target.pathname===catalog.google.issuer+'/authorize'&&
+        target.searchParams.get('provider')==='custom:google'&&target.searchParams.get('redirect_to')===catalog.google.callback&&
+        target.searchParams.get('code_challenge_method')==='s256'&&/^[A-Za-z0-9_-]{43}$/.test(target.searchParams.get('code_challenge')||'')&&
+        target.searchParams.get('scopes')==='openid email profile'&&target.searchParams.get('prompt')==='select_account'&&
+        [...target.searchParams.keys()].length===6&&['provider','redirect_to','code_challenge','code_challenge_method','scopes','prompt'].every(k=>target.searchParams.getAll(k).length===1);
+      if(target.protocol!=='https:'||target.username||target.password||target.hash||!(managedEmail?managed:direct))throw Error('UNEXPECTED_LOGIN_DESTINATION');
       location.assign(target.href);
     }catch{busy=false;await init();status.textContent='로그인을 시작하지 못했습니다. 연결 상태를 확인한 뒤 다시 시도해 주세요.';status.classList.add('error');}
   });

@@ -38,6 +38,8 @@ export function readCustomerServerConfiguration(env=process.env){
   if(env.CUSTOMER_REDIRECTS_READY!=='true')invalid();
   const accountMode=env.CUSTOMER_ACCOUNT_MODE??'legacy-preserved';if(!['legacy-preserved','fresh-launch'].includes(accountMode))invalid();
   const authEngine=env.CUSTOMER_AUTH_ENGINE??'better-auth';if(!['better-auth','managed-email-v1'].includes(authEngine)||authEngine==='managed-email-v1'&&accountMode!=='fresh-launch')invalid();
+  const googleProvider=env.CUSTOMER_GOOGLE_AUTH_PROVIDER??null;
+  if(![null,'custom:google'].includes(googleProvider)||googleProvider!==null&&authEngine!=='managed-email-v1')invalid();
   let receiptDirectory=null,verificationKey=null,usageEpoch=null,launchStartedAt=null;
   if(accountMode==='fresh-launch'){
    usageEpoch=text(env,'CUSTOMER_USAGE_EPOCH',8,64);launchStartedAt=text(env,'CUSTOMER_LAUNCH_STARTED_AT',24,24);
@@ -50,7 +52,7 @@ export function readCustomerServerConfiguration(env=process.env){
   }
   const config={accountMode,usageEpoch,launchStartedAt,environment,customerOrigin,supabaseUrl,serviceRoleKey:text(env,'CUSTOMER_SERVICE_ROLE_KEY',16),tenantKey:text(env,'CUSTOMER_TENANT_KEY',32),accountSecret,allowanceSecret,budgetSecret,deepseekApiKey:text(env,'CUSTOMER_DEEPSEEK_API_KEY',16),redirectReady:true};
   return Object.freeze({config:Object.freeze(config),projectRef,issuer:supabaseUrl+'/functions/v1/core-customer-auth',receiptDirectory,verificationKey,
-   authEngine,publishableKey:authEngine==='managed-email-v1'?text(env,'CUSTOMER_SUPABASE_PUBLISHABLE_KEY',32):null,
+   authEngine,googleProvider,publishableKey:authEngine==='managed-email-v1'?text(env,'CUSTOMER_SUPABASE_PUBLISHABLE_KEY',32):null,
    connectionString:authEngine==='managed-email-v1'?null:text(env,'CUSTOMER_AUTH_DATABASE_URL',32),secret:text(env,'CUSTOMER_AUTH_SECRET',32),proxySecret:authEngine==='managed-email-v1'?null:text(env,'CUSTOMER_AUTH_PROXY_SECRET',32),
    google:authEngine==='managed-email-v1'?undefined:Object.freeze({clientId:text(env,'CUSTOMER_GOOGLE_CLIENT_ID'),clientSecret:text(env,'CUSTOMER_GOOGLE_CLIENT_SECRET')}),
    kakao:undefined});

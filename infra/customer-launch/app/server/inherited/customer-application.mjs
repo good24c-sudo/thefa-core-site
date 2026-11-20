@@ -1,7 +1,7 @@
 import {validateCustomerOrigin} from './customer-origin-policy.mjs';
 const failure=(status,code)=>Response.json({code},{status,headers:{
  'cache-control':'no-store','x-content-type-options':'nosniff','referrer-policy':'no-referrer'}});
-const authPaths=new Set(['/api/auth/providers','/api/auth/session','/auth/start','/auth/logout','/auth/complete','/auth/email/send','/auth/email/verify','/auth/email/signup','/auth/email/login','/auth/email/resend','/auth/email/recover','/auth/email/recovery/verify','/auth/email/reset']);
+const authPaths=new Set(['/api/auth/providers','/api/auth/session','/auth/start','/auth/google/callback','/auth/logout','/auth/complete','/auth/email/send','/auth/email/verify','/auth/email/signup','/auth/email/login','/auth/email/resend','/auth/email/recover','/auth/email/recovery/verify','/auth/email/reset']);
 const proxy=/^\/functions\/v1\/core-customer-auth\/callback\/(google|kakao)\/oauth-proxy$/;
 // Explicit composition only. Public serverless exports stay disabled until official admission.
 export function createCustomerApplication({runtime,authRoutes,originConfig={}}={}){
@@ -14,7 +14,7 @@ export function createCustomerApplication({runtime,authRoutes,originConfig={}}={
    const url=new URL(request.url);
    if(url.origin!==origin||request.headers.get('host')!==host)
     return failure(403,'CUSTOMER_APPLICATION_ORIGIN_INVALID');
-   if((url.search&&!proxy.test(url.pathname))||url.hash||url.pathname.includes('%')||url.pathname.includes('\\'))
+   if((url.search&&!proxy.test(url.pathname)&&url.pathname!=='/auth/google/callback')||url.hash||url.pathname.includes('%')||url.pathname.includes('\\'))
     return failure(404,'CUSTOMER_APPLICATION_ROUTE_NOT_FOUND');
    if(url.pathname.startsWith('/api/customer/'))return await runtime.handler(request);
    if(authPaths.has(url.pathname)||proxy.test(url.pathname))return await authRoutes(request);

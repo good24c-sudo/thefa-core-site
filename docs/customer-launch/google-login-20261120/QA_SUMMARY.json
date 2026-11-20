@@ -1,0 +1,53 @@
+{
+  "status": "ISOLATED_CODE_QA_PASS_NOT_LIVE",
+  "observed_at": "2026-11-20T13:46:55+09:00",
+  "base_git_head": "7651c09dc19aa2af996188f3935dde2d798ebae5",
+  "tests": {
+    "total": 262,
+    "passed": 262,
+    "failed": 0,
+    "skipped": 0,
+    "command": "npm test",
+    "node": "v24.22.3",
+    "duration_ms": 6586.925847
+  },
+  "qa_output_sha256": "c405fed03b3fc3c7d0643b5258073114b8fe0b74814698ab690eee67f76e3bd5",
+  "review": {
+    "reviewer": "independent read-only latest_customer_code agent",
+    "critical_high_found": 0,
+    "independent_fake_db_integration": "PASS",
+    "provider_calls": "mocked"
+  },
+  "browser_probe": {
+    "result": "GOOGLE_ACCOUNT_CHOOSER_REACHED",
+    "provider": "custom:google",
+    "scope": "openid email profile",
+    "upstream_callback": "https://cgrppxfdurpzzfvkmfte.supabase.co/auth/v1/callback",
+    "account_selected": false,
+    "secret_validity_proven": false,
+    "real_customer_session_proven": false
+  },
+  "remaining": [
+    "Official candidate Work Unit / final publish binding",
+    "Supabase exact Core callback allowlist entry",
+    "CUSTOMER_GOOGLE_AUTH_PROVIDER=custom:google for deployed runtime",
+    "Full real Google user callback/workspace/logout E2E",
+    "Non-owner Google account signup and OAuth audience/branding"
+  ],
+  "pc_candidate_tests": {
+    "passed": 21,
+    "failed": 0,
+    "skipped": 0,
+    "node": "v24.22.1",
+    "duration_ms": 667.5183,
+    "provider_calls": "mocked",
+    "initial_issue": "Declared npm dependencies absent in new candidate; npm ci --ignore-scripts installed lockfile-pinned dependencies; retest passed",
+    "production_calls": false
+  },
+  "candidate_preparation": {
+    "source_files_verified": 165,
+    "customer_ui_files_preserved": 68,
+    "candidate_files": 170,
+    "source_unchanged": true
+  }
+}

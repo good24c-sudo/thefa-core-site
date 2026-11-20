@@ -1,5 +1,5 @@
 import {createLazyCustomerNodeHandler} from '../server/bootstrap.mjs';
-const authPaths=new Set(['/api/auth/providers','/api/auth/session','/auth/start','/auth/logout','/auth/complete','/auth/email/send','/auth/email/verify','/auth/email/signup','/auth/email/login','/auth/email/resend','/auth/email/recover','/auth/email/recovery/verify','/auth/email/reset']);
+const authPaths=new Set(['/api/auth/providers','/api/auth/session','/auth/start','/auth/google/callback','/auth/logout','/auth/complete','/auth/email/send','/auth/email/verify','/auth/email/signup','/auth/email/login','/auth/email/resend','/auth/email/recover','/auth/email/recovery/verify','/auth/email/reset']);
 const allowed=path=>authPaths.has(path)||/^\/api\/customer\/[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*$/.test(path)||/^\/functions\/v1\/core-customer-auth\/callback\/(google|kakao)\/oauth-proxy$/.test(path);
 export function resolveCustomerDispatchUrl(raw){
  const invalid=()=>{throw Error('CUSTOMER_DISPATCH_ROUTE_INVALID')};
@@ -23,7 +23,7 @@ export default async function dispatch(req,res){
  if(u.search||!allowed(u.pathname))console.error(JSON.stringify({code:'CUSTOMER_DISPATCH_ROUTE_SHAPE',pathAllowed:allowed(u.pathname),dispatchPath:u.pathname==='/api/dispatch',queryKeys:keys.slice(0,12)}));
  // THE FA ID isolated staging-only backend. Original BetterAuth and its
  // authoritative production route remain unchanged, never implicitly bypassed.
- if(process.env.VERCEL_ENV==='preview'&&
+ if(process.env.CUSTOMER_AUTH_ENGINE!=='managed-email-v1'&&process.env.VERCEL_ENV==='preview'&&
     process.env.THEFA_CORE_OIDC_ISSUER==='https://furfjhymxqsbhvuyeqpx.supabase.co/auth/v1'){
    try{
     if(process.env.THEFA_CORE_STAGE_BRIDGE_ENABLED==='true'){

@@ -1,0 +1,31 @@
+{"code":"CUSTOMER_MODEL_TIMING","provider":"DEEPSEEK_API","model":"deepseek-flash","elapsedMs":0}
+{"code":"CUSTOMER_MODEL_TIMING","provider":"DEEPSEEK_API","model":"deepseek-flash","elapsedMs":0}
+??managed verified account creates durable customer workspace and re-login keeps usage (44.3353ms)
+??two managed accounts cannot read or modify each others conversation (3.0121ms)
+??managed logout clears service session and anonymous requests remain unauthorized (1.2162ms)
+??Google start through application callback opens workspace and preserves conversations and usage across login methods (9.0478ms)
+??Google customers remain isolated and logout removes workspace access (2.9813ms)
+??Google is opt-in and only the registered custom Google provider is accepted (15.7035ms)
+??Google start binds S256 PKCE to a private short-lived browser cookie and requests identity scopes only (1.6696ms)
+??Google start rejects cross-site, extra identity fields, wrong providers and GET before calling upstream (1.4314ms)
+??verified Google callback issues the existing customer session with no email verification calls (2.9623ms)
+??linked email and Google identities keep the same principal and workspace; a different UUID is isolated (2.4241ms)
+??missing, tampered, duplicated, expired and wrong-purpose cookies cannot exchange a Google code (1.8068ms)
+??callback rejects duplicate/unknown/unbounded query and wrong origin without leaking raw input (0.8853ms)
+??cancelled Google authorization clears the request and uses a safe internal error page (0.491ms)
+??replayed code and a code from a replaced browser flow cannot issue a session (1.1198ms)
+??Google identity must come from the verified server user, not user-editable profile claims (3.0058ms)
+??invalid/oversized token responses and upstream failures remain unauthenticated and sanitized (1.4361ms)
+??Google logout clears both browser cookies and revokes the current provider session (0.7152ms)
+??both real login-page clients show Google first with no separate email confirmation step (24.4436ms)
+??Google client rejects foreign issuers, legacy route, altered callbacks, broad scopes and duplicate parameters (8.3325ms)
+??invalid provider catalogs stay unavailable (2.4208ms)
+??Google callback failures are readable and removed from the browser URL (0.9601ms)
+??tests 21
+??suites 0
+??pass 21
+??fail 0
+??cancelled 0
+??skipped 0
+??todo 0
+??duration_ms 667.5183

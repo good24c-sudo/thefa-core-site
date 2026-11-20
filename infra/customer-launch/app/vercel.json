@@ -29,6 +29,10 @@
    "destination": "/api/dispatch?__customer_route=/auth/start"
   },
   {
+   "source": "/auth/google/callback",
+   "destination": "/api/dispatch?__customer_route=/auth/google/callback"
+  },
+  {
    "source": "/auth/logout",
    "destination": "/api/dispatch?__customer_route=/auth/logout"
   },

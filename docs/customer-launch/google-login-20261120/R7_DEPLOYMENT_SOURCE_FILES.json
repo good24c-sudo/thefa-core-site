@@ -1,0 +1,668 @@
+{
+  "deploymentId": "dpl_EspEhBB2qc1a4MmJrM9F4AiswbrM",
+  "sourceRoot": "D:\\THE_FA_DEV\\isolated\\P02_CUSTOMER_WORKSPACE_MODES_R7_20261119\\site",
+  "files": [
+    {
+      "path": ".vercelignore",
+      "sha1": "a2267859f96b4d8983f44bf6796c0bb2cd52cd2e"
+    },
+    {
+      "path": "api/dispatch.mjs",
+      "sha1": "b33c9b3119f79aa3f20b4fa0a278350bfb56e756"
+    },
+    {
+      "path": "api/oidc/callback.mjs",
+      "sha1": "5adf50d077712ad7074619fd045ecc60e60663f3"
+    },
+    {
+      "path": "api/oidc/logout.mjs",
+      "sha1": "fa23bf8dfbdfe6cac36239b0935759a5488c5e6f"
+    },
+    {
+      "path": "api/oidc/session.mjs",
+      "sha1": "65096ce39e23693e9caba7311afa861a41166c37"
+    },
+    {
+      "path": "api/oidc/start.mjs",
+      "sha1": "7c6ebd82da85343683591846057366659826007b"
+    },
+    {
+      "path": "api/oidc/status.mjs",
+      "sha1": "f7c61639b044a9a781da15ce9a6cea433f9a8e02"
+    },
+    {
+      "path": "api/source-denied.mjs",
+      "sha1": "41d1f2c3a6fd65fb28c3e21d82dfaeedd7f77709"
+    },
+    {
+      "path": "assemble-release.mjs",
+      "sha1": "6ae5cfc0834314971ee18565a3172cac69ef1595"
+    },
+    {
+      "path": "callback-edge/index.ts",
+      "sha1": "cfb02a1eb73925ff30ab8bc1ce72d9b9008e68e0"
+    },
+    {
+      "path": "customer-public/about-page.css",
+      "sha1": "e1efe3d50e1e197d95ea7788ce47385e155da3cc"
+    },
+    {
+      "path": "customer-public/about.html",
+      "sha1": "55e1b8599a6508b37a04ff416fde297289f38376"
+    },
+    {
+      "path": "customer-public/assets/PretendardVariable-subset.woff2",
+      "sha1": "90586582564157ae70a65a0c95c1e795de08fcfc"
+    },
+    {
+      "path": "customer-public/assets/THEFA_Core_Official_Mark_Dark_web.svg",
+      "sha1": "84ee1ecd04ec43e4ee055a0447b94c356b29bf73"
+    },
+    {
+      "path": "customer-public/assets/THEFA_Core_Primary_Dark_web.svg",
+      "sha1": "3c3a99d3c3208498efc7f02e0fc185d1e0c2a7e7"
+    },
+    {
+      "path": "customer-public/service-assets/fonts/PretendardVariable-subset.woff2",
+      "sha1": "90586582564157ae70a65a0c95c1e795de08fcfc"
+    },
+    {
+      "path": "customer-public/service-assets/brand/core/THEFA_Core_Primary_Dark_web.svg",
+      "sha1": "3c3a99d3c3208498efc7f02e0fc185d1e0c2a7e7"
+    },
+    {
+      "path": "customer-public/service-assets/img/apple-touch-icon.png",
+      "sha1": "a90ad95fe848f430f566795e141784bf9f4d15dd"
+    },
+    {
+      "path": "customer-public/service-assets/mascots/business-320.webp",
+      "sha1": "b3691ae0313c77fe53202b912722cb99b05133e6"
+    },
+    {
+      "path": "customer-public/service-assets/mascots/develop-320.webp",
+      "sha1": "5614661642bc7e9f88a9576547bd772df089b960"
+    },
+    {
+      "path": "customer-public/service-assets/mascots/guard-320.webp",
+      "sha1": "5e7f6bc8c858d5e01c3f2fdb665f99454bce5cf2"
+    },
+    {
+      "path": "customer-public/service-assets/mascots/talk-320.webp",
+      "sha1": "3d1a3e5a68c56c909dfee958d49331250368aa56"
+    },
+    {
+      "path": "customer-public/ava-secondbrain-p0-model.mjs",
+      "sha1": "13a401eabb985acc20a08c00f1515c0c3ee59d5b"
+    },
+    {
+      "path": "customer-public/ava-secondbrain-p0-ui.mjs",
+      "sha1": "e457f7017a6295c952c4b6ea63d11b4de9d6b65f"
+    },
+    {
+      "path": "customer-public/ava-secondbrain-p0.css",
+      "sha1": "3052dd9a9578dff28a6031c76db87752c5c28339"
+    },
+    {
+      "path": "customer-public/ava-world-engine.mjs",
+      "sha1": "5453bfffc85e6cd6feb0f8f938c06fc91b21cc11"
+    },
+    {
+      "path": "customer-public/ava-world-ui.mjs",
+      "sha1": "fe4b6173827f887efaaa6d768111afa66588d960"
+    },
+    {
+      "path": "customer-public/ava-world.css",
+      "sha1": "8c62ca6c8499f62f688599ed4c579f7b210404bd"
+    },
+    {
+      "path": "customer-public/broker-preview/index.html",
+      "sha1": "adc76574b2605ec1439743de6192efbb646ad5b7"
+    },
+    {
+      "path": "customer-public/broker-preview/site.css",
+      "sha1": "7d3e757c64621daf48a9923565818e02221e439f"
+    },
+    {
+      "path": "customer-public/broker-preview/site.js",
+      "sha1": "78d9de315fe3e9c605de818f290a8bb4f090ea1b"
+    },
+    {
+      "path": "customer-public/customer-login.css",
+      "sha1": "998f24e4c2e1c364c2bb068a47ebedd176ff956f"
+    },
+    {
+      "path": "customer-public/customer-login.js",
+      "sha1": "cdf12f251fade440077ecbb86831a79f2640c98b"
+    },
+    {
+      "path": "customer-public/customer-plans.js",
+      "sha1": "6ec64d53a530277f1ea4460586c59a39a98b7498"
+    },
+    {
+      "path": "customer-public/customer-private-routing-r3.css",
+      "sha1": "8a30b1750e97309ae782097a80d859ca57cc3994"
+    },
+    {
+      "path": "customer-public/customer-sidebar-scroll-r4.css",
+      "sha1": "a14db044c79d10c07e64999582b8dbbc930135e3"
+    },
+    {
+      "path": "customer-public/customer-sidebar-scroll-r4.js",
+      "sha1": "c1386f3a5316a9c37ae7fafa2851998469af950e"
+    },
+    {
+      "path": "customer-public/customer-sidebar-workspace-r6.css",
+      "sha1": "0a53780f90d54111b0768359263e94aae3f763e7"
+    },
+    {
+      "path": "customer-public/customer-sidebar-workspace-r6.js",
+      "sha1": "707940dfa1ce2761379a86ffb50b0776880b88a3"
+    },
+    {
+      "path": "customer-public/customer-toolkit-engine.mjs",
+      "sha1": "32f82080c8fd985d9bd4a746da507ecd1caaea3e"
+    },
+    {
+      "path": "customer-public/customer-toolkit-files.mjs",
+      "sha1": "c4787e4463e52c5314d2039469005e5b8dc95148"
+    },
+    {
+      "path": "customer-public/customer-toolkit-ui.mjs",
+      "sha1": "984e2b76e0b4043a57b39af7557dd9e40b0ae908"
+    },
+    {
+      "path": "customer-public/customer-toolkit.css",
+      "sha1": "af3ef529d7cecad5b02d04e9e12f8c0db2e45256"
+    },
+    {
+      "path": "customer-public/customer-uiux-r4.css",
+      "sha1": "2b71c5f1fcc7f9162893cfe4738bdbd203fff225"
+    },
+    {
+      "path": "customer-public/customer-uiux-r4.js",
+      "sha1": "0b10cd092bb9e9e31aba57972fc3f1aa9207c3e4"
+    },
+    {
+      "path": "customer-public/customer-workspace-modes-r7.css",
+      "sha1": "4ceae1715cd225b4a1361266d65f71c60995f82f"
+    },
+    {
+      "path": "customer-public/customer-workspace-modes-r7.js",
+      "sha1": "91215f751766d0d3b1c22cc338a3d25d6f40737a"
+    },
+    {
+      "path": "customer-public/customer-world-embedded-r7.css",
+      "sha1": "eadd1daa052d017afdaf3db1b795f874d09ffc26"
+    },
+    {
+      "path": "customer-public/demo-readonly-r4.js",
+      "sha1": "0c969f4d31b90884c79ca412c7b2f4658a42f6cf"
+    },
+    {
+      "path": "customer-public/guest-live.css",
+      "sha1": "a1cb3fa48e780a4abb93ef4890656b9572aaf63d"
+    },
+    {
+      "path": "customer-public/guest-live.js",
+      "sha1": "49ec8783aaab943adbaf7051b5964ff69b9bc2f8"
+    },
+    {
+      "path": "customer-public/index.html",
+      "sha1": "edb293f3cba471ecb6f0e54c0ca22d41c5d5e338"
+    },
+    {
+      "path": "customer-public/install.html",
+      "sha1": "5e836d21905cc6084d5b45f0a8dd61d88c27b60e"
+    },
+    {
+      "path": "customer-public/login.html",
+      "sha1": "8379cf6c7e8160a9d3072b123fe9c6ca7e35c09e"
+    },
+    {
+      "path": "customer-public/paid-demo.html",
+      "sha1": "5ba949b0c496da41a1f6ec1dbb70bb67ec482ff4"
+    },
+    {
+      "path": "customer-public/paid-presentation.mjs",
+      "sha1": "00a700af15acc7165938bf5f2edf52c35577147f"
+    },
+    {
+      "path": "customer-public/paid-workbench-entry.js",
+      "sha1": "2f9d3f2dde494ecb4eabb5d97deec82e2e7901e0"
+    },
+    {
+      "path": "customer-public/paid-workbench.css",
+      "sha1": "0f0e3583750e24d01e0a8f8f0a1a98ab62f97990"
+    },
+    {
+      "path": "customer-public/paid-workbench.mjs",
+      "sha1": "2f73a8b8acc98d2c6decd86432f7297a20c49916"
+    },
+    {
+      "path": "customer-public/plans.html",
+      "sha1": "f5fb21e8ba46df1d785c3edfbfccb82b4f32cdf8"
+    },
+    {
+      "path": "customer-public/service-cases.js",
+      "sha1": "72373c3c69817ca88cfe7f123996cd2ef5e26a4c"
+    },
+    {
+      "path": "customer-public/service-introduction.css",
+      "sha1": "4bed0684fcfc6be5c37fa1a00f3c1513f46858e6"
+    },
+    {
+      "path": "customer-public/service-site.js",
+      "sha1": "b71c4f8e1391a3256cff099e5329aec44b04fba5"
+    },
+    {
+      "path": "customer-public/signup.html",
+      "sha1": "41eae70f64f93bc41ae5582929f833a3ded4b8fe"
+    },
+    {
+      "path": "customer-public/site-navigation-r4.css",
+      "sha1": "d85babb0a079a4af5c4d0c28bd84f21b52f3d26f"
+    },
+    {
+      "path": "customer-public/site-navigation-r4.js",
+      "sha1": "04eb2658ad10a2c311b5213a67872cc1e684c775"
+    },
+    {
+      "path": "customer-public/studio-entry.css",
+      "sha1": "33509a4d663a780bd23e87d69a0ef481a8ccc528"
+    },
+    {
+      "path": "customer-public/studio.css",
+      "sha1": "1951fa3179275d491032d8c09738d441099c9012"
+    },
+    {
+      "path": "customer-public/studio.html",
+      "sha1": "63fcd21ed3ecdec92e1404a2a8884dd6a72b2153"
+    },
+    {
+      "path": "customer-public/studio.js",
+      "sha1": "6c66f0f7ccee51fa0d122f75327a92e70fc0b9dd"
+    },
+    {
+      "path": "customer-public/unified-layout.css",
+      "sha1": "7f3d568a7ac967b5f1bc7cbf52114d4241c4d355"
+    },
+    {
+      "path": "customer-public/vendor/JSZIP-LICENSE.txt",
+      "sha1": "2cd43d380887fab055c49d5dab12df1995d9ed22"
+    },
+    {
+      "path": "customer-public/vendor/PPTXGENJS-LICENSE.txt",
+      "sha1": "78767f2e8ebaea966d801cffc8246a3277bc756c"
+    },
+    {
+      "path": "customer-public/vendor/jszip.min.js",
+      "sha1": "978d62b5749a47f11f7f88e4d09085a234ece5f0"
+    },
+    {
+      "path": "customer-public/vendor/pptxgen.min.js",
+      "sha1": "24808c08f1b4269600314221d9d4b4bebcf4ecb6"
+    },
+    {
+      "path": "customer-public/world-base-r4.css",
+      "sha1": "a55fdf9e1f592519721b51e0a7426f88d13667a1"
+    },
+    {
+      "path": "customer-public/world-engine-r4.js",
+      "sha1": "492c8cf5ee8767589f1bd732b36a199c786502c0"
+    },
+    {
+      "path": "customer-public/world-layout-r4.css",
+      "sha1": "9a81d02eaaf3d7ef17f2d212d3fd56f3398b8ef2"
+    },
+    {
+      "path": "customer-public/world-original-v2.html",
+      "sha1": "cb5273351103b3bf164acbf536b95440676297f3"
+    },
+    {
+      "path": "public-source/about-page.css",
+      "sha1": "e1efe3d50e1e197d95ea7788ce47385e155da3cc"
+    },
+    {
+      "path": "public-source/assets/PretendardVariable-subset.woff2",
+      "sha1": "90586582564157ae70a65a0c95c1e795de08fcfc"
+    },
+    {
+      "path": "public-source/assets/THEFA_Core_Official_Mark_Dark_web.svg",
+      "sha1": "84ee1ecd04ec43e4ee055a0447b94c356b29bf73"
+    },
+    {
+      "path": "public-source/assets/THEFA_Core_Primary_Dark_web.svg",
+      "sha1": "3c3a99d3c3208498efc7f02e0fc185d1e0c2a7e7"
+    },
+    {
+      "path": "public-source/service-assets/fonts/PretendardVariable-subset.woff2",
+      "sha1": "90586582564157ae70a65a0c95c1e795de08fcfc"
+    },
+    {
+      "path": "public-source/service-assets/brand/core/THEFA_Core_Primary_Dark_web.svg",
+      "sha1": "3c3a99d3c3208498efc7f02e0fc185d1e0c2a7e7"
+    },
+    {
+      "path": "public-source/service-assets/img/apple-touch-icon.png",
+      "sha1": "a90ad95fe848f430f566795e141784bf9f4d15dd"
+    },
+    {
+      "path": "public-source/service-assets/mascots/business-320.webp",
+      "sha1": "b3691ae0313c77fe53202b912722cb99b05133e6"
+    },
+    {
+      "path": "public-source/service-assets/mascots/develop-320.webp",
+      "sha1": "5614661642bc7e9f88a9576547bd772df089b960"
+    },
+    {
+      "path": "public-source/service-assets/mascots/guard-320.webp",
+      "sha1": "5e7f6bc8c858d5e01c3f2fdb665f99454bce5cf2"
+    },
+    {
+      "path": "public-source/service-assets/mascots/talk-320.webp",
+      "sha1": "3d1a3e5a68c56c909dfee958d49331250368aa56"
+    },
+    {
+      "path": "public-source/customer-login.js",
+      "sha1": "cdf12f251fade440077ecbb86831a79f2640c98b"
+    },
+    {
+      "path": "public-source/customer-plans.js",
+      "sha1": "6ec64d53a530277f1ea4460586c59a39a98b7498"
+    },
+    {
+      "path": "public-source/guest-live.css",
+      "sha1": "a1cb3fa48e780a4abb93ef4890656b9572aaf63d"
+    },
+    {
+      "path": "public-source/service-cases.js",
+      "sha1": "72373c3c69817ca88cfe7f123996cd2ef5e26a4c"
+    },
+    {
+      "path": "public-source/service-introduction.css",
+      "sha1": "4bed0684fcfc6be5c37fa1a00f3c1513f46858e6"
+    },
+    {
+      "path": "public-source/service-site.js",
+      "sha1": "b71c4f8e1391a3256cff099e5329aec44b04fba5"
+    },
+    {
+      "path": "public-source/studio.js",
+      "sha1": "6c66f0f7ccee51fa0d122f75327a92e70fc0b9dd"
+    },
+    {
+      "path": "public-source/unified-layout.css",
+      "sha1": "7f3d568a7ac967b5f1bc7cbf52114d4241c4d355"
+    },
+    {
+      "path": "public-source/vendor/JSZIP-LICENSE.txt",
+      "sha1": "2cd43d380887fab055c49d5dab12df1995d9ed22"
+    },
+    {
+      "path": "public-source/vendor/PPTXGENJS-LICENSE.txt",
+      "sha1": "78767f2e8ebaea966d801cffc8246a3277bc756c"
+    },
+    {
+      "path": "public-source/vendor/jszip.min.js",
+      "sha1": "978d62b5749a47f11f7f88e4d09085a234ece5f0"
+    },
+    {
+      "path": "public-source/vendor/pptxgen.min.js",
+      "sha1": "24808c08f1b4269600314221d9d4b4bebcf4ecb6"
+    },
+    {
+      "path": "public-source/about.html",
+      "sha1": "2bd779ca2705d4d765b5572fc9be07ceb95ee6b4"
+    },
+    {
+      "path": "public-source/customer-login.css",
+      "sha1": "2ac80eb6121665eb73421ec524795abe9ed75711"
+    },
+    {
+      "path": "public-source/guest-live.js",
+      "sha1": "9a010570e054bf62b2a4c7a2cc3325ea1b4f19d1"
+    },
+    {
+      "path": "public-source/index.html",
+      "sha1": "ebf8e09d2e18dbd0e9209b6e7b952fbcc925d35e"
+    },
+    {
+      "path": "public-source/install.html",
+      "sha1": "d81e1d568d882ae8a6ce3593fc8e04801ff0aeb9"
+    },
+    {
+      "path": "public-source/login.html",
+      "sha1": "5f41a73de2f0276a3d08645f98dc7054ebde77dc"
+    },
+    {
+      "path": "public-source/plans.html",
+      "sha1": "a89713abc3c25968483b65ae8c4937ce09d56d6b"
+    },
+    {
+      "path": "public-source/signup.html",
+      "sha1": "3868de71b88b6009dc079d0e0771448f7291adbc"
+    },
+    {
+      "path": "public-source/studio-entry.css",
+      "sha1": "4d49943a484c55661fda129840097ba49447894a"
+    },
+    {
+      "path": "public-source/studio.css",
+      "sha1": "aca629278d9fc0770acb59eb45a0cb26bb0cdf0e"
+    },
+    {
+      "path": "public-source/studio.html",
+      "sha1": "82a1f7e082f49faf024251ce691d873e6cd4fd10"
+    },
+    {
+      "path": "deno.json",
+      "sha1": "c977abbc2475270dc64b9dccc6147a1b6d69c833"
+    },
+    {
+      "path": "package-lock.json",
+      "sha1": "153f0e32f96bd1463dd0caa805706610eae7f749"
+    },
+    {
+      "path": "package.json",
+      "sha1": "05e975c0c0f35e714db4f3d9bbac7c04c891b45c"
+    },
+    {
+      "path": "public-files.json",
+      "sha1": "8d90b7ec101a0f5f19544d9abe44f6d4af2ff484"
+    },
+    {
+      "path": "server/bootstrap.mjs",
+      "sha1": "2e1fe6ea282b8dc4aa151b01c4b82862d474ccdd"
+    },
+    {
+      "path": "server/customer-account-lifecycle-v2.mjs",
+      "sha1": "102863fcad61ab4f2eb436368daf979d2f256cdc"
+    },
+    {
+      "path": "server/customer-public-composition-v2.mjs",
+      "sha1": "474324352183936dbb0897967bdaf6c78571e1f4"
+    },
+    {
+      "path": "server/customer-session-verifier-v2.mjs",
+      "sha1": "a3d1b6f8e19a80b4efba85af3504ce9f2782d103"
+    },
+    {
+      "path": "server/email-delivery.mjs",
+      "sha1": "19a91d05fea51aebb5b7d61a0aae1bba7ddca017"
+    },
+    {
+      "path": "server/employee-entitlement.mjs",
+      "sha1": "c29cdc25888e42c095ad16d26909b37663712d0d"
+    },
+    {
+      "path": "server/fresh-launch-accounts.mjs",
+      "sha1": "c181f3378487e7395f02f4ac489f8e3d6a9f45a6"
+    },
+    {
+      "path": "server/google-only-auth.mjs",
+      "sha1": "24e81e488b231e11b85cf880536b98951c061fef"
+    },
+    {
+      "path": "server/inherited/cloud-allowance.mjs",
+      "sha1": "e5a2132872d014c66e8ff9bea4c8575b813eb3fb"
+    },
+    {
+      "path": "server/inherited/customer-account-lifecycle.mjs",
+      "sha1": "ccc1b3820ba6b2c0a2a9a0fa0ef13dcd90f5b75c"
+    },
+    {
+      "path": "server/inherited/customer-account-persistence.mjs",
+      "sha1": "fe997059a575b35f9691d7f62308703ac7942bbb"
+    },
+    {
+      "path": "server/inherited/customer-api-gateway.mjs",
+      "sha1": "8fb2f321d7fe5f5539fa04ec2e6480292db4334a"
+    },
+    {
+      "path": "server/inherited/customer-application.mjs",
+      "sha1": "84a3561baeddc600e8d619b38a075cb5bf7b4ff2"
+    },
+    {
+      "path": "server/inherited/customer-auth-routes.mjs",
+      "sha1": "175106502ca38d1a297e05b4a27bfe6ed210c8ba"
+    },
+    {
+      "path": "server/inherited/customer-chat-api.mjs",
+      "sha1": "1ab5869ee813fb5e916651eb43568086147ed486"
+    },
+    {
+      "path": "server/inherited/customer-chat-domain.mjs",
+      "sha1": "09eac832bae9b35d941ddfeaad347126255ee64e"
+    },
+    {
+      "path": "server/inherited/customer-chat-turn.mjs",
+      "sha1": "ff82349576f5e35dcb12719a57a9a1a28deaaff8"
+    },
+    {
+      "path": "server/inherited/customer-deepseek-provider.mjs",
+      "sha1": "37c5a0642f139188fec1cd087bf535992697f07a"
+    },
+    {
+      "path": "server/inherited/customer-http-adapter.mjs",
+      "sha1": "439bd5b7f0619b8dd07ff146365e118530482329"
+    },
+    {
+      "path": "server/inherited/customer-migration-receipts.mjs",
+      "sha1": "6bff178b07e9e0bb0216553feeb6c59adeb0ae07"
+    },
+    {
+      "path": "server/inherited/customer-node-adapter.mjs",
+      "sha1": "9f8f08db02af6d7ebd24c27da52548fc359d9c7c"
+    },
+    {
+      "path": "server/inherited/customer-origin-policy.mjs",
+      "sha1": "3ccc82bd7e8a780d5d6849b44023d81e0e9fc4eb"
+    },
+    {
+      "path": "server/inherited/customer-runtime-composition.mjs",
+      "sha1": "f2bf396c0cc157dc7b09d077cbb1744e04e6de3f"
+    },
+    {
+      "path": "server/inherited/customer-session-verifier.mjs",
+      "sha1": "d5ecf01a8f1e18ca6e922e108b30618e27a4e4e5"
+    },
+    {
+      "path": "server/inherited/customer-tenant-storage.mjs",
+      "sha1": "a82a1a9ff0b4b87f2deb4dcd1b79f85e88186e7b"
+    },
+    {
+      "path": "server/inherited/daily-ai-budget.mjs",
+      "sha1": "7eb5f66063f60697ccd8cf368229d531557d66e2"
+    },
+    {
+      "path": "server/inherited/free10-budget-admission.mjs",
+      "sha1": "a083467a74ec6f8879fe5f132bfc08ecfe1a624a"
+    },
+    {
+      "path": "server/inherited/model-catalog.mjs",
+      "sha1": "7739dbcc4b419792cc24ca2a16418773bc6741ef"
+    },
+    {
+      "path": "server/inherited/multi-ai-server-gate.mjs",
+      "sha1": "cd16540484718174e5eeb9d6f6801443cde73f97"
+    },
+    {
+      "path": "server/inherited/provider-adapters.mjs",
+      "sha1": "8bce2b21ef1298ce9f793c82536b912b0d773976"
+    },
+    {
+      "path": "server/inherited/server/auth/configuration.mjs",
+      "sha1": "6a1fff26aeecb3386b65cfba4867a3549f1550ff"
+    },
+    {
+      "path": "server/inherited/server/auth/database-ca.mjs",
+      "sha1": "5505ef2f32cafa6aabbea7873a8509d82c7224c1"
+    },
+    {
+      "path": "server/inherited/server/auth/database.mjs",
+      "sha1": "a92e7592f608fa8c9bd26304a6b78ac6aa7be474"
+    },
+    {
+      "path": "server/inherited/server/auth/identity-backend.mjs",
+      "sha1": "11fd6ff6ed288539ff4ea03a0d0c1111fe79b102"
+    },
+    {
+      "path": "server/inherited/server/auth/service.mjs",
+      "sha1": "183d983454bf221f8521ea60e1ecb53225e3fe94"
+    },
+    {
+      "path": "server/inherited/server/customer-public-composition.mjs",
+      "sha1": "05fc7bd98f701ccd70cd9e99fa3329c5d95e4f7c"
+    },
+    {
+      "path": "server/inherited/store.mjs",
+      "sha1": "2d526af1f305813ae2fbcac44f3c0cc6cee05e67"
+    },
+    {
+      "path": "server/managed-email-auth.mjs",
+      "sha1": "36fb7631493a4b3c8c25c39c755b2f64b08ec0a2"
+    },
+    {
+      "path": "server/managed-email-composition.mjs",
+      "sha1": "efdd486ae63a683e31b36d0df8d4da186fdd5640"
+    },
+    {
+      "path": "server/migration-inventory.mjs",
+      "sha1": "4c152f63a1dd8a474a91807ec775a19925c2d7e7"
+    },
+    {
+      "path": "server/migration-package.mjs",
+      "sha1": "b2a8be75fb0a61ce1fac7f87ac0dfa64b72fa31d"
+    },
+    {
+      "path": "server/oidc-preview-fallback.mjs",
+      "sha1": "eee49a44a7175ef9648d086bcb4c12b74cf93845"
+    },
+    {
+      "path": "server/oidc-stage-account.mjs",
+      "sha1": "56fb761fb27ce3c057797d0efd2daf209ca3e4d3"
+    },
+    {
+      "path": "server/oidc-stage-edge-auth.mjs",
+      "sha1": "3f48cc75766845d76952776488aed2ddfac483bf"
+    },
+    {
+      "path": "server/oidc-stage-node.mjs",
+      "sha1": "6a26aa9acd426575832f963a2a10eb19c6c0acbb"
+    },
+    {
+      "path": "server/signup-classifier.mjs",
+      "sha1": "954ebf5461dce138c439bf56a87e63e171eca8bb"
+    },
+    {
+      "path": "server/thefa-oidc-client.mjs",
+      "sha1": "9bc30a97052107f62e907f57545f3f5bd843aa1d"
+    },
+    {
+      "path": "vercel.json",
+      "sha1": "fe1fa70a51b27fa394a4d6bab174ea38076e94ef"
+    }
+  ],
+  "count": 165,
+  "provenance": "Vercel deployment source metadata; local source hashes must match before copying"
+}
