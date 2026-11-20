@@ -80,6 +80,24 @@ async function fixture(t, overrides = {}) {
 const jsonHeaders = { origin: ORIGIN, 'content-type': 'application/json', 'sec-fetch-site': 'same-origin' };
 const sessionHeaders = { ...jsonHeaders, cookie: COOKIE };
 
+test('authenticated home and administrator links open the management dashboard without starting the sandbox', async t => {
+  const { call, calls } = await fixture(t);
+  let dashboard;
+  for (const path of ['/', '/index.html', '/admin', '/admin/']) {
+    const response = await call({ path, headers: sessionHeaders });
+    assert.equal(response.status, 200, path);
+    assert.match(response.text, /운영 대시보드/);
+    assert.match(response.text, /id="logout-button"/);
+    assert.doesNotMatch(response.text, /Functional Console|REAL · SANDBOX|기존 대시보드|goal-form/);
+    if (dashboard) assert.equal(response.text, dashboard);
+    dashboard = response.text;
+  }
+  assert.equal(calls.engine.length, 0);
+  const login = await call({ path: '/login.html' });
+  assert.match(login.text, /관리자 로그인/);
+  assert.doesNotMatch(login.text, /간편가입 준비 중|초대 참가자|Console 열기/);
+});
+
 test('anonymous documents redirect to login; protected API, artifact and app assets deny access', async t => {
   const { call, calls } = await fixture(t);
   for (const path of ['/', '/index.html']) {

@@ -1,0 +1,26 @@
+{
+  "contract": "P02_ADMIN_DASHBOARD_QA_V1",
+  "testsPassed": 38,
+  "testsFailed": 0,
+  "desktopViews": 6,
+  "oneVisibleView": true,
+  "calculatorChangedInputs": {
+    "members": 200,
+    "model": "gpt-6-luna",
+    "profitText": "₩3,022,825",
+    "marginText": "87.5%"
+  },
+  "narrowViewport": {
+    "requestedWidth": 320,
+    "availableWidth": 305,
+    "documentWidth": 305,
+    "horizontalOverflow": false,
+    "menuOpenAndClose": true
+  },
+  "desktopVisualReviewed": true,
+  "mobileScreenshot": "TOOL_TIMEOUT_DOM_AND_INTERACTION_ONLY",
+  "previewData": "SYNTHETIC",
+  "productionWritesDuringQA": 0,
+  "runtimeFiles": 34,
+  "sourceDigest": "b4a998d8a78609adf4d18ae350dafd74b1ffc5fbd66aeaa3cd25147a4ec6ce70"
+}

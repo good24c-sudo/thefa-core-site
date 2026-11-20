@@ -20,8 +20,8 @@ const files={
   '/assets/THEFA_Core_Wordmark_Dark_web.svg':['lab/public/assets/THEFA_Core_Wordmark_Dark_web.svg','image/svg+xml',true],
   '/assets/THEFA_Core_Primary_Dark_web.svg':['lab/public/assets/THEFA_Core_Primary_Dark_web.svg','image/svg+xml',true],
   '/assets/PretendardVariable-subset.woff2':['lab/public/assets/PretendardVariable-subset.woff2','font/woff2',true],
-  '/':['lab/public/index.html','text/html; charset=utf-8',false],
-  '/index.html':['lab/public/index.html','text/html; charset=utf-8',false],
+  '/':['admin/index.html','text/html; charset=utf-8',false],
+  '/index.html':['admin/index.html','text/html; charset=utf-8',false],
   '/styles.css':['lab/public/styles.css','text/css; charset=utf-8',false],
   '/app.js':['lab/public/app.js','application/javascript; charset=utf-8',false]
 };

@@ -1,4 +1,4 @@
-/* Invite-only email authentication. Authorization and session cookies are server-owned. */
+/* Administrator email authentication. Authorization and session cookies are server-owned. */
 (function () {
   'use strict';
   var emailForm = document.getElementById('emailForm');
@@ -28,7 +28,7 @@
     changeButton.disabled = state.busy;
     requestButton.textContent = state.busy && !state.challengeId ? '인증번호 요청 중…' : retry ? '다시 요청까지 ' + retry + '초' : '이메일로 인증번호 받기 →';
     resendButton.textContent = state.busy ? '요청 처리 중…' : retry ? '새 인증번호 요청까지 ' + retry + '초' : '새 인증번호 받기';
-    verifyButton.textContent = state.busy && state.challengeId ? '서버에서 확인 중…' : '인증 후 Console 열기 →';
+    verifyButton.textContent = state.busy && state.challengeId ? '서버에서 확인 중…' : '대시보드 로그인 →';
     if (!codeForm.hidden) retryNotice.textContent = expired ? '번호의 유효시간이 지났습니다. 새 인증번호를 요청해 주세요.' : retry ? '새 번호는 ' + retry + '초 후 요청할 수 있습니다.' : '메일이 도착하지 않았다면 새 번호를 요청해 주세요.';
     if (!retry && (!state.expiresAt || expired) && state.timer) { clearInterval(state.timer); state.timer = null; }
   }
@@ -43,9 +43,9 @@
   }
 
   function failureMessage(status, phase) {
-    if (status === 403) return '이 이메일의 Console 접근 허가 또는 인증을 확인하지 못했습니다. 사전에 허가된 참가자만 참여할 수 있습니다.';
+    if (status === 403) return '이 이메일의 관리자 접근 권한을 확인하지 못했습니다. 등록된 관리자 이메일을 확인해 주세요.';
     if (status === 429) return '요청 또는 인증 시도 한도에 도달했습니다. 안내된 시간이 지난 뒤 다시 요청해 주세요.';
-    if (status === 502) return '메일 전송이 완료되지 않았습니다. 잠시 후 다시 요청하거나 도입 문의로 알려주세요.';
+    if (status === 502) return '메일 전송이 완료되지 않았습니다. 잠시 후 다시 요청하거나 운영 문의로 알려주세요.';
     if (status === 503) return '이메일 인증 서비스를 현재 사용할 수 없습니다. 로그인은 완료되지 않았습니다.';
     if (status === 400) return phase === 'request' ? '이메일 주소를 다시 확인해 주세요.' : '인증번호가 올바르지 않거나 만료되었습니다. 받은 메일을 확인하거나 새 번호를 요청해 주세요.';
     return '인증 응답을 확인하지 못했습니다. 로그인은 완료되지 않았습니다. 잠시 후 다시 시도해 주세요.';
@@ -76,7 +76,7 @@
     email.value = email.value.trim();
     if (!email.value || !email.checkValidity()) {
       email.setAttribute('aria-invalid', 'true');
-      notify('초대받은 이메일 주소를 올바르게 입력해 주세요.', 'error');
+      notify('관리자 이메일 주소를 올바르게 입력해 주세요.', 'error');
       email.focus(); return;
     }
     email.removeAttribute('aria-invalid');
@@ -113,8 +113,8 @@
       var result = await post('/auth/verify-code', { challengeId: state.challengeId, code: code.value.trim() }, 'verify');
       if (result.verified !== true) throw new Error('이메일 인증 완료를 확인하지 못했습니다. 로그인은 완료되지 않았습니다.');
       state.verified = true;
-      notify('이메일 인증이 확인되었습니다. Console로 이동합니다.', 'success');
-      window.location.replace('/');
+      notify('이메일 인증이 확인되었습니다. 관리자 대시보드로 이동합니다.', 'success');
+      window.location.replace('/#overview');
     } catch (error) {
       code.setAttribute('aria-invalid', 'true');
       notify(error instanceof TypeError || ['AbortError', 'TimeoutError'].includes(error.name) ? '인증 결과를 확인하지 못했습니다. 연결을 확인한 뒤 다시 시도해 주세요.' : error.message, 'error');
@@ -133,7 +133,7 @@
   var reason = new URLSearchParams(window.location.search).get('reason');
   if (reason === 'session-expired') {
     var notice = document.getElementById('sessionNotice');
-    notice.textContent = '로그인이 만료되었습니다. 이메일 인증 후 다시 참여해 주세요.';
+    notice.textContent = '로그인이 만료되었습니다. 이메일 인증 후 대시보드에 다시 로그인해 주세요.';
     notice.hidden = false;
   }
   window.addEventListener('pagehide', function () { if (state.timer) clearInterval(state.timer); });

@@ -1,6 +1,6 @@
 {
   "contract": "THEFA_CONSOLE_OPERATIONS_SOURCE_V1",
-  "sourceDigest": "1b2a7e75599ca310fc2d896e631b27c0be532caa3f9afed9af273b089165d8c6",
+  "sourceDigest": "b4a998d8a78609adf4d18ae350dafd74b1ffc5fbd66aeaa3cd25147a4ec6ce70",
   "files": [
     {
       "path": ".vercelignore",
@@ -9,18 +9,18 @@
     },
     {
       "path": "admin/dashboard.css",
-      "sha256": "d110ac686171c94951247053136dad541bdff0b6b9a8899dd602561f881fbfe1",
-      "bytes": 17550
+      "sha256": "f4b2818f36e12423e4f74a354a62fa579337ca98f8babf4b140a1e59c1aa8432",
+      "bytes": 15335
     },
     {
       "path": "admin/dashboard.js",
-      "sha256": "0472b19627ec41917463013dfa164e573e9b2c6c61481e37f4132e4d77070433",
-      "bytes": 7168
+      "sha256": "ff572fb23027cfbbde54d6f707c928f41db650a795af662cb180b41bd84a82bb",
+      "bytes": 11455
     },
     {
       "path": "admin/index.html",
-      "sha256": "eaab3a7369b56710ab5d63b991d076d5ba14e3abd4fb9bdb88c98e9d697b3776",
-      "bytes": 9488
+      "sha256": "132958c72f2b8e23d924dfea24704e2f6a1d87ed0b0fd9a38ef788ed35bad0fb",
+      "bytes": 14732
     },
     {
       "path": "api/console.mjs",
@@ -39,8 +39,8 @@
     },
     {
       "path": "cloud/auth.mjs",
-      "sha256": "96843abdfa3bb4ebd11dfcc0c76b35be95dd2db012e0a8705ad587dde1ae45b4",
-      "bytes": 6957
+      "sha256": "d11ddda7fcc9d72a29f43238a9e25429cdc5a2cda2dfe6b5305dc55b090ce6ba",
+      "bytes": 6999
     },
     {
       "path": "cloud/core-ingress-adapter.mjs",
@@ -64,18 +64,18 @@
     },
     {
       "path": "cloud/login.html",
-      "sha256": "66505549f77228bee4c98547ea276944fecbd474bcd77d10ed44b96eac40b174",
-      "bytes": 5186
+      "sha256": "935d5dcaae3e26274a7ef208ee8978a74f575aec50829f64767f908b5f94eed9",
+      "bytes": 4825
     },
     {
       "path": "cloud/login.js",
-      "sha256": "1020b04be63374d06f41fdd20fabf109b7af60d057d3d3be3ec1674f8c5559aa",
-      "bytes": 8791
+      "sha256": "d4a484ef6fd152cb077cced3859ba6fb6a27d9d8d613d589e40346a64e9865e4",
+      "bytes": 8811
     },
     {
       "path": "cloud/server.mjs",
-      "sha256": "fee8cb9bddf8e5c9e0dacf323d35514d8e5a5839361ed90846db55b1d278bed8",
-      "bytes": 10956
+      "sha256": "d7a0911ff8478aae68ecfd93be7a10a172b812fd043426140617957bd01aabd8",
+      "bytes": 10946
     },
     {
       "path": "cloud/shared/customer-cost-meter.mjs",
@@ -172,5 +172,6 @@
       "sha256": "f74ef56441179e6908e63a85bde56383ac4ba467340256dd844410c4e055a1d5",
       "bytes": 537
     }
-  ]
+  ],
+  "digestMethod": "SHA256_COMPACT_JSON_FILES"
 }
